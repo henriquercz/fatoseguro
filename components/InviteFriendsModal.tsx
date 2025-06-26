@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   Alert,
   Dimensions,
   ScrollView,
+  Platform,
 } from 'react-native';
 import { X, Share2, Copy, Users } from 'lucide-react-native';
 import QRCode from 'react-native-qrcode-svg';
@@ -147,7 +148,10 @@ export default function InviteFriendsModal({ visible, onClose }: InviteFriendsMo
               )}
             </View>
             <Text style={[styles.qrDescription, { color: colors.textSecondary }]}>
-              Seus amigos podem escanear este código para baixar o app
+              {Platform.OS === 'ios' 
+                ? 'Baixe o Expo Go na App Store e escaneie este código com a câmera do iPhone'
+                : 'Baixe o Expo Go na Play Store e escaneie este código dentro do app Expo Go'
+              }
             </Text>
           </View>
 

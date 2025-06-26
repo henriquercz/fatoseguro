@@ -141,11 +141,6 @@ export default function AccountScreen() {
             <Text style={[styles.menuItemText, { color: colors.text }]}>Configurações</Text>
           </TouchableOpacity>
           
-          <TouchableOpacity style={[styles.menuItem, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
-            <HelpCircle size={20} color={colors.textSecondary} />
-            <Text style={[styles.menuItemText, { color: colors.text }]}>Ajuda e Suporte</Text>
-          </TouchableOpacity>
-          
           <TouchableOpacity style={[styles.menuItem, { backgroundColor: colors.surface, borderBottomColor: colors.border }]} onPress={() => setFeedbackModalVisible(true)}>
             <MessageSquare size={20} color={colors.textSecondary} />
             <Text style={[styles.menuItemText, { color: colors.text }]}>Enviar Feedback</Text>

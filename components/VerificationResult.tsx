@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { CircleCheck as CheckCircle, Circle as XCircle, CircleAlert as AlertCircle, ArrowLeft } from 'lucide-react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -12,6 +12,28 @@ interface VerificationResultProps {
 
 export default function VerificationResult({ result, onClose }: VerificationResultProps) {
   const { colors } = useTheme();
+  const [showFullContent, setShowFullContent] = useState(false);
+  
+  // Detectar se é um link (URL) ou texto
+  const isUrl = result.news_url ? true : false;
+  const content = result.news_content || '';
+  const contentLength = content.length;
+  // Só truncar se não tiver título e o conteúdo for longo
+  const shouldTruncate = !result.news_title && contentLength > 150;
+  
+  const displayContent = () => {
+    // Priorizar título se disponível, independente de ser URL ou não
+    if (result.news_title) {
+      return result.news_title;
+    }
+    
+    // Se não tem título, usar o conteúdo
+    if (shouldTruncate && !showFullContent) {
+      return content.substring(0, 150) + '...';
+    }
+    
+    return content;
+  };
   
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -38,7 +60,16 @@ export default function VerificationResult({ result, onClose }: VerificationResu
       <ScrollView style={styles.content}>
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Notícia analisada:</Text>
-          <Text style={[styles.newsContent, { color: colors.text }]}>{result.content}</Text>
+          <Text style={[styles.newsContent, { color: colors.text, fontSize: isUrl ? 16 : 14 }]}>
+            {displayContent()}
+          </Text>
+          {shouldTruncate && (
+            <TouchableOpacity onPress={() => setShowFullContent(!showFullContent)}>
+              <Text style={[styles.readMoreText, { color: colors.primary }]}>
+                {showFullContent ? 'Ler menos' : 'Ler mais'}
+              </Text>
+            </TouchableOpacity>
+          )}
           {result.source && (
             <Text style={[styles.source, { color: colors.textSecondary }]}>Fonte: {result.source}</Text>
           )}
@@ -48,7 +79,7 @@ export default function VerificationResult({ result, onClose }: VerificationResu
 
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Análise:</Text>
-          <Text style={[styles.analysisText, { color: colors.text }]}>{result.explanation}</Text>
+          <Text style={[styles.analysisText, { color: colors.text }]}>{result.verification_summary || result.explanation}</Text>
         </View>
 
         {result.related_facts && result.related_facts.length > 0 && (
@@ -172,5 +203,11 @@ const styles = StyleSheet.create({
   verifiedAtText: {
     fontFamily: 'Inter-Regular',
     fontSize: 12,
+  },
+  readMoreText: {
+    fontFamily: 'Inter-Medium',
+    fontSize: 14,
+    marginTop: 8,
+    textDecorationLine: 'underline',
   },
 });
