@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { CircleCheck as CheckCircle, Circle as XCircle, CircleAlert as AlertCircle, ArrowLeft } from 'lucide-react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { NewsVerification } from '@/types';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface VerificationResultProps {
   result: NewsVerification;
@@ -10,11 +11,13 @@ interface VerificationResultProps {
 }
 
 export default function VerificationResult({ result, onClose }: VerificationResultProps) {
+  const { colors } = useTheme();
+  
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <TouchableOpacity style={styles.backButton} onPress={onClose}>
-        <ArrowLeft size={24} color="#2563EB" />
-        <Text style={styles.backText}>Nova verificação</Text>
+        <ArrowLeft size={24} color={colors.primary} />
+        <Text style={[styles.backText, { color: colors.primary }]}>Nova verificação</Text>
       </TouchableOpacity>
 
       <View 
@@ -34,29 +37,29 @@ export default function VerificationResult({ result, onClose }: VerificationResu
 
       <ScrollView style={styles.content}>
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Notícia analisada:</Text>
-          <Text style={styles.newsContent}>{result.news}</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Notícia analisada:</Text>
+          <Text style={[styles.newsContent, { color: colors.text }]}>{result.content}</Text>
           {result.source && (
-            <Text style={styles.source}>Fonte: {result.source}</Text>
+            <Text style={[styles.source, { color: colors.textSecondary }]}>Fonte: {result.source}</Text>
           )}
         </View>
 
-        <View style={styles.divider} />
+        <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Análise:</Text>
-          <Text style={styles.analysisText}>{result.explanation}</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Análise:</Text>
+          <Text style={[styles.analysisText, { color: colors.text }]}>{result.explanation}</Text>
         </View>
 
-        {result.relatedFacts && result.relatedFacts.length > 0 && (
+        {result.related_facts && result.related_facts.length > 0 && (
           <>
-            <View style={styles.divider} />
+            <View style={[styles.divider, { backgroundColor: colors.border }]} />
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Fatos relacionados:</Text>
-              {result.relatedFacts.map((fact, index) => (
-                <View key={index} style={styles.factItem}>
-                  <AlertCircle size={16} color="#6B7280" />
-                  <Text style={styles.factText}>{fact}</Text>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>Fatos relacionados:</Text>
+              {result.related_facts.map((fact: string, index: number) => (
+                <View key={index} style={[styles.factItem, { backgroundColor: colors.surface }]}>
+                  <AlertCircle size={16} color={colors.textSecondary} />
+                  <Text style={[styles.factText, { color: colors.text }]}>{fact}</Text>
                 </View>
               ))}
             </View>
@@ -64,8 +67,8 @@ export default function VerificationResult({ result, onClose }: VerificationResu
         )}
 
         <View style={styles.verifiedAt}>
-          <Text style={styles.verifiedAtText}>
-            Verificado em: {new Date(result.verifiedAt).toLocaleDateString('pt-BR', {
+          <Text style={[styles.verifiedAtText, { color: colors.textSecondary }]}>
+            Verificado em: {new Date(result.verified_at).toLocaleDateString('pt-BR', {
               day: '2-digit',
               month: '2-digit',
               year: 'numeric',
@@ -82,7 +85,6 @@ export default function VerificationResult({ result, onClose }: VerificationResu
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
   },
   backButton: {
     flexDirection: 'row',
@@ -93,7 +95,6 @@ const styles = StyleSheet.create({
   backText: {
     marginLeft: 8,
     fontFamily: 'Inter-Medium',
-    color: '#2563EB',
     fontSize: 16,
   },
   statusBanner: {
@@ -127,31 +128,26 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontFamily: 'Inter-SemiBold',
     fontSize: 16,
-    color: '#111827',
     marginBottom: 8,
   },
   newsContent: {
     fontFamily: 'Inter-Regular',
     fontSize: 16,
-    color: '#1F2937',
     lineHeight: 24,
   },
   source: {
     fontFamily: 'Inter-Regular',
     fontSize: 14,
-    color: '#6B7280',
     marginTop: 8,
     fontStyle: 'italic',
   },
   divider: {
     height: 1,
-    backgroundColor: '#E5E7EB',
     marginVertical: 16,
   },
   analysisText: {
     fontFamily: 'Inter-Regular',
     fontSize: 16,
-    color: '#1F2937',
     lineHeight: 24,
   },
   factItem: {
@@ -160,13 +156,11 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     paddingVertical: 8,
     paddingHorizontal: 12,
-    backgroundColor: '#F3F4F6',
     borderRadius: 8,
   },
   factText: {
     fontFamily: 'Inter-Regular',
     fontSize: 14,
-    color: '#1F2937',
     marginLeft: 8,
     flex: 1,
   },
@@ -178,6 +172,5 @@ const styles = StyleSheet.create({
   verifiedAtText: {
     fontFamily: 'Inter-Regular',
     fontSize: 12,
-    color: '#6B7280',
   },
 });

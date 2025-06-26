@@ -4,6 +4,7 @@ import NewsItem from '@/components/NewsItem';
 import { useVerification } from '@/hooks/useVerification';
 import VerificationResult from '@/components/VerificationResult';
 import { NewsVerification } from '@/types';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function HistoryScreen() {
   const { 
@@ -15,6 +16,7 @@ export default function HistoryScreen() {
     clearCurrentVerification, 
     setViewingVerification 
   } = useVerification();
+  const { colors } = useTheme();
 
   useEffect(() => {
     loadHistory();
@@ -32,20 +34,20 @@ export default function HistoryScreen() {
 
   if (loading && safeVerifications.length === 0) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#2563EB" />
-        <Text style={styles.loadingText}>Carregando histórico...</Text>
+      <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Carregando histórico...</Text>
       </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       {!currentVerification ? (
         <>
           <View style={styles.header}>
             {/* <Text style={styles.headerText}>Verificações Recentes</Text> -- Título principal já vem do _layout.tsx */}
-            <Text style={styles.headerSubtext}>
+            <Text style={[styles.headerSubtext, { color: colors.textSecondary }]}>
               Confira as notícias verificadas pela comunidade
             </Text>
           </View>
@@ -59,7 +61,7 @@ export default function HistoryScreen() {
             contentContainerStyle={styles.listContent}
             ListEmptyComponent={
               <View style={styles.emptyContainer}>
-                <Text style={styles.emptyText}>
+                <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
                   Nenhuma notícia verificada ainda.
                 </Text>
               </View>
@@ -79,26 +81,22 @@ export default function HistoryScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    // backgroundColor aplicada via tema
   },
   header: {
     paddingHorizontal: 16,
     paddingTop: 16, 
-    paddingBottom: 8, // Reduzido para melhor fluxo com a lista
-    // backgroundColor: '#FFFFFF', // Removido
-    // borderBottomWidth: 1, // Removido
-    // borderBottomColor: '#E5E7EB', // Removido
+    paddingBottom: 8,
   },
   headerText: {
     fontFamily: 'Inter-Bold',
     fontSize: 18,
-    color: '#111827',
-    // marginBottom: 4, // Estilo não mais usado diretamente aqui
+    // color aplicada via tema
   },
   headerSubtext: {
     fontFamily: 'Inter-Regular',
     fontSize: 14,
-    color: '#6B7280',
+    // color aplicada via tema
   },
   listContent: {
     padding: 16,
@@ -110,19 +108,19 @@ const styles = StyleSheet.create({
   emptyText: {
     fontFamily: 'Inter-Regular',
     fontSize: 16,
-    color: '#6B7280',
     textAlign: 'center',
+    // color aplicada via tema
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F9FAFB',
+    // backgroundColor aplicada via tema
   },
   loadingText: {
     fontFamily: 'Inter-Medium',
     fontSize: 16,
-    color: '#6B7280',
     marginTop: 16,
+    // color aplicada via tema
   },
 });

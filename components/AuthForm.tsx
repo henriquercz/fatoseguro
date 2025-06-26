@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 
 type FormMode = 'login' | 'register';
 
@@ -23,6 +24,7 @@ export default function AuthForm() {
   const [showPassword, setShowPassword] = useState(false);
   
   const { login, register, loading, error } = useAuth();
+  const { colors } = useTheme();
 
   const toggleMode = () => {
     setMode(prev => (prev === 'login' ? 'register' : 'login'));
@@ -63,66 +65,68 @@ export default function AuthForm() {
       style={{ flex: 1 }}
     >
       <ScrollView contentContainerStyle={styles.container}>
-        <View style={styles.formContainer}>
-          <Text style={styles.title}>
+        <View style={[styles.formContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[styles.title, { color: colors.text }]}>
             {mode === 'login' ? 'Entrar' : 'Criar Conta'}
           </Text>
           
-          <Text style={styles.subtitle}>
+          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
             {mode === 'login'
               ? 'Acesse sua conta para continuar'
               : 'Crie uma conta para começar'}
           </Text>
 
           {error ? (
-            <View style={styles.errorContainer}>
-              <Text style={styles.errorText}>{error}</Text>
+            <View style={[styles.errorContainer, { backgroundColor: colors.surface, borderColor: colors.error || '#EF4444' }]}>
+              <Text style={[styles.errorText, { color: colors.error || '#EF4444' }]}>{error}</Text>
             </View>
           ) : null}
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>E-mail</Text>
-            <View style={styles.inputContainer}>
-              <Mail size={20} color="#6B7280" style={styles.inputIcon} />
+            <Text style={[styles.label, { color: colors.text }]}>E-mail</Text>
+            <View style={[styles.inputContainer, { borderColor: colors.border, backgroundColor: colors.background }]}>
+              <Mail size={20} color={colors.textSecondary} style={styles.inputIcon} />
               <TextInput
-                style={styles.input}
+                style={[styles.input, { color: colors.text }]}
                 value={email}
                 onChangeText={setEmail}
                 placeholder="seu@email.com"
+                placeholderTextColor={colors.textSecondary}
                 keyboardType="email-address"
                 autoCapitalize="none"
               />
             </View>
             {email && !isEmailValid(email) && (
-              <Text style={styles.validationError}>
+              <Text style={[styles.validationError, { color: colors.error || '#EF4444' }]}>
                 Digite um e-mail válido
               </Text>
             )}
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Senha</Text>
-            <View style={styles.inputContainer}>
-              <Lock size={20} color="#6B7280" style={styles.inputIcon} />
+            <Text style={[styles.label, { color: colors.text }]}>Senha</Text>
+            <View style={[styles.inputContainer, { borderColor: colors.border, backgroundColor: colors.background }]}>
+              <Lock size={20} color={colors.textSecondary} style={styles.inputIcon} />
               <TextInput
-                style={styles.input}
+                style={[styles.input, { color: colors.text }]}
                 value={password}
                 onChangeText={setPassword}
                 placeholder={mode === 'login' ? 'Sua senha' : 'Mínimo 6 caracteres'}
+                placeholderTextColor={colors.textSecondary}
                 secureTextEntry={!showPassword}
               />
               <TouchableOpacity
                 style={styles.passwordToggle}
                 onPress={() => setShowPassword(!showPassword)}>
                 {showPassword ? (
-                  <EyeOff size={20} color="#6B7280" />
+                  <EyeOff size={20} color={colors.textSecondary} />
                 ) : (
-                  <Eye size={20} color="#6B7280" />
+                  <Eye size={20} color={colors.textSecondary} />
                 )}
               </TouchableOpacity>
             </View>
             {password && !isPasswordValid(password) && (
-              <Text style={styles.validationError}>
+              <Text style={[styles.validationError, { color: colors.error || '#EF4444' }]}>
                 A senha precisa ter pelo menos 6 caracteres
               </Text>
             )}
@@ -130,19 +134,20 @@ export default function AuthForm() {
 
           {mode === 'register' && (
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Confirmar Senha</Text>
-              <View style={styles.inputContainer}>
-                <Lock size={20} color="#6B7280" style={styles.inputIcon} />
+              <Text style={[styles.label, { color: colors.text }]}>Confirmar Senha</Text>
+              <View style={[styles.inputContainer, { borderColor: colors.border, backgroundColor: colors.background }]}>
+                <Lock size={20} color={colors.textSecondary} style={styles.inputIcon} />
                 <TextInput
-                  style={styles.input}
+                  style={[styles.input, { color: colors.text }]}
                   value={confirmPassword}
                   onChangeText={setConfirmPassword}
                   placeholder="Confirme sua senha"
+                  placeholderTextColor={colors.textSecondary}
                   secureTextEntry={!showPassword}
                 />
               </View>
               {confirmPassword && confirmPassword !== password && (
-                <Text style={styles.validationError}>
+                <Text style={[styles.validationError, { color: colors.error || '#EF4444' }]}>
                   As senhas não coincidem
                 </Text>
               )}
@@ -150,11 +155,11 @@ export default function AuthForm() {
           )}
 
           <TouchableOpacity
-            style={[styles.submitButton, !canSubmit && styles.disabledButton]}
+            style={[styles.submitButton, { backgroundColor: colors.primary }, !canSubmit && { backgroundColor: colors.textSecondary }]}
             onPress={handleSubmit}
             disabled={!canSubmit || loading}>
             {loading ? (
-              <ActivityIndicator color="#FFFFFF\" size="small" />
+              <ActivityIndicator color="#FFFFFF" size="small" />
             ) : (
               <Text style={styles.submitButtonText}>
                 {mode === 'login' ? 'Entrar' : 'Criar Conta'}
@@ -163,13 +168,13 @@ export default function AuthForm() {
           </TouchableOpacity>
 
           <View style={styles.switchModeContainer}>
-            <Text style={styles.switchModeText}>
+            <Text style={[styles.switchModeText, { color: colors.textSecondary }]}>
               {mode === 'login'
                 ? 'Ainda não tem uma conta?'
                 : 'Já tem uma conta?'}
             </Text>
             <TouchableOpacity onPress={toggleMode}>
-              <Text style={styles.switchModeButton}>
+              <Text style={[styles.switchModeButton, { color: colors.primary }]}>
                 {mode === 'login' ? 'Criar Conta' : 'Entrar'}
               </Text>
             </TouchableOpacity>
@@ -187,7 +192,6 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   formContainer: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 24,
     shadowColor: '#000',
@@ -195,17 +199,16 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+    borderWidth: 1,
   },
   title: {
     fontFamily: 'Inter-Bold',
     fontSize: 24,
-    color: '#111827',
     marginBottom: 8,
   },
   subtitle: {
     fontFamily: 'Inter-Regular',
     fontSize: 16,
-    color: '#6B7280',
     marginBottom: 24,
   },
   inputGroup: {
@@ -214,16 +217,13 @@ const styles = StyleSheet.create({
   label: {
     fontFamily: 'Inter-Medium',
     fontSize: 14,
-    color: '#374151',
     marginBottom: 6,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#D1D5DB',
     borderRadius: 8,
-    backgroundColor: '#F9FAFB',
   },
   input: {
     flex: 1,
@@ -231,7 +231,6 @@ const styles = StyleSheet.create({
     paddingRight: 12,
     fontSize: 16,
     fontFamily: 'Inter-Regular',
-    color: '#1F2937',
   },
   inputIcon: {
     marginHorizontal: 12,
@@ -242,18 +241,13 @@ const styles = StyleSheet.create({
   validationError: {
     fontFamily: 'Inter-Regular',
     fontSize: 12,
-    color: '#EF4444',
     marginTop: 4,
   },
   submitButton: {
-    backgroundColor: '#2563EB',
     borderRadius: 8,
     paddingVertical: 14,
     alignItems: 'center',
     marginTop: 8,
-  },
-  disabledButton: {
-    backgroundColor: '#93C5FD',
   },
   submitButtonText: {
     color: '#FFFFFF',
@@ -268,23 +262,20 @@ const styles = StyleSheet.create({
   switchModeText: {
     fontFamily: 'Inter-Regular',
     fontSize: 14,
-    color: '#6B7280',
   },
   switchModeButton: {
     fontFamily: 'Inter-SemiBold',
     fontSize: 14,
-    color: '#2563EB',
     marginLeft: 4,
   },
   errorContainer: {
-    backgroundColor: '#FEE2E2',
     borderRadius: 8,
     padding: 12,
     marginBottom: 16,
+    borderWidth: 1,
   },
   errorText: {
     fontFamily: 'Inter-Medium',
     fontSize: 14,
-    color: '#B91C1C',
   },
 });

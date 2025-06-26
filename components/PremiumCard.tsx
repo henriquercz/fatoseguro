@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { CircleCheck as CheckCircle2 } from 'lucide-react-native';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface PremiumFeature {
   text: string;
@@ -23,28 +24,30 @@ export default function PremiumCard({
   highlighted = false,
   onPress,
 }: PremiumCardProps) {
+  const { colors } = useTheme();
   return (
     <View
       style={[
         styles.container,
-        highlighted && styles.highlightedContainer,
+        { backgroundColor: colors.surface },
+        highlighted && [styles.highlightedContainer, { borderColor: colors.primary }],
       ]}>
-      {highlighted && <View style={styles.highlightBadge}><Text style={styles.highlightText}>Recomendado</Text></View>}
+      {highlighted && <View style={[styles.highlightBadge, { backgroundColor: colors.primary }]}><Text style={styles.highlightText}>Recomendado</Text></View>}
       
       <View style={styles.header}>
-        <Text style={styles.title}>{title}</Text>
+        <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
         <View style={styles.priceContainer}>
-          <Text style={styles.currencySymbol}>R$</Text>
-          <Text style={styles.price}>{price}</Text>
+          <Text style={[styles.currencySymbol, { color: colors.text }]}>R$</Text>
+          <Text style={[styles.price, { color: colors.text }]}>{price}</Text>
         </View>
-        <Text style={styles.period}>{period}</Text>
+        <Text style={[styles.period, { color: colors.textSecondary }]}>{period}</Text>
       </View>
       
       <View style={styles.featuresContainer}>
         {features.map((feature, index) => (
           <View key={index} style={styles.featureRow}>
-            <CheckCircle2 size={18} color="#22C55E" />
-            <Text style={styles.featureText}>{feature.text}</Text>
+            <CheckCircle2 size={18} color={colors.success || "#22C55E"} />
+            <Text style={[styles.featureText, { color: colors.text }]}>{feature.text}</Text>
           </View>
         ))}
       </View>
@@ -52,13 +55,13 @@ export default function PremiumCard({
       <TouchableOpacity
         style={[
           styles.button,
-          highlighted ? styles.highlightedButton : styles.normalButton,
+          highlighted ? [styles.highlightedButton, { backgroundColor: colors.primary }] : [styles.normalButton, { backgroundColor: colors.background, borderColor: colors.border }],
         ]}
         onPress={onPress}>
         <Text
           style={[
             styles.buttonText,
-            highlighted ? styles.highlightedButtonText : styles.normalButtonText,
+            highlighted ? styles.highlightedButtonText : [styles.normalButtonText, { color: colors.text }],
           ]}>
           Assinar Agora
         </Text>
@@ -69,7 +72,6 @@ export default function PremiumCard({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 24,
     marginBottom: 20,
@@ -82,7 +84,6 @@ const styles = StyleSheet.create({
   },
   highlightedContainer: {
     borderWidth: 2,
-    borderColor: '#2563EB',
     transform: [{ scale: 1.03 }],
     shadowOpacity: 0.15,
     shadowRadius: 8,
@@ -93,7 +94,6 @@ const styles = StyleSheet.create({
     top: -12,
     left: '50%',
     transform: [{ translateX: -65 }],
-    backgroundColor: '#2563EB',
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 16,
@@ -110,7 +110,6 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: 'Inter-SemiBold',
     fontSize: 20,
-    color: '#111827',
     marginBottom: 8,
   },
   priceContainer: {
@@ -120,18 +119,15 @@ const styles = StyleSheet.create({
   currencySymbol: {
     fontFamily: 'Inter-Bold',
     fontSize: 16,
-    color: '#111827',
     marginTop: 4,
   },
   price: {
     fontFamily: 'Inter-Bold',
     fontSize: 36,
-    color: '#111827',
   },
   period: {
     fontFamily: 'Inter-Regular',
     fontSize: 14,
-    color: '#6B7280',
   },
   featuresContainer: {
     marginBottom: 24,
@@ -144,7 +140,6 @@ const styles = StyleSheet.create({
   featureText: {
     fontFamily: 'Inter-Regular',
     fontSize: 15,
-    color: '#1F2937',
     marginLeft: 10,
   },
   button: {
@@ -153,19 +148,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   normalButton: {
-    backgroundColor: '#F3F4F6',
     borderWidth: 1,
-    borderColor: '#D1D5DB',
   },
   highlightedButton: {
-    backgroundColor: '#2563EB',
   },
   buttonText: {
     fontFamily: 'Inter-SemiBold',
     fontSize: 16,
   },
   normalButtonText: {
-    color: '#111827',
   },
   highlightedButtonText: {
     color: '#FFFFFF',

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Platform, Image, ActivityIndicator, View, Text, StyleSheet, SafeAreaView } from 'react-native';
 import { Tabs } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -8,6 +8,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { ShieldCheck, History, User as UserIconLucide } from 'lucide-react-native';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { VerificationProvider } from '@/contexts/VerificationContext';
+import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 import AuthForm from '@/components/AuthForm';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import {
@@ -24,6 +25,7 @@ SplashScreen.preventAutoHideAsync().catch(() => {
 
 function RootLayoutNav() {
   const { user, loading: authLoading } = useAuth(); // Corrigido: isLoading para loading
+  const { colors } = useTheme();
   const [fontsLoaded] = useFonts({
     'Inter-Regular': Inter_400Regular,
     'Inter-Medium': Inter_500Medium,
@@ -49,8 +51,8 @@ function RootLayoutNav() {
 
   if (!fontsLoaded || authLoading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F9FAFB' }}>
-        <ActivityIndicator size="large" color="#2563EB" />
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}>
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -58,14 +60,14 @@ function RootLayoutNav() {
   if (!user) {
     // Tela de Autenticação para usuários não logados
     return (
-      <SafeAreaView style={styles.authContainer}>
+      <SafeAreaView style={[styles.authContainer, { backgroundColor: colors.background }]}>
         <View style={styles.authHeader}>
           <Image
             source={require('../assets/images/icon.png')} // Caminho relativo de _layout.tsx para assets
             style={styles.authLogo}
             resizeMode="contain"
           />
-          <Text style={styles.authText}>
+          <Text style={[styles.authText, { color: colors.textSecondary }]}>
             Entre ou crie uma conta para verificar notícias e acessar seu histórico.
           </Text>
         </View>
@@ -79,36 +81,30 @@ function RootLayoutNav() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#2563EB',
-        tabBarInactiveTintColor: '#6B7280',
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textSecondary,
         tabBarStyle: {
+          backgroundColor: colors.surface,
+          borderTopColor: colors.border,
           borderTopWidth: 1,
-          borderTopColor: '#E5E7EB',
           height: 60,
-          paddingBottom: 10,
+          paddingBottom: 8,
+          paddingTop: 8,
         },
-        tabBarLabelStyle: {
-          fontFamily: 'Inter-Medium',
-          fontSize: 12,
+        headerShown: true,
+        headerStyle: {
+          backgroundColor: colors.surface,
         },
+        headerTintColor: colors.text,
         headerTitleStyle: {
-          fontFamily: 'Inter-SemiBold',
-          fontSize: 18,
+          color: colors.text,
         },
-        headerTitleAlign: 'center',
       }}>
       <Tabs.Screen
         name="index"
         options={{
           title: 'Verificar',
-          headerTitle: () => (
-            <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-              <Image
-                source={require('../assets/images/icon.png')}
-                style={{ width: 30, height: 30, resizeMode: 'contain' }}
-              />
-            </View>
-          ),
+          headerTitle: 'Verificar',
           tabBarIcon: ({ color, size }) => (
             <ShieldCheck size={size} color={color} />
           ),
@@ -155,13 +151,15 @@ export default function AppLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <AuthProvider>
-        <VerificationProvider>
-          <RootLayoutNav />
-          {/* A StatusBar foi movida de RootLayoutNav para cá para evitar duplicação e centralizar */}
-          <StatusBar style="auto" /> 
-        </VerificationProvider>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <VerificationProvider>
+            <RootLayoutNav />
+            {/* A StatusBar foi movida de RootLayoutNav para cá para evitar duplicação e centralizar */}
+            <StatusBar style="auto" /> 
+          </VerificationProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </GestureHandlerRootView>
   );
 }
@@ -170,24 +168,24 @@ export default function AppLayout() {
 const styles = StyleSheet.create({
   authContainer: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
     justifyContent: 'center',
     padding: 20,
+    // backgroundColor aplicada via tema
   },
   authHeader: {
     alignItems: 'center',
     marginBottom: 32,
   },
   authLogo: {
-    width: 120, // Ajuste o tamanho conforme necessário
-    height: 120, // Ajuste o tamanho conforme necessário
+    width: 120,
+    height: 120,
     marginBottom: 24,
   },
   authText: {
     fontFamily: 'Inter-Regular',
     fontSize: 16,
-    color: '#4B5563',
     textAlign: 'center',
     paddingHorizontal: 20,
+    // color aplicada via tema
   },
 });

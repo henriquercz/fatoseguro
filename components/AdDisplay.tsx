@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { X } from 'lucide-react-native';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface AdDisplayProps {
   onClose: () => void;
@@ -8,6 +9,7 @@ interface AdDisplayProps {
 
 export default function AdDisplay({ onClose }: AdDisplayProps) {
   const [countdown, setCountdown] = useState(5);
+  const { colors } = useTheme();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -25,31 +27,31 @@ export default function AdDisplay({ onClose }: AdDisplayProps) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.adContainer}>
-        <View style={styles.adHeader}>
-          <Text style={styles.adLabel}>ANÚNCIO</Text>
+      <View style={[styles.adContainer, { backgroundColor: colors.surface }]}>
+        <View style={[styles.adHeader, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
+          <Text style={[styles.adLabel, { color: colors.textSecondary }]}>ANÚNCIO</Text>
           {countdown === 0 ? (
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <X size={18} color="#6B7280" />
+              <X size={18} color={colors.textSecondary} />
             </TouchableOpacity>
           ) : (
-            <View style={styles.countdownContainer}>
+            <View style={[styles.countdownContainer, { backgroundColor: colors.textSecondary }]}>
               <Text style={styles.countdownText}>{countdown}</Text>
             </View>
           )}
         </View>
         
         <View style={styles.adContent}>
-          <View style={styles.adPlaceholder}>
-            <Text style={styles.adPlaceholderText}>Anúncio</Text>
+          <View style={[styles.adPlaceholder, { backgroundColor: colors.background }]}>
+            <Text style={[styles.adPlaceholderText, { color: colors.textSecondary }]}>Anúncio</Text>
           </View>
           
-          <Text style={styles.adMessage}>
+          <Text style={[styles.adMessage, { color: colors.text }]}>
             Adquira o plano premium para remover anúncios e ter verificações ilimitadas!
           </Text>
           
           {countdown === 0 && (
-            <TouchableOpacity style={styles.closeAdButton} onPress={onClose}>
+            <TouchableOpacity style={[styles.closeAdButton, { backgroundColor: colors.primary }]} onPress={onClose}>
               <Text style={styles.closeAdButtonText}>Continuar para o resultado</Text>
             </TouchableOpacity>
           )}
@@ -72,7 +74,6 @@ const styles = StyleSheet.create({
     zIndex: 1000,
   },
   adContainer: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     width: '85%',
     maxWidth: 400,
@@ -82,6 +83,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 5,
+    // backgroundColor aplicada via tema
   },
   adHeader: {
     flexDirection: 'row',
@@ -89,14 +91,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: '#F3F4F6',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    // backgroundColor e borderBottomColor aplicadas via tema
   },
   adLabel: {
     fontFamily: 'Inter-Medium',
     fontSize: 12,
-    color: '#6B7280',
+    // color aplicada via tema
   },
   closeButton: {
     padding: 4,
@@ -105,9 +106,9 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: '#6B7280',
     justifyContent: 'center',
     alignItems: 'center',
+    // backgroundColor aplicada via tema
   },
   countdownText: {
     color: '#FFFFFF',
@@ -121,31 +122,31 @@ const styles = StyleSheet.create({
   adPlaceholder: {
     width: '100%',
     height: 200,
-    backgroundColor: '#F3F4F6',
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 8,
     marginBottom: 16,
+    // backgroundColor aplicada via tema
   },
   adPlaceholderText: {
     fontFamily: 'Inter-Medium',
     fontSize: 16,
-    color: '#9CA3AF',
+    // color aplicada via tema
   },
   adMessage: {
     fontFamily: 'Inter-Regular',
     fontSize: 14,
-    color: '#4B5563',
     textAlign: 'center',
     marginBottom: 16,
+    // color aplicada via tema
   },
   closeAdButton: {
-    backgroundColor: '#2563EB',
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 8,
     width: '100%',
     alignItems: 'center',
+    // backgroundColor aplicada via tema
   },
   closeAdButtonText: {
     fontFamily: 'Inter-Medium',
