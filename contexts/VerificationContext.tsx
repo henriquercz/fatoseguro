@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '@/lib/supabase'; // Import Supabase client
 import { useAuth } from '@/contexts/AuthContext'; // Import useAuth hook
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
+import { braveSearchService } from '@/lib/braveSearch';
 
 const MAX_FREE_VERIFICATIONS = 3;
 
@@ -208,35 +209,59 @@ export const VerificationProvider = ({ children }: { children: ReactNode }) => {
         error_message: 'API Key da Gemini não configurada. Verifique o arquivo .env'
       };
     }
+
+    // 🔍 NOVA FUNCIONALIDADE: Busca contexto web com Brave Search
+    console.log('🚀 Iniciando busca de contexto web...');
+    const webContext = await braveSearchService.getEnrichedContext(newsTextOrUrl);
+    console.log('📊 Contexto web obtido:', webContext ? 'Sucesso' : 'Nenhum contexto encontrado');
+
     const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({
       model: 'gemini-1.5-flash',
       safetySettings: [
-        { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
-        { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
-        { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
-        { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
+        { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+        { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
+        { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
+        { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
       ],
     });
 
     const inputText = type === 'link' ? `Analise o conteúdo principal do seguinte link: ${newsTextOrUrl}` : newsTextOrUrl;
+    
+    // 🧠 PROMPT APRIMORADO: Inclui contexto web atual para análise mais precisa
     const prompt = `
-      Você é um assistente de verificação de fatos altamente preciso e imparcial.
-      Analise a seguinte notícia ou conteúdo de um link:
-      Notícia: "${inputText}"
+      Você é um assistente de verificação de fatos altamente preciso e imparcial especializado em análise de notícias com contexto web atual.
+      
+      NOTÍCIA PARA ANÁLISE:
+      "${inputText}"
+      ${webContext}
+      
+      INSTRUÇÕES DE ANÁLISE:
+      - Use o contexto web fornecido acima para verificar a veracidade da notícia
+      - Compare as informações da notícia com as fontes web atuais encontradas
+      - Se houver contradições entre a notícia e as fontes web, priorize as fontes mais confiáveis e recentes
+      - Considere a data de publicação das fontes web para avaliar a atualidade das informações
+      
       Por favor, forneça sua análise estritamente no seguinte formato JSON. Não adicione nenhum texto explicativo antes ou depois do JSON:
       {
         "verification_status": "VERDADEIRO | FALSO | INDETERMINADO",
-        "verification_summary": "Uma explicação concisa e neutra da sua análise, baseada nos fatos encontrados. Limite a 2-3 frases.",
-        "related_facts": ["Fato relevante 1 encontrado", "Fato relevante 2 (se houver)"],
-        "confidence_score": "ALTA | MÉDIA | BAIXA (sua confiança na verificação)"
+        "verification_summary": "Uma explicação concisa e neutra da sua análise, baseada nos fatos encontrados e no contexto web atual. Limite a 2-3 frases. Mencione se usou fontes web para a verificação.",
+        "related_facts": ["Fato relevante 1 encontrado nas fontes web", "Fato relevante 2 (se houver)", "Contradições encontradas (se houver)"],
+        "confidence_score": "ALTA | MÉDIA | BAIXA (sua confiança na verificação baseada no contexto disponível)",
+        "sources_used": ${webContext ? 'true' : 'false'}
       }
-      Instruções importantes:
-      - Se a notícia for um link e você não conseguir acessá-lo diretamente, defina verification_status como "INDETERMINADO" e explique no verification_summary que o conteúdo do link não pôde ser acessado.
-      - Se a notícia for muito vaga, subjetiva, uma opinião clara sem fatos verificáveis, ou se não houver informações suficientes para uma análise conclusiva, defina verification_status como "INDETERMINADO".
-      - Baseie sua análise em informações factuais e verificáveis. Evite opiniões pessoais.
-      - Se encontrar fatos diretamente contraditórios, liste-os em related_facts.
-      - O campo "confidence_score" deve refletir quão seguro você está da sua "verification_status".
+      
+      CRITÉRIOS DE VERIFICAÇÃO:
+      - VERDADEIRO: A notícia é confirmada por múltiplas fontes confiáveis no contexto web
+      - FALSO: A notícia é contradita por fontes confiáveis ou contém informações comprovadamente incorretas
+      - INDETERMINADO: Informações insuficientes, contraditórias ou não verificáveis nas fontes disponíveis
+      
+      INSTRUÇÕES IMPORTANTES:
+      - Se não houver contexto web disponível, baseie-se no seu conhecimento, mas seja mais conservador na classificação
+      - Se a notícia for um link e você não conseguir acessá-lo diretamente, use o contexto web para análise
+      - Priorize fontes jornalísticas estabelecidas e sites oficiais no contexto web
+      - Se encontrar informações conflitantes, explique as contradições em related_facts
+      - O campo "confidence_score" deve refletir a qualidade e quantidade de fontes disponíveis
     `;
 
     try {
@@ -269,11 +294,37 @@ export const VerificationProvider = ({ children }: { children: ReactNode }) => {
     } catch (error: any) {
       console.error('Error calling Gemini API:', error);
       let errorMessage = 'Erro ao processar a solicitação com a IA.';
+      
+      // Tratamento específico para bloqueio de segurança
+      if (error.message && error.message.includes('Candidate was blocked due to SAFETY')) {
+        console.log('⚠️ Conteúdo bloqueado por segurança, tentando análise mais conservadora...');
+        return {
+          verification_status: 'INDETERMINADO' as NewsVerification['verification_status'],
+          verification_summary: 'Não foi possível analisar este conteúdo devido às políticas de segurança da IA. Recomendamos verificar a informação através de fontes jornalísticas confiáveis.',
+          related_facts: ['Conteúdo bloqueado por políticas de segurança', 'Recomenda-se verificação manual em fontes confiáveis'],
+          raw_response: { safety_blocked: true, original_error: error.message },
+          original_input_for_title: newsTextOrUrl,
+          error_message: undefined // Não é um erro técnico, é uma limitação de segurança
+        };
+      }
+      
       if (error.message && error.message.includes('API key not valid')) {
         errorMessage = 'Chave de API da Gemini inválida. Verifique sua configuração.';
+      } else if (error.message && error.message.includes('exceeded your current quota')) {
+        console.log('⚠️ Quota da API Gemini esgotada, usando análise básica...');
+        return {
+          verification_status: 'INDETERMINADO' as NewsVerification['verification_status'],
+          verification_summary: 'Limite diário da API Gemini atingido (50 consultas gratuitas). A análise será retomada amanhã ou considere fazer upgrade para plano pago.',
+          related_facts: ['Quota da API Gemini esgotada', 'Limite: 50 consultas gratuitas por dia', 'Considere upgrade para plano pago para uso ilimitado'],
+          raw_response: { quota_exceeded: true, original_error: error.message },
+          original_input_for_title: newsTextOrUrl,
+          error_message: undefined
+        };
       }
+      
       const details = error.details || (error.cause && error.cause.details);
       if (details) errorMessage += ` Detalhes: ${JSON.stringify(details)}`;
+      
       return {
         verification_status: 'ERRO' as NewsVerification['verification_status'],
         verification_summary: errorMessage,
