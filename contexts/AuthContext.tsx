@@ -8,6 +8,7 @@ const initialState: AuthState = {
   user: null,
   isLoading: true,
   error: null,
+  pendingEmailConfirmation: null,
 };
 
 type AuthAction =
@@ -17,6 +18,7 @@ type AuthAction =
   | { type: 'REGISTER_REQUEST' }
   | { type: 'REGISTER_SUCCESS'; payload: User }
   | { type: 'REGISTER_FAILURE'; payload: string }
+  | { type: 'REGISTER_PENDING_CONFIRMATION'; payload: string }
   | { type: 'LOGOUT' }
   | { type: 'UPDATE_USER'; payload: Partial<User> }
   | { type: 'CLEAR_ERROR' };
@@ -32,6 +34,8 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
     case 'LOGIN_FAILURE':
     case 'REGISTER_FAILURE':
       return { ...state, isLoading: false, error: action.payload };
+    case 'REGISTER_PENDING_CONFIRMATION':
+      return { ...state, isLoading: false, pendingEmailConfirmation: action.payload, error: null };
     case 'LOGOUT':
       return { ...initialState, isLoading: false };
     case 'UPDATE_USER':
@@ -50,6 +54,7 @@ type AuthContextType = {
   user: User | null;
   loading: boolean;
   error: string | null;
+  pendingEmailConfirmation: string | null;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -64,6 +69,7 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: false,
   error: null,
+  pendingEmailConfirmation: null,
   login: async () => {},
   register: async () => {},
   logout: async () => {},
@@ -208,12 +214,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const register = async (email: string, password: string) => {
     safeDispatch({ type: 'REGISTER_REQUEST' });
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
       });
 
       if (error) throw error;
+
+      // Se o usuário não foi confirmado automaticamente, significa que precisa confirmar email
+      if (data.user && !data.user.email_confirmed_at) {
+        if (isMounted.current) {
+          safeDispatch({
+            type: 'REGISTER_PENDING_CONFIRMATION',
+            payload: email,
+          });
+        }
+      }
     } catch (error: any) {
       if (isMounted.current) {
         safeDispatch({
@@ -243,6 +259,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         user: state.user,
         loading: state.isLoading,
         error: state.error,
+        pendingEmailConfirmation: state.pendingEmailConfirmation,
         login,
         register,
         logout,

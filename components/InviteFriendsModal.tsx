@@ -31,9 +31,9 @@ export default function InviteFriendsModal({ visible, onClose }: InviteFriendsMo
   const [shareText, setShareText] = useState('');
 
   // URL do app no Expo (substitua pela URL real do seu projeto)
-  const expoUrl = 'exp://exp.host/@your-username/check-now';
-  const playStoreUrl = 'https://play.google.com/store/apps/details?id=com.checkNow';
-  const appStoreUrl = 'https://apps.apple.com/app/check-now/id123456789';
+  const expoUrl = 'https://expo.dev/preview/update?message=Modo%20escuro%20e%20vers%C3%A3o%201.5&updateRuntimeVersion=1.5.0&createdAt=2025-06-26T00%3A42%3A57.397Z&slug=exp&projectId=0b04b14b-c4df-4cf9-8b20-e9fa88bc68fe&group=4e987260-717b-4aca-b443-afe130fb204a';
+  const playStoreUrl = 'https://expo.dev/preview/update?message=Modo%20escuro%20e%20vers%C3%A3o%201.5&updateRuntimeVersion=1.5.0&createdAt=2025-06-26T00%3A42%3A57.397Z&slug=exp&projectId=0b04b14b-c4df-4cf9-8b20-e9fa88bc68fe&group=4e987260-717b-4aca-b443-afe130fb204a';
+  const appStoreUrl = 'https://expo.dev/preview/update?message=Modo%20escuro%20e%20vers%C3%A3o%201.5&updateRuntimeVersion=1.5.0&createdAt=2025-06-26T00%3A42%3A57.397Z&slug=exp&projectId=0b04b14b-c4df-4cf9-8b20-e9fa88bc68fe&group=4e987260-717b-4aca-b443-afe130fb204a';
 
   useEffect(() => {
     if (visible) {

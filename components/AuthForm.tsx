@@ -10,9 +10,10 @@ import {
   Platform,
   ScrollView,
 } from 'react-native';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react-native';
+import { Mail, Lock, Eye, EyeOff, Square, CheckSquare } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import TermsAcceptanceModal from '@/components/TermsAcceptanceModal';
 
 type FormMode = 'login' | 'register';
 
@@ -22,6 +23,8 @@ export default function AuthForm() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
   
   const { login, register, loading, error } = useAuth();
   const { colors } = useTheme();
@@ -31,11 +34,17 @@ export default function AuthForm() {
     setEmail('');
     setPassword('');
     setConfirmPassword('');
+    setTermsAccepted(false);
   };
 
   const handleSubmit = async () => {
     if (mode === 'register' && password !== confirmPassword) {
       return; // We'll handle this with form validation
+    }
+    
+    if (mode === 'register' && !termsAccepted) {
+      setShowTermsModal(true);
+      return;
     }
     
     if (mode === 'login') {
@@ -57,7 +66,7 @@ export default function AuthForm() {
     email.trim() !== '' && 
     isEmailValid(email) && 
     isPasswordValid(password) && 
-    (mode === 'login' || confirmPassword === password);
+    (mode === 'login' || (confirmPassword === password && termsAccepted));
 
   return (
     <KeyboardAvoidingView
@@ -154,6 +163,31 @@ export default function AuthForm() {
             </View>
           )}
 
+          {mode === 'register' && (
+            <View style={styles.termsContainer}>
+              <TouchableOpacity
+                style={styles.checkboxContainer}
+                onPress={() => setTermsAccepted(!termsAccepted)}
+              >
+                {termsAccepted ? (
+                  <CheckSquare size={20} color={colors.primary} />
+                ) : (
+                  <Square size={20} color={colors.textSecondary} />
+                )}
+              </TouchableOpacity>
+              <View style={styles.termsTextContainer}>
+                <Text style={[styles.termsText, { color: colors.textSecondary }]}>
+                  Li e aceito os{' '}
+                </Text>
+                <TouchableOpacity onPress={() => setShowTermsModal(true)}>
+                  <Text style={[styles.termsLink, { color: colors.primary }]}>
+                    Termos de Uso e Política de Privacidade
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+
           <TouchableOpacity
             style={[styles.submitButton, { backgroundColor: colors.primary }, !canSubmit && { backgroundColor: colors.textSecondary }]}
             onPress={handleSubmit}
@@ -180,6 +214,17 @@ export default function AuthForm() {
             </TouchableOpacity>
           </View>
         </View>
+
+        <TermsAcceptanceModal
+          visible={showTermsModal}
+          onAccept={() => {
+            setTermsAccepted(true);
+            setShowTermsModal(false);
+          }}
+          onDecline={() => {
+            setShowTermsModal(false);
+          }}
+        />
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -277,5 +322,32 @@ const styles = StyleSheet.create({
   errorText: {
     fontFamily: 'Inter-Medium',
     fontSize: 14,
+  },
+  termsContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 16,
+    paddingHorizontal: 4,
+  },
+  checkboxContainer: {
+    marginRight: 12,
+    marginTop: 2,
+  },
+  termsTextContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+  },
+  termsText: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  termsLink: {
+    fontFamily: 'Inter-Medium',
+    fontSize: 14,
+    lineHeight: 20,
+    textDecorationLine: 'underline',
   },
 });

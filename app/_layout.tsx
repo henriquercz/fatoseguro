@@ -10,6 +10,7 @@ import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { VerificationProvider } from '@/contexts/VerificationContext';
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 import AuthForm from '@/components/AuthForm';
+import EmailConfirmationScreen from '@/components/EmailConfirmationScreen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import {
   Inter_400Regular,
@@ -24,7 +25,7 @@ SplashScreen.preventAutoHideAsync().catch(() => {
 });
 
 function RootLayoutNav() {
-  const { user, loading: authLoading } = useAuth(); // Corrigido: isLoading para loading
+  const { user, loading: authLoading, pendingEmailConfirmation } = useAuth(); // Corrigido: isLoading para loading
   const { colors } = useTheme();
   const [fontsLoaded] = useFonts({
     'Inter-Regular': Inter_400Regular,
@@ -55,6 +56,11 @@ function RootLayoutNav() {
         <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
+  }
+
+  // Se há um email aguardando confirmação, mostra a tela de confirmação
+  if (pendingEmailConfirmation) {
+    return <EmailConfirmationScreen email={pendingEmailConfirmation} />;
   }
 
   if (!user) {

@@ -35,6 +35,11 @@
   - [x] Implementar compartilhamento nativo
   - [x] Adicionar deep linking
 
+  Arrumar:
+  - [ ] Quando cria uma conta, fica uma tela de loading esperando o user confirmar o email, porem quando confirma, o app ainda fica nessa tela de loading. Deve arrumar isso para o user nao precisar reiniciar o app
+  - [ ] Adicionar um botao de "Verificar novamente" na tela de loading, para que o user nao precise esperar a verificacao ser feita novamente
+  - [ ] Colocar um aviso ao user para verificar o email quando for fazer o cadastro. Deve aparecer logo apos o user clicar em "Criar conta" 
+
 ### 🔧 **Melhorias Técnicas Recomendadas**
 
 #### **Banco de Dados e Backend**

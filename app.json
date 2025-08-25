@@ -1,8 +1,8 @@
 {
   "expo": {
     "name": "Check Now",
-    "slug": "checknow-testes",
-    "version": "1.0.1",
+    "slug": "fatoseguro",
+    "version": "1.5.1",
     "orientation": "portrait",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
@@ -17,10 +17,15 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/favicon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "runtimeVersion": "1.0.0"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "runtimeVersion": {
+        "policy": "appVersion"
+      },
+      "bundleIdentifier": "checknow.app"
     },
     "web": {
       "bundler": "metro",
@@ -40,6 +45,9 @@
         "projectId": "0b04b14b-c4df-4cf9-8b20-e9fa88bc68fe"
       }
     },
-    "owner": "henrique_rcz"
+    "owner": "henrique_rcz",
+    "updates": {
+      "url": "https://u.expo.dev/0b04b14b-c4df-4cf9-8b20-e9fa88bc68fe"
+    }
   }
 }
