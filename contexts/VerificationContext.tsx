@@ -101,6 +101,14 @@ export const VerificationContext = createContext<VerificationContextType>({
   setViewingVerification: () => {},
 });
 
+export const useVerification = () => {
+  const context = useContext(VerificationContext);
+  if (!context) {
+    throw new Error('useVerification must be used within a VerificationProvider');
+  }
+  return context;
+};
+
 export const VerificationProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth(); // Get user from AuthContext
   const [state, dispatch] = useReducer(verificationReducer, initialState);

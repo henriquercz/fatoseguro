@@ -5,7 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
-import { ShieldCheck, History, User as UserIconLucide } from 'lucide-react-native';
+import { ShieldCheck, History, User as UserIconLucide, Newspaper } from 'lucide-react-native';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { VerificationProvider } from '@/contexts/VerificationContext';
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
@@ -123,6 +123,16 @@ function RootLayoutNav() {
           headerTitle: 'Histórico de Verificações',
           tabBarIcon: ({ color, size }) => (
             <History size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="news"
+        options={{
+          title: 'Notícias',
+          headerTitle: 'Notícias em Destaque',
+          tabBarIcon: ({ color, size }) => (
+            <Newspaper size={size} color={color} />
           ),
         }}
       />
