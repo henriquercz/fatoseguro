@@ -219,6 +219,7 @@ const styles = StyleSheet.create({
     gap: 6,
     zIndex: 1,
     minWidth: 98,
+    paddingRight: 5,  
   },
   activeFilterButton: {
     // Estilo aplicado via animação
@@ -226,6 +227,7 @@ const styles = StyleSheet.create({
   filterButtonText: {
     fontFamily: 'Inter-Medium',
     fontSize: 13,
+    paddingRight: 5,
     // color aplicada dinamicamente
   },
   listContent: {
