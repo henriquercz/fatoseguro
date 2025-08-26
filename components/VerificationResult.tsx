@@ -39,7 +39,7 @@ export default function VerificationResult({ result, onClose }: VerificationResu
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <TouchableOpacity style={styles.backButton} onPress={onClose}>
         <ArrowLeft size={24} color={colors.primary} />
-        <Text style={[styles.backText, { color: colors.primary }]}>Nova verificação</Text>
+        <Text style={[styles.backText, { color: colors.primary }]}>Voltar a tela de histórico</Text>
       </TouchableOpacity>
 
       <View 
