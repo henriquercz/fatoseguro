@@ -31,9 +31,9 @@ export default function InviteFriendsModal({ visible, onClose }: InviteFriendsMo
   const [shareText, setShareText] = useState('');
 
   // URL do app no Expo (substitua pela URL real do seu projeto)
-  const expoUrl = 'https://sl1nk.com/checknow';
-  const playStoreUrl = 'https://sl1nk.com/checknow';
-  const appStoreUrl = 'https://sl1nk.com/checknow';
+  const expoUrl = 'https://sl1nk.com/checknow2-5';
+  const playStoreUrl = 'https://sl1nk.com/checknow2-5';
+  const appStoreUrl = 'https://sl1nk.com/checknow2-5';
 
   useEffect(() => {
     if (visible) {
