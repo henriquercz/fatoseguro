@@ -74,9 +74,8 @@ export default function AccountScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <KeyboardDismissWrapper>
-        <ScrollView>
-          <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>{/* Remove whitespace between View elements */}
+      <ScrollView>
+        <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>{/* Remove whitespace between View elements */}
             <View>
               <Text style={[styles.welcomeText, { color: colors.text }]}>Bem-vindo(a)</Text>
               <Text style={[styles.emailText, { color: colors.textSecondary }]}>{user.email}</Text>
@@ -162,23 +161,22 @@ export default function AccountScreen() {
           <Text style={[styles.footerText, { color: colors.textSecondary }]}>CheckNow v1.1.0</Text>
           <Text style={[styles.footerText, { color: colors.textSecondary }]}>© 2025 CheckNow</Text>
         </View>
-        </ScrollView>
-        
-        <FeedbackModal
-          visible={feedbackModalVisible}
-          onClose={() => setFeedbackModalVisible(false)}
-        />
-        
-        <InviteFriendsModal
-          visible={inviteFriendsModalVisible}
-          onClose={() => setInviteFriendsModalVisible(false)}
-        />
-        
-        <SettingsModal
-          visible={settingsModalVisible}
-          onClose={() => setSettingsModalVisible(false)}
-        />
-      </KeyboardDismissWrapper>
+      </ScrollView>
+      
+      <FeedbackModal
+        visible={feedbackModalVisible}
+        onClose={() => setFeedbackModalVisible(false)}
+      />
+      
+      <InviteFriendsModal
+        visible={inviteFriendsModalVisible}
+        onClose={() => setInviteFriendsModalVisible(false)}
+      />
+      
+      <SettingsModal
+        visible={settingsModalVisible}
+        onClose={() => setSettingsModalVisible(false)}
+      />
     </SafeAreaView>
   );
 }
