@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'; // Import Supabase client
 import { useAuth } from '@/contexts/AuthContext'; // Import useAuth hook
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
 import { braveSearchService } from '@/lib/braveSearch';
+import { webScraperService } from '@/lib/webScraper';
 
 const MAX_FREE_VERIFICATIONS = 3;
 
@@ -271,9 +272,30 @@ export const VerificationProvider = ({ children }: { children: ReactNode }) => {
       };
     }
 
-    // 🔍 NOVA FUNCIONALIDADE: Busca contexto web com Brave Search
+    let extractedContent = '';
+    let webContext = '';
+    let newsTitle = '';
+    let newsSource = '';
+
+    if (type === 'link') {
+      // 🆕 NOVA FUNCIONALIDADE: Extração direta de conteúdo do link
+      console.log('🔗 Extraindo conteúdo do link:', newsTextOrUrl);
+      const scrapingResult = await webScraperService.extractContent(newsTextOrUrl);
+      
+      if (scrapingResult.success && scrapingResult.data) {
+        extractedContent = webScraperService.formatForAI(scrapingResult.data);
+        newsTitle = scrapingResult.data.title;
+        newsSource = scrapingResult.data.siteName || '';
+        console.log('✅ Conteúdo extraído com sucesso:', scrapingResult.data.wordCount, 'palavras');
+      } else {
+        console.log('⚠️ Falha na extração, usando método tradicional:', scrapingResult.error);
+      }
+    }
+
+    // 🔍 Busca contexto web adicional com Brave Search
     console.log('🚀 Iniciando busca de contexto web...');
-    const webContext = await braveSearchService.getEnrichedContext(newsTextOrUrl);
+    const searchText = type === 'link' && newsTitle ? newsTitle : newsTextOrUrl;
+    webContext = await braveSearchService.getEnrichedContext(searchText);
     console.log('📊 Contexto web obtido:', webContext ? 'Sucesso' : 'Nenhum contexto encontrado');
 
     const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
@@ -287,21 +309,24 @@ export const VerificationProvider = ({ children }: { children: ReactNode }) => {
       ],
     });
 
-    const inputText = type === 'link' ? `Analise o conteúdo principal do seguinte link: ${newsTextOrUrl}` : newsTextOrUrl;
+    // 🧠 PROMPT APRIMORADO: Inclui conteúdo extraído e contexto web para análise mais precisa
+    const inputText = type === 'link' 
+      ? `Link da notícia: ${newsTextOrUrl}${extractedContent ? '\n\nConteúdo extraído do link:\n' + extractedContent : ''}` 
+      : newsTextOrUrl;
     
-    // 🧠 PROMPT APRIMORADO: Inclui contexto web atual para análise mais precisa
     const prompt = `
-      Você é um assistente de verificação de fatos altamente preciso e imparcial especializado em análise de notícias com contexto web atual.
+      Você é um assistente de verificação de fatos altamente preciso e imparcial especializado em análise de notícias.
       
       NOTÍCIA PARA ANÁLISE:
-      "${inputText}"
+      ${inputText}
       ${webContext}
       
       INSTRUÇÕES DE ANÁLISE:
-      - Use o contexto web fornecido acima para verificar a veracidade da notícia
+      ${type === 'link' ? '- Analise o conteúdo COMPLETO extraído do link fornecido acima' : ''}
+      - Use o contexto web fornecido para verificar a veracidade da notícia
       - Compare as informações da notícia com as fontes web atuais encontradas
-      - Se houver contradições entre a notícia e as fontes web, priorize as fontes mais confiáveis e recentes
-      - Considere a data de publicação das fontes web para avaliar a atualidade das informações
+      - Se houver contradições, priorize as fontes mais confiáveis e recentes
+      - Para links, considere tanto o conteúdo extraído quanto o contexto web adicional
       
       Por favor, forneça sua análise estritamente no seguinte formato JSON. Não adicione nenhum texto explicativo antes ou depois do JSON:
       {
@@ -309,20 +334,22 @@ export const VerificationProvider = ({ children }: { children: ReactNode }) => {
         "verification_summary": "Uma explicação concisa e neutra da sua análise, baseada nos fatos encontrados e no contexto web atual. Limite a 2-3 frases. Mencione se usou fontes web para a verificação.",
         "related_facts": ["Fato relevante 1 encontrado nas fontes web", "Fato relevante 2 (se houver)", "Contradições encontradas (se houver)"],
         "confidence_score": "ALTA | MÉDIA | BAIXA (sua confiança na verificação baseada no contexto disponível)",
-        "sources_used": ${webContext ? 'true' : 'false'}
+        "sources_used": ${webContext || extractedContent ? 'true' : 'false'},
+        "content_extracted": ${extractedContent ? 'true' : 'false'}
       }
       
       CRITÉRIOS DE VERIFICAÇÃO:
-      - VERDADEIRO: A notícia é confirmada por múltiplas fontes confiáveis no contexto web
+      - VERDADEIRO: A notícia é confirmada por múltiplas fontes confiáveis ou pelo conteúdo extraído
       - FALSO: A notícia é contradita por fontes confiáveis ou contém informações comprovadamente incorretas
-      - INDETERMINADO: Informações insuficientes, contraditórias ou não verificáveis nas fontes disponíveis
+      - INDETERMINADO: Informações insuficientes, contraditórias ou não verificáveis
       
       INSTRUÇÕES IMPORTANTES:
-      - Se não houver contexto web disponível, baseie-se no seu conhecimento, mas seja mais conservador na classificação
-      - Se a notícia for um link e você não conseguir acessá-lo diretamente, use o contexto web para análise
-      - Priorize fontes jornalísticas estabelecidas e sites oficiais no contexto web
+      ${type === 'link' ? '- Para links, priorize o conteúdo EXTRAÍDO DIRETAMENTE sobre o contexto web' : ''}
+      - Se não houver contexto suficiente, seja mais conservador na classificação
+      - Priorize fontes jornalísticas estabelecidas e sites oficiais
       - Se encontrar informações conflitantes, explique as contradições em related_facts
-      - O campo "confidence_score" deve refletir a qualidade e quantidade de fontes disponíveis
+      - O campo "confidence_score" deve refletir a qualidade das fontes e conteúdo disponível
+      - Para links com conteúdo extraído, a confiança deve ser ALTA se o conteúdo for completo
     `;
 
     try {
@@ -338,7 +365,9 @@ export const VerificationProvider = ({ children }: { children: ReactNode }) => {
           verification_summary: 'A resposta da IA não estava no formato JSON esperado.',
           related_facts: [],
           raw_response: responseText,
-          original_input_for_title: newsTextOrUrl,
+          original_input_for_title: newsTitle || newsTextOrUrl,
+          extracted_title: newsTitle,
+          extracted_source: newsSource,
           error_message: 'Resposta da IA em formato inválido.'
         };
       }
@@ -349,7 +378,9 @@ export const VerificationProvider = ({ children }: { children: ReactNode }) => {
         related_facts: parsedJson.related_facts || [],
         confidence_score: parsedJson.confidence_score,
         raw_response: parsedJson,
-        original_input_for_title: newsTextOrUrl,
+        original_input_for_title: newsTitle || newsTextOrUrl,
+        extracted_title: newsTitle,
+        extracted_source: newsSource,
         error_message: undefined
       };
     } catch (error: any) {
@@ -364,7 +395,9 @@ export const VerificationProvider = ({ children }: { children: ReactNode }) => {
           verification_summary: 'Não foi possível analisar este conteúdo devido às políticas de segurança da IA. Recomendamos verificar a informação através de fontes jornalísticas confiáveis.',
           related_facts: ['Conteúdo bloqueado por políticas de segurança', 'Recomenda-se verificação manual em fontes confiáveis'],
           raw_response: { safety_blocked: true, original_error: error.message },
-          original_input_for_title: newsTextOrUrl,
+          original_input_for_title: newsTitle || newsTextOrUrl,
+          extracted_title: newsTitle,
+          extracted_source: newsSource,
           error_message: undefined // Não é um erro técnico, é uma limitação de segurança
         };
       }
@@ -378,7 +411,9 @@ export const VerificationProvider = ({ children }: { children: ReactNode }) => {
           verification_summary: 'Limite diário da API Gemini atingido (50 consultas gratuitas). A análise será retomada amanhã ou considere fazer upgrade para plano pago.',
           related_facts: ['Quota da API Gemini esgotada', 'Limite: 50 consultas gratuitas por dia', 'Considere upgrade para plano pago para uso ilimitado'],
           raw_response: { quota_exceeded: true, original_error: error.message },
-          original_input_for_title: newsTextOrUrl,
+          original_input_for_title: newsTitle || newsTextOrUrl,
+          extracted_title: newsTitle,
+          extracted_source: newsSource,
           error_message: undefined
         };
       }
@@ -391,7 +426,9 @@ export const VerificationProvider = ({ children }: { children: ReactNode }) => {
         verification_summary: errorMessage,
         related_facts: [],
         raw_response: { error: error.message, details },
-        original_input_for_title: newsTextOrUrl,
+        original_input_for_title: newsTitle || newsTextOrUrl,
+        extracted_title: newsTitle,
+        extracted_source: newsSource,
         error_message: errorMessage
       };
     }
@@ -416,11 +453,15 @@ export const VerificationProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
 
-      const tempNewsContent = type === 'text' ? news : (geminiResult.original_input_for_title || news);
+      // Usa dados extraídos quando disponíveis
+      const extractedTitle = geminiResult.extracted_title || '';
+      const extractedSource = geminiResult.extracted_source || '';
+      
+      const tempNewsContent = type === 'text' ? news : (extractedTitle || geminiResult.original_input_for_title || news);
       const tempSummary = geminiResult.verification_summary || 'Não foi possível obter um resumo.';
       let tempSnippet = '';
       if (tempSummary && tempSummary !== 'Não foi possível obter um resumo.' && tempSummary.length > 0) {
-        tempSnippet = tempSummary.substring(0, 120); // Increased snippet length
+        tempSnippet = tempSummary.substring(0, 120);
         if (tempSummary.length > 120) tempSnippet += '...';
       } else if (tempNewsContent && tempNewsContent.length > 0) {
         tempSnippet = tempNewsContent.substring(0,120);
@@ -431,14 +472,14 @@ export const VerificationProvider = ({ children }: { children: ReactNode }) => {
         news_content: tempNewsContent,
         news_url: type === 'link' ? news : undefined,
         news_title: type === 'text' 
-          ? (news.substring(0, 50) + (news.length > 50 ? '...' : ''))  // Increased title snippet
-          : (type === 'link' && news ? (new URL(news).hostname) : "Título da IA"),
+          ? (news.substring(0, 50) + (news.length > 50 ? '...' : ''))
+          : (extractedTitle || (type === 'link' && news ? (new URL(news).hostname) : "Título da IA")),
         news_text_snippet: tempSnippet,
         verification_status: geminiResult.verification_status as NewsVerification['verification_status'] || 'INDETERMINADO',
         verification_summary: tempSummary,
         related_facts: geminiResult.related_facts || [],
-        source: type === 'link' && news ? (new URL(news).hostname) : 'Análise de IA (Gemini)',
-        verified_at: new Date().toISOString(), // This is for the initial save, DB will have its own timestamp
+        source: extractedSource || (type === 'link' && news ? (new URL(news).hostname) : 'Análise de IA (Gemini)'),
+        verified_at: new Date().toISOString(),
         raw_ai_response: geminiResult.raw_response || { error: 'No raw response from Gemini', details: geminiResult },
         error_message: geminiResult.error_message,
       };
