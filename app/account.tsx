@@ -6,6 +6,7 @@ import AuthForm from '@/components/AuthForm';
 import FeedbackModal from '@/components/FeedbackModal';
 import InviteFriendsModal from '@/components/InviteFriendsModal';
 import SettingsModal from '@/components/SettingsModal';
+import KeyboardDismissWrapper from '@/components/KeyboardDismissWrapper';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 
@@ -54,39 +55,42 @@ export default function AccountScreen() {
   if (!user) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={styles.authHeader}>
-          <Image
-            source={require('@/assets/images/icon.png')}
-            style={styles.logo}
-            resizeMode="contain"
-          />
-          <Text style={[styles.authText, { color: colors.textSecondary }]}>
-            Entre ou crie uma conta para acessar todos os recursos
-          </Text>
-        </View>
-        <AuthForm />
+        <KeyboardDismissWrapper>
+          <View style={styles.authHeader}>
+            <Image
+              source={require('@/assets/images/icon.png')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+            <Text style={[styles.authText, { color: colors.textSecondary }]}>
+              Entre ou crie uma conta para acessar todos os recursos
+            </Text>
+          </View>
+          <AuthForm />
+        </KeyboardDismissWrapper>
       </SafeAreaView>
     );
   }
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScrollView>
-        <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>{/* Remove whitespace between View elements */}
-          <View>
-            <Text style={[styles.welcomeText, { color: colors.text }]}>Bem-vindo(a)</Text>
-            <Text style={[styles.emailText, { color: colors.textSecondary }]}>{user.email}</Text>
-            <View style={styles.badgeContainer}>
-              <View style={[styles.badge, user.isPremium ? styles.premiumBadge : styles.freeBadge]}>
-                <Text style={[styles.badgeText, user.isPremium ? styles.premiumBadgeText : styles.freeBadgeText]}>
-                  {user.isPremium ? 'Premium' : 'Gratuito'}
-                </Text>
+      <KeyboardDismissWrapper>
+        <ScrollView>
+          <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>{/* Remove whitespace between View elements */}
+            <View>
+              <Text style={[styles.welcomeText, { color: colors.text }]}>Bem-vindo(a)</Text>
+              <Text style={[styles.emailText, { color: colors.textSecondary }]}>{user.email}</Text>
+              <View style={styles.badgeContainer}>
+                <View style={[styles.badge, user.isPremium ? styles.premiumBadge : styles.freeBadge]}>
+                  <Text style={[styles.badgeText, user.isPremium ? styles.premiumBadgeText : styles.freeBadgeText]}>
+                    {user.isPremium ? 'Premium' : 'Gratuito'}
+                  </Text>
+                </View>
               </View>
-            </View>
-          </View><TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-            <LogOut size={18} color={colors.textSecondary} />
-          </TouchableOpacity>
-        </View>
+            </View><TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+              <LogOut size={18} color={colors.textSecondary} />
+            </TouchableOpacity>
+          </View>
 
         {!user.isPremium ? (
           <View style={styles.premiumSection}>
@@ -158,22 +162,23 @@ export default function AccountScreen() {
           <Text style={[styles.footerText, { color: colors.textSecondary }]}>CheckNow v1.1.0</Text>
           <Text style={[styles.footerText, { color: colors.textSecondary }]}>© 2025 CheckNow</Text>
         </View>
-      </ScrollView>
-      
-      <FeedbackModal
-        visible={feedbackModalVisible}
-        onClose={() => setFeedbackModalVisible(false)}
-      />
-      
-      <InviteFriendsModal
-        visible={inviteFriendsModalVisible}
-        onClose={() => setInviteFriendsModalVisible(false)}
-      />
-      
-      <SettingsModal
-        visible={settingsModalVisible}
-        onClose={() => setSettingsModalVisible(false)}
-      />
+        </ScrollView>
+        
+        <FeedbackModal
+          visible={feedbackModalVisible}
+          onClose={() => setFeedbackModalVisible(false)}
+        />
+        
+        <InviteFriendsModal
+          visible={inviteFriendsModalVisible}
+          onClose={() => setInviteFriendsModalVisible(false)}
+        />
+        
+        <SettingsModal
+          visible={settingsModalVisible}
+          onClose={() => setSettingsModalVisible(false)}
+        />
+      </KeyboardDismissWrapper>
     </SafeAreaView>
   );
 }

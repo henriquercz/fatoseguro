@@ -14,6 +14,7 @@ import {
   Share,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import KeyboardDismissWrapper from '@/components/KeyboardDismissWrapper';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useVerification } from '@/contexts/VerificationContext';
@@ -330,48 +331,50 @@ export default function NewsScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.header}>
-        <View style={styles.headerContent}>
-          <View style={styles.headerTitle}>
-            <TrendingUp size={24} color={colors.primary} />
-            <Text style={[styles.title, { color: colors.text }]}>
-              Notícias em Destaque
+      <KeyboardDismissWrapper>
+        <View style={styles.header}>
+          <View style={styles.headerContent}>
+            <View style={styles.headerTitle}>
+              <TrendingUp size={24} color={colors.primary} />
+              <Text style={[styles.title, { color: colors.text }]}>
+                Notícias em Destaque
+              </Text>
+            </View>
+            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+              {filteredNews.length} notícias • Brasil
             </Text>
           </View>
-          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-            {filteredNews.length} notícias • Brasil
-          </Text>
         </View>
-      </View>
 
-      {renderCategoryFilter()}
+        {renderCategoryFilter()}
 
-      <FlatList
-        data={filteredNews}
-        renderItem={renderNewsItem}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.newsList}
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={() => loadNews(true)}
-            colors={[colors.primary]}
-            tintColor={colors.primary}
-          />
-        }
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Filter size={48} color={colors.textSecondary} />
-            <Text style={[styles.emptyTitle, { color: colors.text }]}>
-              Nenhuma notícia encontrada
-            </Text>
-            <Text style={[styles.emptyMessage, { color: colors.textSecondary }]}>
-              Tente selecionar uma categoria diferente
-            </Text>
-          </View>
-        }
-      />
+        <FlatList
+          data={filteredNews}
+          renderItem={renderNewsItem}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.newsList}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => loadNews(true)}
+              colors={[colors.primary]}
+              tintColor={colors.primary}
+            />
+          }
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Filter size={48} color={colors.textSecondary} />
+              <Text style={[styles.emptyTitle, { color: colors.text }]}>
+                Nenhuma notícia encontrada
+              </Text>
+              <Text style={[styles.emptyMessage, { color: colors.textSecondary }]}>
+                Tente selecionar uma categoria diferente
+              </Text>
+            </View>
+          }
+        />
+      </KeyboardDismissWrapper>
     </SafeAreaView>
   );
 }

@@ -3,6 +3,7 @@ import { View, StyleSheet, Text, Image, SafeAreaView } from 'react-native';
 import VerifyForm from '@/components/VerifyForm';
 import VerificationResult from '@/components/VerificationResult';
 import AdDisplay from '@/components/AdDisplay';
+import KeyboardDismissWrapper from '@/components/KeyboardDismissWrapper';
 import { useVerification } from '@/hooks/useVerification';
 import { useTheme } from '@/contexts/ThemeContext';
 
@@ -24,45 +25,46 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-
-      {!currentVerification && (
-        <View style={styles.content}>
-          <VerifyForm key={formKey} />
-          
-          <View style={[styles.infoContainer, { backgroundColor: colors.surface }]}>
-            <Text style={[styles.infoTitle, { color: colors.text }]}>Como funciona:</Text>
-            <View style={styles.infoStep}>
-              <View style={[styles.infoNumber, { backgroundColor: colors.primary }]}>
-                <Text style={styles.infoNumberText}>1</Text>
+      <KeyboardDismissWrapper>
+        {!currentVerification && (
+          <View style={styles.content}>
+            <VerifyForm key={formKey} />
+            
+            <View style={[styles.infoContainer, { backgroundColor: colors.surface }]}>
+              <Text style={[styles.infoTitle, { color: colors.text }]}>Como funciona:</Text>
+              <View style={styles.infoStep}>
+                <View style={[styles.infoNumber, { backgroundColor: colors.primary }]}>
+                  <Text style={styles.infoNumberText}>1</Text>
+                </View>
+                <Text style={[styles.infoText, { color: colors.textSecondary }]}>Cole um link ou texto de notícia que deseja verificar</Text>
               </View>
-              <Text style={[styles.infoText, { color: colors.textSecondary }]}>Cole um link ou texto de notícia que deseja verificar</Text>
-            </View>
-            <View style={styles.infoStep}>
-              <View style={[styles.infoNumber, { backgroundColor: colors.primary }]}>
-                <Text style={styles.infoNumberText}>2</Text>
+              <View style={styles.infoStep}>
+                <View style={[styles.infoNumber, { backgroundColor: colors.primary }]}>
+                  <Text style={styles.infoNumberText}>2</Text>
+                </View>
+                <Text style={[styles.infoText, { color: colors.textSecondary }]}>Nossa IA analisará a informação comparando com fontes confiáveis</Text>
               </View>
-              <Text style={[styles.infoText, { color: colors.textSecondary }]}>Nossa IA analisará a informação comparando com fontes confiáveis</Text>
-            </View>
-            <View style={styles.infoStep}>
-              <View style={[styles.infoNumber, { backgroundColor: colors.primary }]}>
-                <Text style={styles.infoNumberText}>3</Text>
+              <View style={styles.infoStep}>
+                <View style={[styles.infoNumber, { backgroundColor: colors.primary }]}>
+                  <Text style={styles.infoNumberText}>3</Text>
+                </View>
+                <Text style={[styles.infoText, { color: colors.textSecondary }]}>Você receberá uma análise detalhada e saberá se a notícia é verdadeira ou falsa</Text>
               </View>
-              <Text style={[styles.infoText, { color: colors.textSecondary }]}>Você receberá uma análise detalhada e saberá se a notícia é verdadeira ou falsa</Text>
             </View>
           </View>
-        </View>
-      )}
+        )}
 
-      {currentVerification && !showAd && (
-        <VerificationResult 
-          result={currentVerification}
-          onClose={handleCloseResult} // Use the new handler
-        />
-      )}
+        {currentVerification && !showAd && (
+          <VerificationResult 
+            result={currentVerification}
+            onClose={handleCloseResult} // Use the new handler
+          />
+        )}
 
-      {showAd && (
-        <AdDisplay onClose={hideAd} />
-      )}
+        {showAd && (
+          <AdDisplay onClose={hideAd} />
+        )}
+      </KeyboardDismissWrapper>
     </SafeAreaView>
   );
 }

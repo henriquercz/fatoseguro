@@ -10,6 +10,7 @@ import {
   Platform,
 } from 'react-native';
 import { Shield, Link, TriangleAlert as AlertTriangle, RefreshCcw } from 'lucide-react-native';
+import KeyboardDismissWrapper from '@/components/KeyboardDismissWrapper';
 import { useVerification } from '@/hooks/useVerification';
 import { useTheme } from '@/contexts/ThemeContext';
 
@@ -36,101 +37,103 @@ export default function VerifyForm() {
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}>
-      <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-        <View style={styles.header}>
-          <Shield color={colors.primary} size={24} />
-          <Text style={[styles.title, { color: colors.text }]}>Verificar Notícia</Text>
-        </View>
-
-        <View style={styles.inputTypeToggle}>
-          <TouchableOpacity
-            style={[
-              styles.toggleButton,
-              { borderColor: colors.border },
-              inputType === 'text' && { backgroundColor: colors.primary, borderColor: colors.primary },
-            ]}
-            onPress={() => setInputType('text')}>
-            <Text
-              style={[
-                styles.toggleText,
-                { color: colors.textSecondary },
-                inputType === 'text' && styles.activeToggleText,
-              ]}>
-              Texto
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.toggleButton,
-              { borderColor: colors.border },
-              inputType === 'link' && { backgroundColor: colors.primary, borderColor: colors.primary },
-            ]}
-            onPress={() => setInputType('link')}>
-            <Text
-              style={[
-                styles.toggleText,
-                { color: colors.textSecondary },
-                inputType === 'link' && styles.activeToggleText,
-              ]}>
-              Link
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={[
-              styles.input,
-              { borderColor: colors.border, backgroundColor: colors.background, color: colors.text },
-              isInputFocused && { borderColor: colors.primary }, // Estilo condicional para foco
-              inputType === 'text' ? { height: 100, textAlignVertical: 'top' } : { height: 50 } // Ajuste de altura dinâmico
-            ]}
-            onFocus={() => setIsInputFocused(true)}
-            onBlur={() => setIsInputFocused(false)}
-            value={newsInput}
-            onChangeText={setNewsInput}
-            placeholder={
-              inputType === 'text'
-                ? 'Digite o título ou conteúdo da notícia...'
-                : 'Cole o link da notícia...'
-            }
-            placeholderTextColor={colors.textSecondary}
-            multiline={inputType === 'text'}
-            // numberOfLines é gerenciado pela altura dinâmica e multiline
-            // numberOfLines={inputType === 'text' ? 4 : 1}
-            keyboardType={inputType === 'link' ? 'url' : 'default'}
-            autoCapitalize="none"
-          />
-          {inputType === 'link' && <Link color={colors.textSecondary} size={20} style={styles.inputIcon} />}
-        </View>
-
-        {error ? (
-          <View style={styles.errorContainer}>
-            <AlertTriangle color="#EF4444" size={16} />
-            <Text style={styles.errorText}>{error}</Text>
+      <KeyboardDismissWrapper>
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <View style={styles.header}>
+            <Shield color={colors.primary} size={24} />
+            <Text style={[styles.title, { color: colors.text }]}>Verificar Notícia</Text>
           </View>
-        ) : null}
 
-        <TouchableOpacity
-          style={[styles.verifyButton, { backgroundColor: colors.primary }, !newsInput.trim() && { backgroundColor: colors.textSecondary }]}
-          onPress={handleVerify}
-          disabled={!newsInput.trim() || loading}>
-          {loading ? (
-            <ActivityIndicator color="#FFFFFF" size="small" />
-          ) : (
-            <>
-              <RefreshCcw color="#FFFFFF" size={18} />
-              <Text style={styles.buttonText}>Verificar</Text>
-            </>
+          <View style={styles.inputTypeToggle}>
+            <TouchableOpacity
+              style={[
+                styles.toggleButton,
+                { borderColor: colors.border },
+                inputType === 'text' && { backgroundColor: colors.primary, borderColor: colors.primary },
+              ]}
+              onPress={() => setInputType('text')}>
+              <Text
+                style={[
+                  styles.toggleText,
+                  { color: colors.textSecondary },
+                  inputType === 'text' && styles.activeToggleText,
+                ]}>
+                Texto
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.toggleButton,
+                { borderColor: colors.border },
+                inputType === 'link' && { backgroundColor: colors.primary, borderColor: colors.primary },
+              ]}
+              onPress={() => setInputType('link')}>
+              <Text
+                style={[
+                  styles.toggleText,
+                  { color: colors.textSecondary },
+                  inputType === 'link' && styles.activeToggleText,
+                ]}>
+                Link
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={[
+                styles.input,
+                { borderColor: colors.border, backgroundColor: colors.background, color: colors.text },
+                isInputFocused && { borderColor: colors.primary }, // Estilo condicional para foco
+                inputType === 'text' ? { height: 100, textAlignVertical: 'top' } : { height: 50 } // Ajuste de altura dinâmico
+              ]}
+              onFocus={() => setIsInputFocused(true)}
+              onBlur={() => setIsInputFocused(false)}
+              value={newsInput}
+              onChangeText={setNewsInput}
+              placeholder={
+                inputType === 'text'
+                  ? 'Digite o título ou conteúdo da notícia...'
+                  : 'Cole o link da notícia...'
+              }
+              placeholderTextColor={colors.textSecondary}
+              multiline={inputType === 'text'}
+              // numberOfLines é gerenciado pela altura dinâmica e multiline
+              // numberOfLines={inputType === 'text' ? 4 : 1}
+              keyboardType={inputType === 'link' ? 'url' : 'default'}
+              autoCapitalize="none"
+            />
+            {inputType === 'link' && <Link color={colors.textSecondary} size={20} style={styles.inputIcon} />}
+          </View>
+
+          {error ? (
+            <View style={styles.errorContainer}>
+              <AlertTriangle color="#EF4444" size={16} />
+              <Text style={styles.errorText}>{error}</Text>
+            </View>
+          ) : null}
+
+          <TouchableOpacity
+            style={[styles.verifyButton, { backgroundColor: colors.primary }, !newsInput.trim() && { backgroundColor: colors.textSecondary }]}
+            onPress={handleVerify}
+            disabled={!newsInput.trim() || loading}>
+            {loading ? (
+              <ActivityIndicator color="#FFFFFF" size="small" />
+            ) : (
+              <>
+                <RefreshCcw color="#FFFFFF" size={18} />
+                <Text style={styles.buttonText}>Verificar</Text>
+              </>
+            )}
+          </TouchableOpacity>
+
+          {verificationCount !== null && (
+            <Text style={[styles.verificationCount, { color: colors.textSecondary }]}>
+              Verificações restantes hoje: {verificationCount}/3
+            </Text>
           )}
-        </TouchableOpacity>
-
-        {verificationCount !== null && (
-          <Text style={[styles.verificationCount, { color: colors.textSecondary }]}>
-            Verificações restantes hoje: {verificationCount}/3
-          </Text>
-        )}
-      </View>
+        </View>
+      </KeyboardDismissWrapper>
     </KeyboardAvoidingView>
   );
 }

@@ -45,15 +45,21 @@ export default function VerificationResult({ result, onClose }: VerificationResu
       <View 
         style={[
           styles.statusBanner, 
-          result.isTrue ? styles.trueBanner : styles.falseBanner
+          result.verification_status === 'VERDADEIRO' ? styles.trueBanner : 
+          result.verification_status === 'INDETERMINADO' ? styles.indeterminateBanner : 
+          styles.falseBanner
         ]}>
-        {result.isTrue ? (
+        {result.verification_status === 'VERDADEIRO' ? (
           <CheckCircle size={24} color="#FFFFFF" />
+        ) : result.verification_status === 'INDETERMINADO' ? (
+          <AlertCircle size={24} color="#FFFFFF" />
         ) : (
           <XCircle size={24} color="#FFFFFF" />
         )}
         <Text style={styles.statusText}>
-          {result.isTrue ? 'Notícia Verdadeira' : 'Notícia Falsa'}
+          {result.verification_status === 'VERDADEIRO' ? 'Notícia Verdadeira' : 
+           result.verification_status === 'INDETERMINADO' ? 'Notícia Indeterminada' : 
+           'Notícia Falsa'}
         </Text>
       </View>
 
@@ -142,6 +148,9 @@ const styles = StyleSheet.create({
   },
   falseBanner: {
     backgroundColor: '#EF4444',
+  },
+  indeterminateBanner: {
+    backgroundColor: '#6B7280',
   },
   statusText: {
     color: '#FFFFFF',

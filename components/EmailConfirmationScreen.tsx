@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Image } from 'react-native';
 import { Mail, RefreshCw, AlertCircle } from 'lucide-react-native';
+import KeyboardDismissWrapper from '@/components/KeyboardDismissWrapper';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -18,89 +19,91 @@ export default function EmailConfirmationScreen({ email }: EmailConfirmationScre
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.content}>
-        {/* Header com logo */}
-        <View style={styles.header}>
-          <Image
-            source={require('../assets/images/icon.png')}
-            style={styles.logo}
-            resizeMode="contain"
-          />
-          <Text style={[styles.title, { color: colors.text }]}>
-            CheckNow
+      <KeyboardDismissWrapper>
+        <View style={styles.content}>
+          {/* Header com logo */}
+          <View style={styles.header}>
+            <Image
+              source={require('../assets/images/icon.png')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+            <Text style={[styles.title, { color: colors.text }]}>
+              CheckNow
+            </Text>
+          </View>
+
+          {/* Ícone principal */}
+          <View style={[styles.iconContainer, { backgroundColor: colors.surface }]}>
+            <Mail size={64} color={colors.primary} />
+          </View>
+
+          {/* Título principal */}
+          <Text style={[styles.mainTitle, { color: colors.text }]}>
+            Verifique seu email
           </Text>
-        </View>
 
-        {/* Ícone principal */}
-        <View style={[styles.iconContainer, { backgroundColor: colors.surface }]}>
-          <Mail size={64} color={colors.primary} />
-        </View>
-
-        {/* Título principal */}
-        <Text style={[styles.mainTitle, { color: colors.text }]}>
-          Verifique seu email
-        </Text>
-
-        {/* Instruções */}
-        <View style={styles.instructionsContainer}>
-          <Text style={[styles.instructionText, { color: colors.textSecondary }]}>
-            Enviamos um email de confirmação para:
-          </Text>
-          <Text style={[styles.emailText, { color: colors.primary }]}>
-            {email}
-          </Text>
-          
-          <View style={styles.stepsContainer}>
-            <View style={styles.step}>
-              <View style={[styles.stepNumber, { backgroundColor: colors.primary }]}>
-                <Text style={[styles.stepNumberText, { color: colors.surface }]}>1</Text>
+          {/* Instruções */}
+          <View style={styles.instructionsContainer}>
+            <Text style={[styles.instructionText, { color: colors.textSecondary }]}>
+              Enviamos um email de confirmação para:
+            </Text>
+            <Text style={[styles.emailText, { color: colors.primary }]}>
+              {email}
+            </Text>
+            
+            <View style={styles.stepsContainer}>
+              <View style={styles.step}>
+                <View style={[styles.stepNumber, { backgroundColor: colors.primary }]}>
+                  <Text style={[styles.stepNumberText, { color: colors.surface }]}>1</Text>
+                </View>
+                <Text style={[styles.stepText, { color: colors.textSecondary }]}>
+                  Procure por um email da <Text style={{ fontWeight: 'bold' }}>Supabase</Text> com o título <Text style={{ fontWeight: 'bold' }}>"CheckNow"</Text>
+                </Text>
               </View>
-              <Text style={[styles.stepText, { color: colors.textSecondary }]}>
-                Procure por um email da <Text style={{ fontWeight: 'bold' }}>Supabase</Text> com o título <Text style={{ fontWeight: 'bold' }}>"CheckNow"</Text>
-              </Text>
-            </View>
 
-            <View style={styles.step}>
-              <View style={[styles.stepNumber, { backgroundColor: colors.primary }]}>
-                <Text style={[styles.stepNumberText, { color: colors.surface }]}>2</Text>
+              <View style={styles.step}>
+                <View style={[styles.stepNumber, { backgroundColor: colors.primary }]}>
+                  <Text style={[styles.stepNumberText, { color: colors.surface }]}>2</Text>
+                </View>
+                <Text style={[styles.stepText, { color: colors.textSecondary }]}>
+                  Clique no link de confirmação dentro do email
+                </Text>
               </View>
-              <Text style={[styles.stepText, { color: colors.textSecondary }]}>
-                Clique no link de confirmação dentro do email
-              </Text>
-            </View>
 
-            <View style={styles.step}>
-              <View style={[styles.stepNumber, { backgroundColor: colors.primary }]}>
-                <Text style={[styles.stepNumberText, { color: colors.surface }]}>3</Text>
+              <View style={styles.step}>
+                <View style={[styles.stepNumber, { backgroundColor: colors.primary }]}>
+                  <Text style={[styles.stepNumberText, { color: colors.surface }]}>3</Text>
+                </View>
+                <Text style={[styles.stepText, { color: colors.textSecondary }]}>
+                  Retorne ao app - você será automaticamente logado
+                </Text>
               </View>
-              <Text style={[styles.stepText, { color: colors.textSecondary }]}>
-                Retorne ao app - você será automaticamente logado
-              </Text>
             </View>
           </View>
-        </View>
 
-        {/* Aviso importante */}
-        <View style={[styles.warningContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-          <AlertCircle size={20} color={colors.primary} />
-          <Text style={[styles.warningText, { color: colors.textSecondary }]}>
-            Não recebeu o email? Verifique sua caixa de spam ou lixo eletrônico.
-          </Text>
-        </View>
-
-        {/* Botões de ação */}
-        <View style={styles.buttonsContainer}>
-          <TouchableOpacity
-            style={[styles.secondaryButton, { borderColor: colors.border }]}
-            onPress={handleBackToLogin}
-          >
-            <RefreshCw size={20} color={colors.textSecondary} />
-            <Text style={[styles.secondaryButtonText, { color: colors.textSecondary }]}>
-              Voltar ao Login
+          {/* Aviso importante */}
+          <View style={[styles.warningContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <AlertCircle size={20} color={colors.primary} />
+            <Text style={[styles.warningText, { color: colors.textSecondary }]}>
+              Não recebeu o email? Verifique sua caixa de spam ou lixo eletrônico.
             </Text>
-          </TouchableOpacity>
+          </View>
+
+          {/* Botões de ação */}
+          <View style={styles.buttonsContainer}>
+            <TouchableOpacity
+              style={[styles.secondaryButton, { borderColor: colors.border }]}
+              onPress={handleBackToLogin}
+            >
+              <RefreshCw size={20} color={colors.textSecondary} />
+              <Text style={[styles.secondaryButtonText, { color: colors.textSecondary }]}>
+                Voltar ao Login
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
+      </KeyboardDismissWrapper>
     </SafeAreaView>
   );
 }

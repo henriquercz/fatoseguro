@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, SafeAreaView, ActivityIndicator } from 'react-native';
 import NewsItem from '@/components/NewsItem';
+import KeyboardDismissWrapper from '@/components/KeyboardDismissWrapper';
 import { useVerification } from '@/hooks/useVerification';
 import VerificationResult from '@/components/VerificationResult';
 import { NewsVerification } from '@/types';
@@ -43,37 +44,39 @@ export default function HistoryScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      {!currentVerification ? (
-        <>
-          <View style={styles.header}>
-            {/* <Text style={styles.headerText}>Verificações Recentes</Text> -- Título principal já vem do _layout.tsx */}
-            <Text style={[styles.headerSubtext, { color: colors.textSecondary }]}>
-              Confira as notícias verificadas pela comunidade
-            </Text>
-          </View>
+      <KeyboardDismissWrapper>
+        {!currentVerification ? (
+          <>
+            <View style={styles.header}>
+              {/* <Text style={styles.headerText}>Verificações Recentes</Text> -- Título principal já vem do _layout.tsx */}
+              <Text style={[styles.headerSubtext, { color: colors.textSecondary }]}>
+                Confira as notícias verificadas pela comunidade
+              </Text>
+            </View>
 
-          <FlatList
-            data={safeVerifications}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <NewsItem news={item} onPress={handleNewsPress} />
-            )}
-            contentContainerStyle={styles.listContent}
-            ListEmptyComponent={
-              <View style={styles.emptyContainer}>
-                <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
-                  Nenhuma notícia verificada ainda.
-                </Text>
-              </View>
-            }
+            <FlatList
+              data={safeVerifications}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <NewsItem news={item} onPress={handleNewsPress} />
+              )}
+              contentContainerStyle={styles.listContent}
+              ListEmptyComponent={
+                <View style={styles.emptyContainer}>
+                  <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+                    Nenhuma notícia verificada ainda.
+                  </Text>
+                </View>
+              }
+            />
+          </>
+        ) : (
+          <VerificationResult 
+            result={currentVerification} 
+            onClose={clearCurrentVerification} 
           />
-        </>
-      ) : (
-        <VerificationResult 
-          result={currentVerification} 
-          onClose={clearCurrentVerification} 
-        />
-      )}
+        )}
+      </KeyboardDismissWrapper>
     </SafeAreaView>
   );
 }

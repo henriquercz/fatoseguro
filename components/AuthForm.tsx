@@ -11,6 +11,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { Mail, Lock, Eye, EyeOff, Square, CheckSquare } from 'lucide-react-native';
+import KeyboardDismissWrapper from '@/components/KeyboardDismissWrapper';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import TermsAcceptanceModal from '@/components/TermsAcceptanceModal';
@@ -73,17 +74,18 @@ export default function AuthForm() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={{ flex: 1 }}
     >
-      <ScrollView contentContainerStyle={styles.container}>
-        <View style={[styles.formContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-          <Text style={[styles.title, { color: colors.text }]}>
-            {mode === 'login' ? 'Entrar' : 'Criar Conta'}
-          </Text>
-          
-          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-            {mode === 'login'
-              ? 'Acesse sua conta para continuar'
-              : 'Crie uma conta para começar'}
-          </Text>
+      <KeyboardDismissWrapper>
+        <ScrollView contentContainerStyle={styles.container}>
+          <View style={[styles.formContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <Text style={[styles.title, { color: colors.text }]}>
+              {mode === 'login' ? 'Entrar' : 'Criar Conta'}
+            </Text>
+            
+            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+              {mode === 'login'
+                ? 'Acesse sua conta para continuar'
+                : 'Crie uma conta para começar'}
+            </Text>
 
           {error ? (
             <View style={[styles.errorContainer, { backgroundColor: colors.surface, borderColor: colors.error || '#EF4444' }]}>
@@ -225,7 +227,8 @@ export default function AuthForm() {
             setShowTermsModal(false);
           }}
         />
-      </ScrollView>
+        </ScrollView>
+      </KeyboardDismissWrapper>
     </KeyboardAvoidingView>
   );
 }
