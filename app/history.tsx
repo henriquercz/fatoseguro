@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, SafeAreaView, ActivityIndicator, TouchableOpacity, Animated } from 'react-native';
-import { Users, User, Filter } from 'lucide-react-native';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import { View, Text, StyleSheet, FlatList, SafeAreaView, ActivityIndicator, TouchableOpacity, Animated, SectionList } from 'react-native';
+import { Users, User, Filter, Plus } from 'lucide-react-native';
 import NewsItem from '@/components/NewsItem';
 import KeyboardDismissWrapper from '@/components/KeyboardDismissWrapper';
 import { useVerification } from '@/hooks/useVerification';
@@ -24,16 +24,21 @@ export default function HistoryScreen() {
   const { user } = useAuth();
   const [filterMode, setFilterMode] = useState<'community' | 'personal'>('community');
   const [slideAnimation] = useState(new Animated.Value(0));
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMoreData, setHasMoreData] = useState(true);
+  const [currentPage, setCurrentPage] = useState(0);
 
   useEffect(() => {
+    setCurrentPage(0);
+    setHasMoreData(true);
     if (filterMode === 'community') {
-      loadCommunityHistory();
+      loadCommunityHistory(0, true);
     } else {
       loadHistory();
     }
   }, [filterMode]);
 
-  const handleFilterToggle = (mode: 'community' | 'personal') => {
+  const handleFilterToggle = useCallback((mode: 'community' | 'personal') => {
     if (mode !== filterMode) {
       setFilterMode(mode);
       Animated.timing(slideAnimation, {
@@ -42,17 +47,90 @@ export default function HistoryScreen() {
         useNativeDriver: false,
       }).start();
     }
-  };
+  }, [filterMode, slideAnimation]);
+
+  const loadMoreData = useCallback(async () => {
+    if (loadingMore || !hasMoreData || filterMode !== 'community') return;
+    
+    setLoadingMore(true);
+    const nextPage = currentPage + 1;
+    const newData = await loadCommunityHistory(nextPage, false);
+    
+    if (!newData || newData.length === 0) {
+      setHasMoreData(false);
+    } else {
+      setCurrentPage(nextPage);
+    }
+    setLoadingMore(false);
+  }, [loadingMore, hasMoreData, filterMode, currentPage, loadCommunityHistory]);
 
   // Ensure verifications is always an array for safe access
   const safeVerifications = Array.isArray(verifications) ? verifications : [];
 
-  const handleNewsPress = (newsItem: NewsVerification) => {
+  // Group verifications by date
+  const groupedVerifications = useMemo(() => {
+    const groups: { [key: string]: NewsVerification[] } = {};
+    
+    safeVerifications.forEach(verification => {
+      const date = new Date(verification.verified_at);
+      const dateKey = date.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+      
+      if (!groups[dateKey]) {
+        groups[dateKey] = [];
+      }
+      groups[dateKey].push(verification);
+    });
+    
+    // Convert to sections array and sort by date (newest first)
+    return Object.entries(groups)
+      .map(([date, data]) => ({ title: date, data }))
+      .sort((a, b) => {
+        const dateA = new Date(a.data[0].verified_at);
+        const dateB = new Date(b.data[0].verified_at);
+        return dateB.getTime() - dateA.getTime();
+      });
+  }, [safeVerifications]);
+
+  const handleNewsPress = useCallback((newsItem: NewsVerification) => {
     setViewingVerification(newsItem);
-    // Assuming navigation to the result display (e.g., home screen) is handled by the global state change
-    // or you might need to add router.push('/') or similar here if using expo-router
-    // For now, let's assume the context update triggers the UI change elsewhere.
-  };
+  }, [setViewingVerification]);
+
+  const renderSectionHeader = useCallback(({ section }: { section: { title: string } }) => (
+    <View style={[styles.sectionHeader, { backgroundColor: colors.background }]}>
+      <Text style={[styles.sectionHeaderText, { color: colors.text }]}>
+        {section.title}
+      </Text>
+    </View>
+  ), [colors]);
+
+  const renderNewsItem = useCallback(({ item }: { item: NewsVerification }) => (
+    <NewsItem news={item} onPress={handleNewsPress} />
+  ), [handleNewsPress]);
+
+  const renderLoadMoreButton = useCallback(() => {
+    if (filterMode !== 'community' || !hasMoreData) return null;
+    
+    return (
+      <TouchableOpacity 
+        style={[styles.loadMoreButton, { backgroundColor: colors.surface, borderColor: colors.border }]}
+        onPress={loadMoreData}
+        disabled={loadingMore}
+      >
+        {loadingMore ? (
+          <ActivityIndicator size="small" color={colors.primary} />
+        ) : (
+          <Plus size={20} color={colors.primary} />
+        )}
+        <Text style={[styles.loadMoreText, { color: colors.primary }]}>
+          {loadingMore ? 'Carregando...' : 'Ver mais verificações'}
+        </Text>
+      </TouchableOpacity>
+    );
+  }, [filterMode, hasMoreData, loadingMore, colors, loadMoreData]);
 
   if (loading && safeVerifications.length === 0) {
     return (
@@ -86,7 +164,7 @@ export default function HistoryScreen() {
                         transform: [{
                           translateX: slideAnimation.interpolate({
                             inputRange: [0, 1],
-                            outputRange: [2, 102], // Ajustar conforme largura dos botões
+                            outputRange: [4, 150], // Usar valor fixo para evitar erro de tipo
                           })
                         }]
                       }
@@ -130,13 +208,13 @@ export default function HistoryScreen() {
               )}
             </View>
 
-            <FlatList
-              data={safeVerifications}
+            <SectionList
+              sections={groupedVerifications}
               keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <NewsItem news={item} onPress={handleNewsPress} />
-              )}
+              renderItem={renderNewsItem}
+              renderSectionHeader={renderSectionHeader}
               contentContainerStyle={styles.listContent}
+              stickySectionHeadersEnabled={false}
               ListEmptyComponent={
                 <View style={styles.emptyContainer}>
                   <Filter size={48} color={colors.textSecondary} style={styles.emptyIcon} />
@@ -155,6 +233,7 @@ export default function HistoryScreen() {
                   )}
                 </View>
               }
+              ListFooterComponent={renderLoadMoreButton}
             />
           </>
         ) : (
@@ -192,43 +271,70 @@ const styles = StyleSheet.create({
   filterContainer: {
     flexDirection: 'row',
     borderRadius: 12,
-    padding: 2,
+    padding: 4,
     position: 'relative',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 3,
+    alignSelf: 'center',
+    width: '80%',
   },
   filterSlider: {
     position: 'absolute',
-    top: 2,
-    left: 2,
-    bottom: 2,
-    width: 98,
-    borderRadius: 10,
+    top: 4,
+    left: 4,
+    bottom: 4,
+    width: '48%',
+    borderRadius: 8,
     zIndex: 0,
   },
   filterButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 10,
+    paddingVertical: 12,
     paddingHorizontal: 16,
-    borderRadius: 10,
-    gap: 6,
+    borderRadius: 8,
+    gap: 8,
     zIndex: 1,
-    minWidth: 98,
-    paddingRight: 5,  
+    flex: 1,
   },
   activeFilterButton: {
     // Estilo aplicado via animação
   },
   filterButtonText: {
     fontFamily: 'Inter-Medium',
-    fontSize: 13,
-    paddingRight: 5,
+    fontSize: 14,
     // color aplicada dinamicamente
+  },
+  sectionHeader: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  sectionHeaderText: {
+    fontFamily: 'Inter-SemiBold',
+    fontSize: 16,
+    opacity: 0.8,
+  },
+  loadMoreButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    marginHorizontal: 16,
+    marginVertical: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 8,
+  },
+  loadMoreText: {
+    fontFamily: 'Inter-Medium',
+    fontSize: 14,
   },
   listContent: {
     padding: 16,

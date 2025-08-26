@@ -80,7 +80,7 @@ type VerificationContextType = {
   showAd: boolean;
   verifyNews: (news: string, type: 'text' | 'link') => Promise<void>;
   loadHistory: () => void;
-  loadCommunityHistory: () => void;
+  loadCommunityHistory: (page?: number, reset?: boolean) => Promise<NewsVerification[] | void>;
   clearCurrentVerification: () => void;
   hideAd: () => void;
   clearError: () => void;
@@ -96,7 +96,7 @@ export const VerificationContext = createContext<VerificationContextType>({
   showAd: false,
   verifyNews: async () => {},
   loadHistory: () => {},
-  loadCommunityHistory: () => {},
+  loadCommunityHistory: async () => {},
   clearCurrentVerification: () => {},
   hideAd: () => {},
   clearError: () => {},
@@ -203,17 +203,21 @@ export const VerificationProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const loadCommunityHistory = async () => {
+  const loadCommunityHistory = async (page: number = 0, reset: boolean = true): Promise<NewsVerification[] | void> => {
     try {
+      const pageSize = 20;
+      const offset = page * pageSize;
+      
       const { data, error } = await supabase
         .from('verifications')
         .select('*')
         .order('verified_at', { ascending: false })
-        .limit(50); // Limitar para performance
+        .range(offset, offset + pageSize - 1);
 
       if (error) {
         throw error;
       }
+      
       const historyData: NewsVerification[] = data.map((item: any) => ({
         id: item.id,
         user_id: item.user_id,
@@ -231,10 +235,21 @@ export const VerificationProvider = ({ children }: { children: ReactNode }) => {
         isTrue: item.verification_status === 'VERDADEIRO' || item.is_true,
         explanation: item.verification_summary || item.explanation,
       }));
-      dispatch({ type: 'LOAD_HISTORY', payload: historyData });
+      
+      if (reset || page === 0) {
+        dispatch({ type: 'LOAD_HISTORY', payload: historyData });
+      } else {
+        // Append new data to existing
+        dispatch({ type: 'LOAD_HISTORY', payload: [...(state.verifications || []), ...historyData] });
+      }
+      
+      return historyData;
     } catch (error) {
       console.error('Error loading community verification history:', error);
-      dispatch({ type: 'LOAD_HISTORY', payload: [] });
+      if (reset || page === 0) {
+        dispatch({ type: 'LOAD_HISTORY', payload: [] });
+      }
+      return [];
     }
   };
 
