@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { CircleCheck as CheckCircle, Circle as XCircle, ChevronRight } from 'lucide-react-native';
+import { CircleCheck as CheckCircle, CircleX, CircleHelp, ChevronRight } from 'lucide-react-native';
 import { NewsVerification } from '@/types';
 import { useTheme } from '@/contexts/ThemeContext';
 
@@ -26,10 +26,18 @@ export default function NewsItem({ news, onPress }: NewsItemProps) {
     >
       <View style={styles.contentContainer}>
         <View style={styles.statusIconContainer}>
-          {news.isTrue ? (
-            <CheckCircle size={24} color={colors.success || "#22C55E"} />
+          {news.verification_status === 'VERDADEIRO' ? (
+            <View style={[styles.statusIcon, styles.trueIcon]}>
+              <CheckCircle size={20} color="#FFFFFF" fill="#22C55E" />
+            </View>
+          ) : news.verification_status === 'FALSO' ? (
+            <View style={[styles.statusIcon, styles.falseIcon]}>
+              <CircleX size={20} color="#FFFFFF" fill="#EF4444" />
+            </View>
           ) : (
-            <XCircle size={24} color={colors.error || "#EF4444"} />
+            <View style={[styles.statusIcon, styles.indeterminateIcon]}>
+              <CircleHelp size={20} color="#FFFFFF" fill="#F59E0B" />
+            </View>
           )}
         </View>
         <View style={styles.textContainer}>
@@ -67,6 +75,33 @@ const styles = StyleSheet.create({
   },
   statusIconContainer: {
     marginRight: 12,
+  },
+  statusIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  trueIcon: {
+    backgroundColor: '#22C55E',
+    borderWidth: 2,
+    borderColor: '#16A34A',
+  },
+  falseIcon: {
+    backgroundColor: '#EF4444',
+    borderWidth: 2,
+    borderColor: '#DC2626',
+  },
+  indeterminateIcon: {
+    backgroundColor: '#F59E0B',
+    borderWidth: 2,
+    borderColor: '#D97706',
   },
   textContainer: {
     flex: 1,

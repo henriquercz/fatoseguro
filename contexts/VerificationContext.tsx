@@ -80,6 +80,7 @@ type VerificationContextType = {
   showAd: boolean;
   verifyNews: (news: string, type: 'text' | 'link') => Promise<void>;
   loadHistory: () => void;
+  loadCommunityHistory: () => void;
   clearCurrentVerification: () => void;
   hideAd: () => void;
   clearError: () => void;
@@ -95,6 +96,7 @@ export const VerificationContext = createContext<VerificationContextType>({
   showAd: false,
   verifyNews: async () => {},
   loadHistory: () => {},
+  loadCommunityHistory: () => {},
   clearCurrentVerification: () => {},
   hideAd: () => {},
   clearError: () => {},
@@ -168,6 +170,7 @@ export const VerificationProvider = ({ children }: { children: ReactNode }) => {
         const { data, error } = await supabase
           .from('verifications')
           .select('*')
+          .eq('user_id', user.id)
           .order('verified_at', { ascending: false });
 
         if (error) {
@@ -196,6 +199,41 @@ export const VerificationProvider = ({ children }: { children: ReactNode }) => {
         dispatch({ type: 'LOAD_HISTORY', payload: [] });
       }
     } else {
+      dispatch({ type: 'LOAD_HISTORY', payload: [] });
+    }
+  };
+
+  const loadCommunityHistory = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('verifications')
+        .select('*')
+        .order('verified_at', { ascending: false })
+        .limit(50); // Limitar para performance
+
+      if (error) {
+        throw error;
+      }
+      const historyData: NewsVerification[] = data.map((item: any) => ({
+        id: item.id,
+        user_id: item.user_id,
+        news_content: item.news_content || item.news_title || item.news_url || 'Conteúdo não disponível',
+        news_url: item.news_url,
+        news_title: item.news_title,
+        news_text_snippet: item.news_text_snippet,
+        source: item.source || (item.news_url ? new URL(item.news_url).hostname : undefined),
+        verification_status: item.verification_status as NewsVerification['verification_status'],
+        verification_summary: item.verification_summary || item.explanation,
+        related_facts: item.related_facts || [],
+        raw_ai_response: item.raw_ai_response,
+        error_message: item.error_message,
+        verified_at: item.verified_at,
+        isTrue: item.verification_status === 'VERDADEIRO' || item.is_true,
+        explanation: item.verification_summary || item.explanation,
+      }));
+      dispatch({ type: 'LOAD_HISTORY', payload: historyData });
+    } catch (error) {
+      console.error('Error loading community verification history:', error);
       dispatch({ type: 'LOAD_HISTORY', payload: [] });
     }
   };
@@ -480,6 +518,7 @@ export const VerificationProvider = ({ children }: { children: ReactNode }) => {
         showAd: state.showAd,
         verifyNews,
         loadHistory,
+        loadCommunityHistory,
         clearCurrentVerification,
         hideAd,
         clearError,
