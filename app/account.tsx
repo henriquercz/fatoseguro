@@ -100,7 +100,7 @@ export default function AccountScreen() {
             
             <PremiumCard
               title="Mensal"
-              price="9,90"
+              price="19,90"
               period="por mês"
               features={[
                 { text: "Verificações ilimitadas" },
@@ -113,7 +113,7 @@ export default function AccountScreen() {
             
             <PremiumCard
               title="Anual"
-              price="89,90"
+              price="189,90"
               period="por ano (25% de desconto)"
               features={[
                 { text: "Verificações ilimitadas" },
@@ -149,16 +149,16 @@ export default function AccountScreen() {
             <Text style={[styles.menuItemText, { color: colors.text }]}>Enviar Feedback</Text>
           </TouchableOpacity>
           
-          {!user.isPremium && (
+          {/* {!user.isPremium && ( */}
             <TouchableOpacity style={[styles.menuItem, { backgroundColor: colors.surface, borderBottomColor: colors.border }]} onPress={() => setInviteFriendsModalVisible(true)}>
               <Gift size={20} color={colors.textSecondary} />
               <Text style={[styles.menuItemText, { color: colors.text }]}>Convidar Amigos</Text>
             </TouchableOpacity>
-          )}
+          {/* )} */}
         </View>
         
         <View style={styles.footer}>
-          <Text style={[styles.footerText, { color: colors.textSecondary }]}>CheckNow v1.1.0</Text>
+          <Text style={[styles.footerText, { color: colors.textSecondary }]}>CheckNow v2.1.1</Text>
           <Text style={[styles.footerText, { color: colors.textSecondary }]}>© 2025 CheckNow</Text>
         </View>
       </ScrollView>
