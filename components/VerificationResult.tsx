@@ -1,7 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Dimensions } from 'react-native';
 import { CircleCheck as CheckCircle, Circle as XCircle, CircleAlert as AlertCircle, ArrowLeft } from 'lucide-react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { TouchableOpacity, PanGestureHandler } from 'react-native-gesture-handler';
+import Animated, { 
+  useSharedValue, 
+  useAnimatedStyle, 
+  useAnimatedGestureHandler, 
+  withSpring, 
+  runOnJS 
+} from 'react-native-reanimated';
 import { NewsVerification } from '@/types';
 import { useTheme } from '@/contexts/ThemeContext';
 
@@ -14,6 +21,11 @@ export default function VerificationResult({ result, onClose }: VerificationResu
   const { colors } = useTheme();
   const [showFullContent, setShowFullContent] = useState(false);
   
+  // Configuração do gesto de swipe para voltar
+  const { width: screenWidth } = Dimensions.get('window');
+  const translateX = useSharedValue(0);
+  const SWIPE_THRESHOLD = screenWidth * 0.25; // 25% da largura da tela (mais sensível)
+  
   // Detectar se é um link (URL) ou texto
   const isUrl = result.news_url ? true : false;
   const content = result.news_content || '';
@@ -21,6 +33,39 @@ export default function VerificationResult({ result, onClose }: VerificationResu
   // Só truncar se não tiver título e o conteúdo for longo
   const shouldTruncate = !result.news_title && contentLength > 150;
   
+  // Handler para o gesto de swipe
+  const gestureHandler = useAnimatedGestureHandler({
+    onStart: () => {
+      // Início do gesto
+    },
+    onActive: (event) => {
+      // Durante o gesto, apenas permitir movimento para a direita (valores positivos)
+      if (event.translationX > 0) {
+        translateX.value = event.translationX;
+      }
+    },
+    onEnd: (event) => {
+      // Fim do gesto - decidir se deve fechar ou voltar
+      if (event.translationX > SWIPE_THRESHOLD && event.velocityX > 0) {
+        // Chamar onClose imediatamente para transição instantânea
+        runOnJS(onClose)();
+      } else {
+        // Voltar para posição original com animação rápida
+        translateX.value = withSpring(0, {
+          damping: 15,
+          stiffness: 200,
+        });
+      }
+    },
+  });
+
+  // Estilo animado para o container
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateX: translateX.value }],
+    };
+  });
+
   const displayContent = () => {
     // Priorizar título se disponível, independente de ser URL ou não
     if (result.news_title) {
@@ -36,86 +81,88 @@ export default function VerificationResult({ result, onClose }: VerificationResu
   };
   
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <TouchableOpacity style={styles.backButton} onPress={onClose}>
-        <ArrowLeft size={24} color={colors.primary} />
-        <Text style={[styles.backText, { color: colors.primary }]}>Voltar a tela de histórico</Text>
-      </TouchableOpacity>
+    <PanGestureHandler onGestureEvent={gestureHandler}>
+      <Animated.View style={[styles.container, { backgroundColor: colors.background }, animatedStyle]}>
+        <TouchableOpacity style={styles.backButton} onPress={onClose}>
+          <ArrowLeft size={24} color={colors.primary} />
+          <Text style={[styles.backText, { color: colors.primary }]}>Voltar a tela de histórico</Text>
+        </TouchableOpacity>
 
-      <View 
-        style={[
-          styles.statusBanner, 
-          result.verification_status === 'VERDADEIRO' ? styles.trueBanner : 
-          result.verification_status === 'INDETERMINADO' ? styles.indeterminateBanner : 
-          styles.falseBanner
-        ]}>
-        {result.verification_status === 'VERDADEIRO' ? (
-          <CheckCircle size={24} color="#FFFFFF" />
-        ) : result.verification_status === 'INDETERMINADO' ? (
-          <AlertCircle size={24} color="#FFFFFF" />
-        ) : (
-          <XCircle size={24} color="#FFFFFF" />
-        )}
-        <Text style={styles.statusText}>
-          {result.verification_status === 'VERDADEIRO' ? 'Notícia Verdadeira' : 
-           result.verification_status === 'INDETERMINADO' ? 'Notícia Indeterminada' : 
-           'Notícia Falsa'}
-        </Text>
-      </View>
-
-      <ScrollView style={styles.content}>
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>Notícia analisada:</Text>
-          <Text style={[styles.newsContent, { color: colors.text, fontSize: isUrl ? 16 : 14 }]}>
-            {displayContent()}
-          </Text>
-          {shouldTruncate && (
-            <TouchableOpacity onPress={() => setShowFullContent(!showFullContent)}>
-              <Text style={[styles.readMoreText, { color: colors.primary }]}>
-                {showFullContent ? 'Ler menos' : 'Ler mais'}
-              </Text>
-            </TouchableOpacity>
+        <View 
+          style={[
+            styles.statusBanner, 
+            result.verification_status === 'VERDADEIRO' ? styles.trueBanner : 
+            result.verification_status === 'INDETERMINADO' ? styles.indeterminateBanner : 
+            styles.falseBanner
+          ]}>
+          {result.verification_status === 'VERDADEIRO' ? (
+            <CheckCircle size={24} color="#FFFFFF" />
+          ) : result.verification_status === 'INDETERMINADO' ? (
+            <AlertCircle size={24} color="#FFFFFF" />
+          ) : (
+            <XCircle size={24} color="#FFFFFF" />
           )}
-          {result.source && (
-            <Text style={[styles.source, { color: colors.textSecondary }]}>Fonte: {result.source}</Text>
-          )}
-        </View>
-
-        <View style={[styles.divider, { backgroundColor: colors.border }]} />
-
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>Análise:</Text>
-          <Text style={[styles.analysisText, { color: colors.text }]}>{result.verification_summary || result.explanation}</Text>
-        </View>
-
-        {result.related_facts && result.related_facts.length > 0 && (
-          <>
-            <View style={[styles.divider, { backgroundColor: colors.border }]} />
-            <View style={styles.section}>
-              <Text style={[styles.sectionTitle, { color: colors.text }]}>Fatos relacionados:</Text>
-              {result.related_facts.map((fact: string, index: number) => (
-                <View key={index} style={[styles.factItem, { backgroundColor: colors.surface }]}>
-                  <AlertCircle size={16} color={colors.textSecondary} />
-                  <Text style={[styles.factText, { color: colors.text }]}>{fact}</Text>
-                </View>
-              ))}
-            </View>
-          </>
-        )}
-
-        <View style={styles.verifiedAt}>
-          <Text style={[styles.verifiedAtText, { color: colors.textSecondary }]}>
-            Verificado em: {new Date(result.verified_at).toLocaleDateString('pt-BR', {
-              day: '2-digit',
-              month: '2-digit',
-              year: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit'
-            })}
+          <Text style={styles.statusText}>
+            {result.verification_status === 'VERDADEIRO' ? 'Notícia Verdadeira' : 
+             result.verification_status === 'INDETERMINADO' ? 'Notícia Indeterminada' : 
+             'Notícia Falsa'}
           </Text>
         </View>
-      </ScrollView>
-    </View>
+
+        <ScrollView style={styles.content}>
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Notícia analisada:</Text>
+            <Text style={[styles.newsContent, { color: colors.text, fontSize: isUrl ? 16 : 14 }]}>
+              {displayContent()}
+            </Text>
+            {shouldTruncate && (
+              <TouchableOpacity onPress={() => setShowFullContent(!showFullContent)}>
+                <Text style={[styles.readMoreText, { color: colors.primary }]}>
+                  {showFullContent ? 'Ler menos' : 'Ler mais'}
+                </Text>
+              </TouchableOpacity>
+            )}
+            {result.source && (
+              <Text style={[styles.source, { color: colors.textSecondary }]}>Fonte: {result.source}</Text>
+            )}
+          </View>
+
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
+
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Análise:</Text>
+            <Text style={[styles.analysisText, { color: colors.text }]}>{result.verification_summary || result.explanation}</Text>
+          </View>
+
+          {result.related_facts && result.related_facts.length > 0 && (
+            <>
+              <View style={[styles.divider, { backgroundColor: colors.border }]} />
+              <View style={styles.section}>
+                <Text style={[styles.sectionTitle, { color: colors.text }]}>Fatos relacionados:</Text>
+                {result.related_facts.map((fact: string, index: number) => (
+                  <View key={index} style={[styles.factItem, { backgroundColor: colors.surface }]}>
+                    <AlertCircle size={16} color={colors.textSecondary} />
+                    <Text style={[styles.factText, { color: colors.text }]}>{fact}</Text>
+                  </View>
+                ))}
+              </View>
+            </>
+          )}
+
+          <View style={styles.verifiedAt}>
+            <Text style={[styles.verifiedAtText, { color: colors.textSecondary }]}>
+              Verificado em: {new Date(result.verified_at).toLocaleDateString('pt-BR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              })}
+            </Text>
+          </View>
+        </ScrollView>
+      </Animated.View>
+    </PanGestureHandler>
   );
 }
 
