@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#EF4444',
   },
   indeterminateBanner: {
-    backgroundColor: '#6B7280',
+    backgroundColor: '#F59E0B',
   },
   statusText: {
     color: '#FFFFFF',
