@@ -7,7 +7,7 @@ import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/ge
 import { braveSearchService } from '@/lib/braveSearch';
 import { webScraperService } from '@/lib/webScraper';
 
-const MAX_FREE_VERIFICATIONS = 3;
+const MAX_FREE_VERIFICATIONS = 3; // 3 verificações mensais para usuários free
 
 const initialState: VerificationState = {
   verifications: [], // This will hold history for logged-in users
@@ -122,15 +122,17 @@ export const VerificationProvider = ({ children }: { children: ReactNode }) => {
         if (user.isPremium) {
           dispatch({ type: 'SET_VERIFICATION_COUNT', payload: null }); // null for unlimited premium users
         } else {
-          const todayStart = new Date().setHours(0, 0, 0, 0);
-          const todayEnd = new Date().setHours(23, 59, 59, 999);
+          // Calcula início e fim do mês atual
+          const now = new Date();
+          const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+          const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
 
           const { count, error } = await supabase
             .from('verifications')
             .select('*', { count: 'exact', head: true })
             .eq('user_id', user.id)
-            .gte('verified_at', new Date(todayStart).toISOString())
-            .lte('verified_at', new Date(todayEnd).toISOString());
+            .gte('verified_at', monthStart.toISOString())
+            .lte('verified_at', monthEnd.toISOString());
 
           if (error) {
             console.error('Error fetching verification count:', error);
@@ -143,15 +145,31 @@ export const VerificationProvider = ({ children }: { children: ReactNode }) => {
       } else { // Guest user
         const guestData = await AsyncStorage.getItem('verificationCount_guest');
         if (guestData) {
-          const { count, date } = JSON.parse(guestData);
-          if (date === new Date().toDateString()) {
+          const { count, month, year } = JSON.parse(guestData);
+          const currentMonth = new Date().getMonth();
+          const currentYear = new Date().getFullYear();
+          
+          // Verifica se é o mesmo mês e ano
+          if (month === currentMonth && year === currentYear) {
             dispatch({ type: 'SET_VERIFICATION_COUNT', payload: count });
           } else {
-            await AsyncStorage.setItem('verificationCount_guest', JSON.stringify({ count: MAX_FREE_VERIFICATIONS, date: new Date().toDateString() }));
+            // Novo mês, reseta o contador
+            await AsyncStorage.setItem('verificationCount_guest', JSON.stringify({ 
+              count: MAX_FREE_VERIFICATIONS, 
+              month: currentMonth, 
+              year: currentYear 
+            }));
             dispatch({ type: 'SET_VERIFICATION_COUNT', payload: MAX_FREE_VERIFICATIONS });
           }
         } else {
-          await AsyncStorage.setItem('verificationCount_guest', JSON.stringify({ count: MAX_FREE_VERIFICATIONS, date: new Date().toDateString() }));
+          // Primeira vez, inicializa
+          const currentMonth = new Date().getMonth();
+          const currentYear = new Date().getFullYear();
+          await AsyncStorage.setItem('verificationCount_guest', JSON.stringify({ 
+            count: MAX_FREE_VERIFICATIONS, 
+            month: currentMonth, 
+            year: currentYear 
+          }));
           dispatch({ type: 'SET_VERIFICATION_COUNT', payload: MAX_FREE_VERIFICATIONS });
         }
       }
@@ -539,12 +557,16 @@ export const VerificationProvider = ({ children }: { children: ReactNode }) => {
           explanation: coreVerificationData.verification_summary,
         };
         console.log('[VerificationContext] finalVerificationResult (guest):', JSON.stringify(finalVerificationResult, null, 2));
-        // For guest users, verificationCount is handled by the reducer based on VERIFY_SUCCESS
-        // and AsyncStorage is updated by loadVerificationCount for persistence across sessions.
-        // We still need to update the count for the current session for guests.
+        // Para usuários guest, atualiza AsyncStorage com lógica mensal
         const newCount = Math.max(0, (state.verificationCount || MAX_FREE_VERIFICATIONS) - 1);
+        const currentMonth = new Date().getMonth();
+        const currentYear = new Date().getFullYear();
         // Update AsyncStorage for guest for next session start
-        await AsyncStorage.setItem('verificationCount_guest', JSON.stringify({ count: newCount, date: new Date().toDateString() }));
+        await AsyncStorage.setItem('verificationCount_guest', JSON.stringify({ 
+          count: newCount, 
+          month: currentMonth, 
+          year: currentYear 
+        }));
       }
       // The reducer will handle decrementing the count for both user types upon VERIFY_SUCCESS
       dispatch({ type: 'VERIFY_SUCCESS', payload: finalVerificationResult });

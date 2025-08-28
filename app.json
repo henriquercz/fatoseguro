@@ -2,8 +2,8 @@
   "expo": {
     "name": "Check Now",
     "slug": "fatoseguro",
-    "version": "2.5.1",
-    "runtimeVersion": "2.5.1",
+    "version": "2.5.2",
+    "runtimeVersion": "2.5.2",
     "orientation": "portrait",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
@@ -31,7 +31,8 @@
     "plugins": [
       "expo-router",
       "expo-font",
-      "expo-web-browser"
+      "expo-web-browser",
+      "react-native-google-mobile-ads"
     ],
     "experiments": {
       "typedRoutes": true
