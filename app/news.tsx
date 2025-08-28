@@ -439,7 +439,7 @@ const styles = StyleSheet.create({
   },
   newsList: {
     paddingHorizontal: 20,
-    paddingBottom: 20,
+    paddingBottom: 100, // Espaço para o FloatingTabBar
     paddingTop: 4,
   },
   newsCard: {

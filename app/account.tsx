@@ -74,7 +74,7 @@ export default function AccountScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScrollView>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>{/* Remove whitespace between View elements */}
             <View>
               <Text style={[styles.welcomeText, { color: colors.text }]}>Bem-vindo(a)</Text>
@@ -185,6 +185,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     // backgroundColor aplicada via tema
+  },
+  scrollContent: {
+    paddingBottom: 100, // Espaço para o FloatingTabBar
   },
   header: {
     flexDirection: 'row',
