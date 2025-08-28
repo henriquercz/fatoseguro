@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: 16,
-    paddingBottom: 100, // Espaço para o FloatingTabBar
+    paddingBottom: 120, // Espaço para o FloatingTabBar
   },
   infoContainer: {
     marginTop: 32,
