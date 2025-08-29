@@ -161,7 +161,10 @@ export default function VerifyForm() {
             onPress={dismissKeyboard}
             activeOpacity={0.7}
           >
-            <X size={16} color={colors.textSecondary} />
+            <X size={14} color={colors.textSecondary} />
+            <Text style={[styles.keyboardDismissText, { color: colors.textSecondary }]}>
+              Fechar teclado
+            </Text>
           </TouchableOpacity>
         )}
       </KeyboardDismissWrapper>
@@ -277,13 +280,13 @@ const styles = StyleSheet.create({
   },
   keyboardDismissButton: {
     position: 'absolute',
-    top: 50,
+    bottom: 20,
     right: 20,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    justifyContent: 'center',
+    flexDirection: 'row',
     alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
     borderWidth: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -291,5 +294,10 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
     zIndex: 1000,
+  },
+  keyboardDismissText: {
+    fontFamily: 'Inter-Medium',
+    fontSize: 12,
+    marginLeft: 6,
   },
 });

@@ -109,7 +109,7 @@ export default function VerificationResult({ result, onClose }: VerificationResu
           </Text>
         </View>
 
-        <ScrollView style={styles.content}>
+        <ScrollView style={styles.content} contentContainerStyle={styles.scrollContent}>
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, { color: colors.text }]}>Notícia analisada:</Text>
             <Text style={[styles.newsContent, { color: colors.text, fontSize: isUrl ? 16 : 14 }]}>
@@ -265,5 +265,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: 8,
     textDecorationLine: 'underline',
+  },
+  scrollContent: {
+    paddingBottom: 140, // Espaço para o FloatingTabBar (100px) + margem extra (40px)
   },
 });

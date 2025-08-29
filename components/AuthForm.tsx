@@ -275,7 +275,10 @@ export default function AuthForm() {
             onPress={dismissKeyboard}
             activeOpacity={0.7}
           >
-            <X size={16} color={colors.textSecondary} />
+            <X size={14} color={colors.textSecondary} />
+            <Text style={[styles.keyboardDismissText, { color: colors.textSecondary }]}>
+              Fechar teclado
+            </Text>
           </TouchableOpacity>
         )}
       </KeyboardDismissWrapper>
