@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Dimensions, Platform } from 'react-native';
 import { CircleCheck as CheckCircle, Circle as XCircle, CircleAlert as AlertCircle, ArrowLeft } from 'lucide-react-native';
 import { TouchableOpacity, PanGestureHandler } from 'react-native-gesture-handler';
 import Animated, { 
@@ -33,28 +33,31 @@ export default function VerificationResult({ result, onClose }: VerificationResu
   // Só truncar se não tiver título e o conteúdo for longo
   const shouldTruncate = !result.news_title && contentLength > 150;
   
-  // Handler para o gesto de swipe
+  // Handler para o gesto de swipe - apenas no iOS e apenas na borda esquerda
   const gestureHandler = useAnimatedGestureHandler({
-    onStart: () => {
-      // Início do gesto
+    onStart: (event) => {
+      // No iOS, só permitir se começar na borda esquerda (primeiros 50px)
+      if (Platform.OS === 'ios' && event.x > 50) {
+        return;
+      }
     },
     onActive: (event) => {
-      // Durante o gesto, apenas permitir movimento para a direita (valores positivos)
-      if (event.translationX > 0) {
+      // Apenas no iOS e se começou na borda esquerda
+      if (Platform.OS === 'ios' && event.x <= 50 && event.translationX > 0) {
         translateX.value = event.translationX;
       }
     },
     onEnd: (event) => {
-      // Fim do gesto - decidir se deve fechar ou voltar
-      if (event.translationX > SWIPE_THRESHOLD && event.velocityX > 0) {
-        // Chamar onClose imediatamente para transição instantânea
-        runOnJS(onClose)();
-      } else {
-        // Voltar para posição original com animação rápida
-        translateX.value = withSpring(0, {
-          damping: 15,
-          stiffness: 200,
-        });
+      // Apenas no iOS
+      if (Platform.OS === 'ios' && event.x <= 50) {
+        if (event.translationX > SWIPE_THRESHOLD && event.velocityX > 0) {
+          runOnJS(onClose)();
+        } else {
+          translateX.value = withSpring(0, {
+            damping: 15,
+            stiffness: 200,
+          });
+        }
       }
     },
   });
@@ -80,9 +83,9 @@ export default function VerificationResult({ result, onClose }: VerificationResu
     return content;
   };
   
-  return (
-    <PanGestureHandler onGestureEvent={gestureHandler}>
-      <Animated.View style={[styles.container, { backgroundColor: colors.background }, animatedStyle]}>
+  // Renderizar com ou sem PanGestureHandler baseado na plataforma
+  const renderContent = () => (
+    <Animated.View style={[styles.container, { backgroundColor: colors.background }, Platform.OS === 'ios' ? animatedStyle : {}]}>
         <TouchableOpacity style={styles.backButton} onPress={onClose}>
           <ArrowLeft size={24} color={colors.primary} />
           <Text style={[styles.backText, { color: colors.primary }]}>Voltar a tela de histórico</Text>
@@ -162,7 +165,14 @@ export default function VerificationResult({ result, onClose }: VerificationResu
           </View>
         </ScrollView>
       </Animated.View>
+  );
+
+  return Platform.OS === 'ios' ? (
+    <PanGestureHandler onGestureEvent={gestureHandler}>
+      {renderContent()}
     </PanGestureHandler>
+  ) : (
+    renderContent()
   );
 }
 
