@@ -33,24 +33,24 @@ export default function VerificationResult({ result, onClose }: VerificationResu
   // Só truncar se não tiver título e o conteúdo for longo
   const shouldTruncate = !result.news_title && contentLength > 150;
   
-  // Handler para o gesto de swipe - apenas no iOS e apenas na borda esquerda
+  // Handler para o gesto de swipe - apenas no iOS com área mais ampla na borda
   const gestureHandler = useAnimatedGestureHandler({
     onStart: (event) => {
-      // No iOS, só permitir se começar na borda esquerda (primeiros 50px)
-      if (Platform.OS === 'ios' && event.x > 50) {
+      // No iOS, permitir se começar nos primeiros 80px da borda esquerda
+      if (Platform.OS === 'ios' && event.x > 80) {
         return;
       }
     },
     onActive: (event) => {
-      // Apenas no iOS e se começou na borda esquerda
-      if (Platform.OS === 'ios' && event.x <= 50 && event.translationX > 0) {
+      // Apenas no iOS, área mais ampla para melhor detecção
+      if (Platform.OS === 'ios' && event.translationX > 0) {
         translateX.value = event.translationX;
       }
     },
     onEnd: (event) => {
-      // Apenas no iOS
-      if (Platform.OS === 'ios' && event.x <= 50) {
-        if (event.translationX > SWIPE_THRESHOLD && event.velocityX > 0) {
+      // Apenas no iOS, com threshold menor para ser mais responsivo
+      if (Platform.OS === 'ios') {
+        if (event.translationX > SWIPE_THRESHOLD * 0.6 && event.velocityX > 200) {
           runOnJS(onClose)();
         } else {
           translateX.value = withSpring(0, {
