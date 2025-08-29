@@ -10,8 +10,9 @@ import {
   Platform,
   ScrollView,
   Image,
+  Keyboard,
 } from 'react-native';
-import { Mail, Lock, Eye, EyeOff, Square, CheckSquare } from 'lucide-react-native';
+import { Mail, Lock, Eye, EyeOff, Square, CheckSquare, X } from 'lucide-react-native';
 import KeyboardDismissWrapper from '@/components/KeyboardDismissWrapper';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -27,9 +28,28 @@ export default function AuthForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
   
   const { login, register, loading, error } = useAuth();
   const { colors } = useTheme();
+
+  React.useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardVisible(true);
+    });
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardVisible(false);
+    });
+
+    return () => {
+      keyboardDidShowListener?.remove();
+      keyboardDidHideListener?.remove();
+    };
+  }, []);
+
+  const dismissKeyboard = () => {
+    Keyboard.dismiss();
+  };
 
   const toggleMode = () => {
     setMode(prev => (prev === 'login' ? 'register' : 'login'));
@@ -248,6 +268,16 @@ export default function AuthForm() {
           }}
         />
         </ScrollView>
+        
+        {keyboardVisible && (
+          <TouchableOpacity 
+            style={[styles.keyboardDismissButton, { backgroundColor: colors.surface, borderColor: colors.border }]}
+            onPress={dismissKeyboard}
+            activeOpacity={0.7}
+          >
+            <X size={16} color={colors.textSecondary} />
+          </TouchableOpacity>
+        )}
       </KeyboardDismissWrapper>
     </KeyboardAvoidingView>
   );
@@ -389,5 +419,27 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 22,
     paddingHorizontal: 20,
+  },
+  keyboardDismissButton: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    zIndex: 1000,
+  },
+  keyboardDismissText: {
+    fontFamily: 'Inter-Medium',
+    fontSize: 12,
+    marginLeft: 6,
   },
 });

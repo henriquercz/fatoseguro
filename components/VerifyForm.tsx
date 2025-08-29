@@ -8,8 +8,9 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  Keyboard,
 } from 'react-native';
-import { Shield, Link, TriangleAlert as AlertTriangle, RefreshCcw } from 'lucide-react-native';
+import { Shield, Link, TriangleAlert as AlertTriangle, RefreshCcw, X } from 'lucide-react-native';
 import KeyboardDismissWrapper from '@/components/KeyboardDismissWrapper';
 import { useVerification } from '@/hooks/useVerification';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -18,8 +19,27 @@ export default function VerifyForm() {
   const [newsInput, setNewsInput] = useState('');
   const [inputType, setInputType] = useState<'text' | 'link'>('text');
   const [isInputFocused, setIsInputFocused] = useState(false); // Estado para foco do input
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
   const { verifyNews, loading, error, verificationCount } = useVerification();
   const { colors } = useTheme();
+
+  React.useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardVisible(true);
+    });
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardVisible(false);
+    });
+
+    return () => {
+      keyboardDidShowListener?.remove();
+      keyboardDidHideListener?.remove();
+    };
+  }, []);
+
+  const dismissKeyboard = () => {
+    Keyboard.dismiss();
+  };
 
   const handleVerify = async () => {
     if (!newsInput.trim()) return;
@@ -134,6 +154,16 @@ export default function VerifyForm() {
             </Text>
           )}
         </View>
+        
+        {keyboardVisible && (
+          <TouchableOpacity 
+            style={[styles.keyboardDismissButton, { backgroundColor: colors.surface, borderColor: colors.border }]}
+            onPress={dismissKeyboard}
+            activeOpacity={0.7}
+          >
+            <X size={16} color={colors.textSecondary} />
+          </TouchableOpacity>
+        )}
       </KeyboardDismissWrapper>
     </KeyboardAvoidingView>
   );
@@ -244,5 +274,22 @@ const styles = StyleSheet.create({
     marginTop: 16,
     fontFamily: 'Inter-Medium',
     fontSize: 14,
+  },
+  keyboardDismissButton: {
+    position: 'absolute',
+    top: 50,
+    right: 20,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    zIndex: 1000,
   },
 });
