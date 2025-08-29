@@ -357,7 +357,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     padding: 16,
-    paddingBottom: 100, // Espaço para o FloatingTabBar
+    paddingBottom: 110, // Espaço para o FloatingTabBar
   },
   emptyContainer: {
     paddingVertical: 48,
