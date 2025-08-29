@@ -40,7 +40,8 @@ export default function CustomHeader({
       {
         backgroundColor: colors.surface,
         borderBottomColor: colors.border,
-        paddingTop: insets.top + 8,
+        // paddingTop: insets.top,
+        paddingTop: 16,
       }
     ]}>
       <View style={styles.content}>
@@ -120,7 +121,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingBottom: 12,
+    paddingBottom: 16,
   },
   leftSection: {
     flexDirection: 'row',
