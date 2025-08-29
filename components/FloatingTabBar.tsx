@@ -123,7 +123,7 @@ export default function FloatingTabBar({ activeTab, onTabPress }: FloatingTabBar
       style={[
         styles.container,
         {
-          bottom: insets.bottom + 16,
+          bottom: insets.bottom + 17,
           backgroundColor: isDarkMode ? colors.surface : colors.background,
           borderColor: isDarkMode ? colors.border : colors.primary + '20',
         },
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
     right: 20,
     borderRadius: 24,
     borderWidth: 1,
-    paddingVertical: 12,
+    paddingVertical: 8,
     paddingHorizontal: 8,
     zIndex: 1000,
     ...Platform.select({
