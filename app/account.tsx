@@ -7,6 +7,7 @@ import FeedbackModal from '@/components/FeedbackModal';
 import InviteFriendsModal from '@/components/InviteFriendsModal';
 import SettingsModal from '@/components/SettingsModal';
 import KeyboardDismissWrapper from '@/components/KeyboardDismissWrapper';
+import CustomHeader from '@/components/CustomHeader';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 
@@ -32,6 +33,14 @@ export default function AccountScreen() {
           style: 'destructive',
         },
       ]
+    );
+  };
+
+  const handleEducationPress = () => {
+    Alert.alert(
+      'Conteúdos Educativos',
+      'Esta funcionalidade estará disponível em breve! Aqui você encontrará materiais educativos sobre verificação de notícias e combate à desinformação.',
+      [{ text: 'OK' }]
     );
   };
 
@@ -74,6 +83,10 @@ export default function AccountScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <CustomHeader 
+        title="Conta" 
+        onEducationPress={handleEducationPress}
+      />
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>{/* Remove whitespace between View elements */}
             <View>

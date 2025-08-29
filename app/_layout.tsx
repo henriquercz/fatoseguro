@@ -114,14 +114,7 @@ function RootLayoutNav() {
       <Tabs
         screenOptions={{
           tabBarStyle: { display: 'none' }, // Esconde a tab bar padrão
-          headerShown: true,
-          headerStyle: {
-            backgroundColor: colors.surface,
-          },
-          headerTintColor: colors.text,
-          headerTitleStyle: {
-            color: colors.text,
-          },
+          headerShown: false, // Desabilita header padrão para usar CustomHeader
         }}>
         <Tabs.Screen
           name="index"

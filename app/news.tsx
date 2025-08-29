@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import KeyboardDismissWrapper from '@/components/KeyboardDismissWrapper';
+import CustomHeader from '@/components/CustomHeader';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useVerification } from '@/contexts/VerificationContext';
@@ -152,6 +153,14 @@ export default function NewsScreen() {
           }
         }
       ]
+    );
+  };
+
+  const handleEducationPress = () => {
+    Alert.alert(
+      'Conteúdos Educativos',
+      'Esta funcionalidade estará disponível em breve! Aqui você encontrará materiais educativos sobre verificação de notícias e combate à desinformação.',
+      [{ text: 'OK' }]
     );
   };
 
@@ -295,6 +304,10 @@ export default function NewsScreen() {
   if (loading) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <CustomHeader 
+          title="Notícias" 
+          onEducationPress={handleEducationPress}
+        />
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.primary} />
           <Text style={[styles.loadingText, { color: colors.textSecondary }]}>
@@ -308,6 +321,10 @@ export default function NewsScreen() {
   if (error) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <CustomHeader 
+          title="Notícias" 
+          onEducationPress={handleEducationPress}
+        />
         <View style={styles.errorContainer}>
           <Newspaper size={64} color={colors.textSecondary} />
           <Text style={[styles.errorTitle, { color: colors.text }]}>
@@ -331,18 +348,19 @@ export default function NewsScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <CustomHeader 
+        title="Notícias" 
+        onEducationPress={handleEducationPress}
+      />
       <KeyboardDismissWrapper>
         <View style={styles.header}>
           <View style={styles.headerContent}>
             <View style={styles.headerTitle}>
-              <TrendingUp size={24} color={colors.primary} />
-              <Text style={[styles.title, { color: colors.text }]}>
-                Notícias em Destaque
+              <TrendingUp size={20} color={colors.primary} />
+              <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+                {filteredNews.length} notícias • Brasil
               </Text>
             </View>
-            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-              {filteredNews.length} notícias • Brasil
-            </Text>
           </View>
         </View>
 

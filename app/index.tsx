@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, Image, SafeAreaView } from 'react-native';
+import { View, StyleSheet, Text, Image, SafeAreaView, Alert } from 'react-native';
 import VerifyForm from '@/components/VerifyForm';
 import VerificationResult from '@/components/VerificationResult';
 import AdDisplay from '@/components/AdDisplay';
 import KeyboardDismissWrapper from '@/components/KeyboardDismissWrapper';
+import CustomHeader from '@/components/CustomHeader';
 import { useVerification } from '@/hooks/useVerification';
 import { useTheme } from '@/contexts/ThemeContext';
 
@@ -23,8 +24,20 @@ export default function HomeScreen() {
     setFormKey(prevKey => prevKey + 1); // Increment key to force VerifyForm remount
   };
 
+  const handleEducationPress = () => {
+    Alert.alert(
+      'Conteúdos Educativos',
+      'Esta funcionalidade estará disponível em breve! Aqui você encontrará materiais educativos sobre verificação de notícias e combate à desinformação.',
+      [{ text: 'OK' }]
+    );
+  };
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <CustomHeader 
+        title="Verificar" 
+        onEducationPress={handleEducationPress}
+      />
       <KeyboardDismissWrapper>
         {!currentVerification && (
           <View style={styles.content}>
