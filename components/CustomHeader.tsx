@@ -40,8 +40,8 @@ export default function CustomHeader({
       {
         backgroundColor: colors.surface,
         borderBottomColor: colors.border,
-        // paddingTop: insets.top,
-        paddingTop: 16,
+        paddingTop: insets.top,
+        // paddingTop: 16, esse pro meui ios
       }
     ]}>
       <View style={styles.content}>
