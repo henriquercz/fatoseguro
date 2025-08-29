@@ -280,7 +280,7 @@ const styles = StyleSheet.create({
   },
   keyboardDismissButton: {
     position: 'absolute',
-    bottom: 20,
+    bottom: 1,
     right: 20,
     flexDirection: 'row',
     alignItems: 'center',
