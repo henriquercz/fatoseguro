@@ -47,7 +47,7 @@ export default function CustomHeader({
         {/* Logo + Nome do App */}
         <View style={styles.leftSection}>
           <Image
-            source={require('@/assets/images/icon.png')}
+            source={require('@/assets/images/logozinha.png')}
             style={styles.logo}
             resizeMode="contain"
           />
