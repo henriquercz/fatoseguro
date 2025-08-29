@@ -70,16 +70,6 @@ function RootLayoutNav() {
     // Tela de Autenticação para usuários não logados
     return (
       <SafeAreaView style={[styles.authContainer, { backgroundColor: colors.background }]}>
-        <View style={styles.authHeader}>
-          <Image
-            source={require('../assets/images/icon.png')} // Caminho relativo de _layout.tsx para assets
-            style={styles.authLogo}
-            resizeMode="contain"
-          />
-          <Text style={[styles.authText, { color: colors.textSecondary }]}>
-            Entre ou crie uma conta para verificar notícias e acessar seu histórico.
-          </Text>
-        </View>
         <AuthForm />
       </SafeAreaView>
     );
@@ -189,24 +179,5 @@ export default function AppLayout() {
 const styles = StyleSheet.create({
   authContainer: {
     flex: 1,
-    justifyContent: 'center',
-    padding: 20,
-    // backgroundColor aplicada via tema
-  },
-  authHeader: {
-    alignItems: 'center',
-    marginBottom: 32,
-  },
-  authLogo: {
-    width: 120,
-    height: 120,
-    marginBottom: 24,
-  },
-  authText: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 16,
-    textAlign: 'center',
-    paddingHorizontal: 20,
-    // color aplicada via tema
   },
 });

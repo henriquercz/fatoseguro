@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Image,
 } from 'react-native';
 import { Mail, Lock, Eye, EyeOff, Square, CheckSquare } from 'lucide-react-native';
 import KeyboardDismissWrapper from '@/components/KeyboardDismissWrapper';
@@ -73,9 +74,28 @@ export default function AuthForm() {
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={{ flex: 1 }}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
     >
       <KeyboardDismissWrapper>
-        <ScrollView contentContainerStyle={styles.container}>
+        <ScrollView 
+          contentContainerStyle={styles.container}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          bounces={false}
+          scrollEnabled={true}
+          contentInsetAdjustmentBehavior="automatic"
+        >
+          <View style={styles.logoContainer}>
+            <Image
+              source={require('../assets/images/icon.png')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+            <Text style={[styles.logoText, { color: colors.textSecondary }]}>
+              Entre ou crie uma conta para verificar notícias e acessar seu histórico.
+            </Text>
+          </View>
+
           <View style={[styles.formContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <Text style={[styles.title, { color: colors.text }]}>
               {mode === 'login' ? 'Entrar' : 'Criar Conta'}
@@ -238,6 +258,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
     padding: 16,
+    minHeight: '100%',
   },
   formContainer: {
     borderRadius: 12,
@@ -352,5 +373,21 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     textDecorationLine: 'underline',
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  logo: {
+    width: 80,
+    height: 80,
+    marginBottom: 16,
+  },
+  logoText: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 16,
+    textAlign: 'center',
+    lineHeight: 22,
+    paddingHorizontal: 20,
   },
 });
