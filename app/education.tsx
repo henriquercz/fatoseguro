@@ -454,29 +454,32 @@ export default function EducationScreen() {
 
           <View style={styles.optionsContainer}>
             {currentQuestion.options.map((option, index) => {
-              let optionStyle = [styles.optionButton, { borderColor: colors.border }];
+              const baseStyle = [styles.optionButton, { borderColor: colors.border }];
+              let dynamicStyle = {};
               let textColor = colors.text;
 
               if (selectedAnswer !== null) {
                 if (index === currentQuestion.correctAnswer) {
-                  optionStyle.push({
-                    backgroundColor: (colors.success || "#10B981") + '20',
-                    borderColor: colors.success || "#10B981"
-                  });
-                  textColor = colors.success || "#10B981";
+                  const successColor = colors.success || "#10B981";
+                  dynamicStyle = {
+                    backgroundColor: successColor + '20',
+                    borderColor: successColor
+                  };
+                  textColor = successColor;
                 } else if (index === selectedAnswer && index !== currentQuestion.correctAnswer) {
-                  optionStyle.push({
-                    backgroundColor: "#EF4444" + '20',
-                    borderColor: "#EF4444"
-                  });
-                  textColor = "#EF4444";
+                  const errorColor = "#EF4444";
+                  dynamicStyle = {
+                    backgroundColor: errorColor + '20',
+                    borderColor: errorColor
+                  };
+                  textColor = errorColor;
                 }  
               }
 
               return (
                 <TouchableOpacity
                   key={index}
-                  style={optionStyle}
+                  style={[...baseStyle, dynamicStyle]}
                   onPress={() => handleAnswerSelect(index)}
                   disabled={selectedAnswer !== null}
                 >
@@ -514,13 +517,11 @@ export default function EducationScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
-          {currentSection === 'menu' ? (
-            <Home size={24} color={colors.primary} />
-          ) : (
+        {currentSection !== 'menu' && (
+          <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
             <ArrowLeft size={24} color={colors.text} />
-          )}
-        </TouchableOpacity>
+          </TouchableOpacity>
+        )}
         <Text style={[styles.headerTitle, { color: colors.text }]}>
           {currentSection === 'menu' ? 'Educação Digital' : 
            currentSection === 'content' ? selectedContent?.title : 
@@ -528,6 +529,17 @@ export default function EducationScreen() {
         </Text>
         <View style={styles.headerSpacer} />
       </View>
+
+      {/* Botão flutuante de home - apenas no menu principal */}
+      {currentSection === 'menu' && (
+        <TouchableOpacity 
+          style={[styles.floatingHomeButton, { backgroundColor: colors.primary }]}
+          onPress={handleBackPress}
+          activeOpacity={0.8}
+        >
+          <Home size={28} color="#FFFFFF" />
+        </TouchableOpacity>
+      )}
 
       {currentSection === 'menu' && renderMenu()}
       {currentSection === 'content' && renderContent()}
@@ -829,5 +841,21 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-SemiBold',
     fontSize: 16,
     color: '#FFFFFF',
+  },
+  floatingHomeButton: {
+    position: 'absolute',
+    bottom: 30,
+    right: 30,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+    zIndex: 1000,
   },
 });

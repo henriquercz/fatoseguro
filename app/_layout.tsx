@@ -98,6 +98,11 @@ function RootLayoutNav() {
     return 'index';
   };
 
+  // Verifica se deve mostrar o FloatingTabBar
+  const shouldShowFloatingTabBar = () => {
+    return !pathname.startsWith('/education');
+  };
+
   // Usuário logado, mostra as abas principais com FloatingTabBar customizado
   return (
     <View style={{ flex: 1 }}>
@@ -154,11 +159,13 @@ function RootLayoutNav() {
         />
       </Tabs>
       
-      {/* FloatingTabBar customizado */}
-      <FloatingTabBar
-        activeTab={getActiveTab()}
-        onTabPress={handleTabPress}
-      />
+      {/* FloatingTabBar customizado - oculto na tela de educação */}
+      {shouldShowFloatingTabBar() && (
+        <FloatingTabBar
+          activeTab={getActiveTab()}
+          onTabPress={handleTabPress}
+        />
+      )}
     </View>
   );
 }
