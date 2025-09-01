@@ -157,11 +157,7 @@ export default function NewsScreen() {
   };
 
   const handleEducationPress = () => {
-    Alert.alert(
-      'Conteúdos Educativos',
-      'Esta funcionalidade estará disponível em breve! Aqui você encontrará materiais educativos sobre verificação de notícias e combate à desinformação.',
-      [{ text: 'OK' }]
-    );
+    router.push('/education');
   };
 
   useEffect(() => {

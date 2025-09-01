@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Text, Image, SafeAreaView, Alert } from 'react-native';
+import { router } from 'expo-router';
 import VerifyForm from '@/components/VerifyForm';
 import VerificationResult from '@/components/VerificationResult';
 import AdDisplay from '@/components/AdDisplay';
@@ -25,11 +26,7 @@ export default function HomeScreen() {
   };
 
   const handleEducationPress = () => {
-    Alert.alert(
-      'Conteúdos Educativos',
-      'Esta funcionalidade estará disponível em breve! Aqui você encontrará materiais educativos sobre verificação de notícias e combate à desinformação.',
-      [{ text: 'OK' }]
-    );
+    router.push('/education');
   };
 
   return (

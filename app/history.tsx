@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, SafeAreaView, ActivityIndicator, TouchableOpacity, Animated, SectionList, Alert } from 'react-native';
+import { router } from 'expo-router';
 import { Users, User, Filter, Plus } from 'lucide-react-native';
 import NewsItem from '@/components/NewsItem';
 import KeyboardDismissWrapper from '@/components/KeyboardDismissWrapper';
@@ -134,11 +135,7 @@ export default function HistoryScreen() {
   }, [filterMode, hasMoreData, loadingMore, colors, loadMoreData]);
 
   const handleEducationPress = () => {
-    Alert.alert(
-      'Conteúdos Educativos',
-      'Esta funcionalidade estará disponível em breve! Aqui você encontrará materiais educativos sobre verificação de notícias e combate à desinformação.',
-      [{ text: 'OK' }]
-    );
+    router.push('/education');
   };
 
   if (loading && safeVerifications.length === 0) {
