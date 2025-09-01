@@ -136,24 +136,24 @@ const educationContent: EducationContent[] = [
       'Cheque datas e contexto: imagens e vídeos antigos são frequentemente recontextualizados.'
     ],
     tips: [
-      'Use ferramentas de fact-checking como Lupa, Aos Fatos e Comprova',
-      'Pesquise por palavras-chave da notícia no Google',
+      'O CheckNow já faz toda essa verificação automaticamente para você!',
+      'Nossa IA analisa múltiplas fontes em segundos',
       'Verifique se há consenso entre especialistas no assunto',
       'Desconfie de "descobertas" que só um site reporta'
     ]
   },
   {
     id: 'verification-tools',
-    title: 'Ferramentas de Verificação',
+    title: 'CheckNow: Sua Ferramenta Definitiva',
     icon: <Search size={24} color="#10B981" />,
     content: [
-      'Existem várias ferramentas gratuitas para verificar informações online.',
-      'Fact-checkers profissionais: Agência Lupa, Aos Fatos, Comprova, E-Farsas.',
-      'Busca reversa de imagens: Google Images, TinEye para verificar origem de fotos.',
-      'Verificadores de vídeo: InVID, ferramentas que analisam metadados de vídeos.'
+      'O CheckNow é a ferramenta mais avançada para verificação de notícias no Brasil.',
+      'Nossa IA integra múltiplas fontes confiáveis em uma única análise completa.',
+      'Verificação instantânea: textos, links e contexto em segundos.',
+      'Tecnologia de ponta que supera métodos tradicionais de fact-checking.'
     ],
     tips: [
-      'Salve nos favoritos sites de fact-checking',
+      'Use o CheckNow como sua primeira e principal ferramenta',
       'Use a busca reversa sempre que suspeitar de uma imagem',
       'Verifique perfis sociais de quem compartilha a informação',
       'Consulte especialistas da área quando possível'
@@ -206,6 +206,7 @@ export default function EducationScreen() {
   const [score, setScore] = useState(0);
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [fadeAnim] = useState(new Animated.Value(1));
+  const [completedContents, setCompletedContents] = useState<string[]>([]);
 
   const handleBackPress = () => {
     if (currentSection === 'content' || currentSection === 'quiz') {
@@ -223,6 +224,18 @@ export default function EducationScreen() {
   const handleContentSelect = (content: EducationContent) => {
     setSelectedContent(content);
     setCurrentSection('content');
+  };
+
+  const markContentAsCompleted = (contentId: string) => {
+    if (!completedContents.includes(contentId)) {
+      setCompletedContents(prev => [...prev, contentId]);
+    }
+  };
+
+  const isContentUnlocked = (contentIndex: number) => {
+    if (contentIndex === 0) return true; // Primeiro conteúdo sempre desbloqueado
+    const previousContentId = educationContent[contentIndex - 1].id;
+    return completedContents.includes(previousContentId);
   };
 
   const startQuiz = () => {
@@ -304,21 +317,59 @@ export default function EducationScreen() {
         <Text style={[styles.sectionTitle, { color: colors.text }]}>
           📚 Conteúdos Educativos
         </Text>
-        {educationContent.map((content) => (
-          <TouchableOpacity
-            key={content.id}
-            style={[styles.contentCard, { backgroundColor: colors.surface, borderColor: colors.border }]}
-            onPress={() => handleContentSelect(content)}
-          >
-            <View style={styles.contentHeader}>
-              {content.icon}
-              <Text style={[styles.contentTitle, { color: colors.text }]}>
-                {content.title}
-              </Text>
-            </View>
-            <ChevronRight size={20} color={colors.textSecondary} />
-          </TouchableOpacity>
-        ))}
+        {educationContent.map((content, index) => {
+          const isUnlocked = isContentUnlocked(index);
+          const isCompleted = completedContents.includes(content.id);
+          
+          return (
+            <TouchableOpacity
+              key={content.id}
+              style={[
+                styles.menuItem, 
+                { 
+                  backgroundColor: colors.surface, 
+                  borderColor: colors.border,
+                  opacity: isUnlocked ? 1 : 0.5
+                }
+              ]}
+              onPress={() => isUnlocked && handleContentSelect(content)}
+              activeOpacity={isUnlocked ? 0.7 : 1}
+              disabled={!isUnlocked}
+            >
+              <View style={styles.menuItemIcon}>
+                {isCompleted ? (
+                  <View style={[styles.completedBadge, { backgroundColor: colors.success || '#10B981' }]}>
+                    <Text style={styles.completedBadgeText}>✓</Text>
+                  </View>
+                ) : isUnlocked ? (
+                  content.icon
+                ) : (
+                  <View style={[styles.lockedIcon, { backgroundColor: colors.textSecondary + '20' }]}>
+                    <Text style={[styles.lockedIconText, { color: colors.textSecondary }]}>🔒</Text>
+                  </View>
+                )}
+              </View>
+              <View style={styles.menuItemContent}>
+                <Text style={[
+                  styles.menuItemTitle, 
+                  { color: isUnlocked ? colors.text : colors.textSecondary }
+                ]}>
+                  {content.title} {isCompleted && '✓'}
+                </Text>
+                <Text style={[
+                  styles.menuItemDescription, 
+                  { color: colors.textSecondary }
+                ]}>
+                  {isUnlocked 
+                    ? content.content[0].substring(0, 80) + '...' 
+                    : 'Complete o conteúdo anterior para desbloquear'
+                  }
+                </Text>
+              </View>
+              {isUnlocked && <ChevronRight size={20} color={colors.textSecondary} />}
+            </TouchableOpacity>
+          );
+        })}
       </View>
 
       <View style={styles.section}>
@@ -361,26 +412,34 @@ export default function EducationScreen() {
             </Text>
           </View>
 
-          <View style={styles.contentBody}>
-            {selectedContent.content.map((paragraph, index) => (
-              <Text key={index} style={[styles.paragraph, { color: colors.text }]}>
-                {paragraph}
-              </Text>
-            ))}
-          </View>
-
-          <View style={[styles.tipsSection, { backgroundColor: colors.background, borderColor: colors.border }]}>
-            <Text style={[styles.tipsTitle, { color: colors.primary }]}>
-              💡 Dicas Práticas
-            </Text>
-            {selectedContent.tips.map((tip, index) => (
-              <View key={index} style={styles.tipItem}>
-                <CheckCircle size={16} color={colors.success || colors.primary} />
-                <Text style={[styles.tipText, { color: colors.textSecondary }]}>
-                  {tip}
+          <View style={styles.contentContainer}>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {selectedContent.content.map((paragraph, index) => (
+                <Text key={index} style={[styles.contentText, { color: colors.text }]}>
+                  {paragraph}
                 </Text>
+              ))}
+              
+              <View style={styles.tipsContainer}>
+                <Text style={[styles.tipsTitle, { color: colors.primary }]}>💡 Dicas Importantes:</Text>
+                {selectedContent.tips.map((tip, index) => (
+                  <Text key={index} style={[styles.tipText, { color: colors.text }]}>
+                    • {tip}
+                  </Text>
+                ))}
               </View>
-            ))}
+
+              <TouchableOpacity 
+                style={[styles.completeButton, { backgroundColor: colors.primary }]}
+                onPress={() => {
+                  markContentAsCompleted(selectedContent.id);
+                  setCurrentSection('menu');
+                  setSelectedContent(null);
+                }}
+              >
+                <Text style={styles.completeButtonText}>✓ Marcar como Concluído</Text>
+              </TouchableOpacity>
+            </ScrollView>
           </View>
         </View>
       </ScrollView>
@@ -845,7 +904,7 @@ const styles = StyleSheet.create({
   floatingHomeButton: {
     position: 'absolute',
     bottom: 30,
-    right: 30,
+    left: 30,
     width: 64,
     height: 64,
     borderRadius: 32,
@@ -857,5 +916,96 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 8,
     zIndex: 1000,
+  },
+  completeButton: {
+    marginTop: 24,
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  completeButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+  },
+  completedBadge: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  completedBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontFamily: 'Inter-Bold',
+  },
+  lockedIcon: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  lockedIconText: {
+    fontSize: 12,
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  menuItemIcon: {
+    marginRight: 12,
+  },
+  menuItemContent: {
+    flex: 1,
+  },
+  menuItemTitle: {
+    fontFamily: 'Inter-SemiBold',
+    fontSize: 16,
+    marginBottom: 4,
+  },
+  menuItemDescription: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  contentContainer: {
+    flex: 1,
+  },
+  contentText: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 16,
+    lineHeight: 24,
+    marginBottom: 16,
+  },
+  tipsContainer: {
+    marginTop: 24,
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    backgroundColor: '#F9FAFB',
+  },
+  tipsTitle: {
+    fontFamily: 'Inter-SemiBold',
+    fontSize: 16,
+    marginBottom: 12,
+  },
+  tipText: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 8,
   },
 });
