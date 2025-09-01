@@ -146,6 +146,12 @@ function RootLayoutNav() {
             href: null,
           }}
         />
+        <Tabs.Screen
+          name="education"
+          options={{
+            href: null,
+          }}
+        />
       </Tabs>
       
       {/* FloatingTabBar customizado */}

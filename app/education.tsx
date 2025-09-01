@@ -25,6 +25,7 @@ import {
   ChevronRight,
   Play,
   RotateCcw,
+  Home,
 } from 'lucide-react-native';
 
 interface QuizQuestion {
@@ -215,7 +216,7 @@ export default function EducationScreen() {
       setCurrentQuestionIndex(0);
       setScore(0);
     } else {
-      router.back();
+      router.replace('/');
     }
   };
 
@@ -514,7 +515,11 @@ export default function EducationScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={[styles.header, { borderBottomColor: colors.border }]}>
         <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
-          <ArrowLeft size={24} color={colors.text} />
+          {currentSection === 'menu' ? (
+            <Home size={24} color={colors.primary} />
+          ) : (
+            <ArrowLeft size={24} color={colors.text} />
+          )}
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: colors.text }]}>
           {currentSection === 'menu' ? 'Educação Digital' : 
