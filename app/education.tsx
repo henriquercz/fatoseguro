@@ -413,32 +413,40 @@ export default function EducationScreen() {
           </View>
 
           <View style={styles.contentContainer}>
-            <ScrollView showsVerticalScrollIndicator={false}>
-              {selectedContent.content.map((paragraph, index) => (
-                <Text key={index} style={[styles.contentText, { color: colors.text }]}>
-                  {paragraph}
-                </Text>
-              ))}
-              
-              <View style={styles.tipsContainer}>
-                <Text style={[styles.tipsTitle, { color: colors.primary }]}>💡 Dicas Importantes:</Text>
-                {selectedContent.tips.map((tip, index) => (
-                  <Text key={index} style={[styles.tipText, { color: colors.text }]}>
-                    • {tip}
+            <ScrollView showsVerticalScrollIndicator={false} style={styles.contentScrollView}>
+              <View style={styles.contentPadding}>
+                {selectedContent.content.map((paragraph, index) => (
+                  <Text key={index} style={[styles.contentText, { color: colors.text }]}>
+                    {paragraph}
                   </Text>
                 ))}
-              </View>
+                
+                <View style={[styles.tipsContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                  <Text style={[styles.tipsTitle, { color: colors.primary }]}>💡 Dicas Importantes:</Text>
+                  {selectedContent.tips.map((tip, index) => (
+                    <Text key={index} style={[styles.tipText, { color: colors.text }]}>
+                      • {tip}
+                    </Text>
+                  ))}
+                </View>
 
-              <TouchableOpacity 
-                style={[styles.completeButton, { backgroundColor: colors.primary }]}
-                onPress={() => {
-                  markContentAsCompleted(selectedContent.id);
-                  setCurrentSection('menu');
-                  setSelectedContent(null);
-                }}
-              >
-                <Text style={styles.completeButtonText}>✓ Marcar como Concluído</Text>
-              </TouchableOpacity>
+                {!completedContents.includes(selectedContent.id) ? (
+                  <TouchableOpacity 
+                    style={[styles.completeButton, { backgroundColor: colors.primary }]}
+                    onPress={() => {
+                      markContentAsCompleted(selectedContent.id);
+                      setCurrentSection('menu');
+                      setSelectedContent(null);
+                    }}
+                  >
+                    <Text style={styles.completeButtonText}>✓ Marcar como Concluído</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <View style={[styles.completedIndicator, { backgroundColor: colors.success || '#10B981' }]}>
+                    <Text style={styles.completedIndicatorText}>✓ Conteúdo Concluído</Text>
+                  </View>
+                )}
+              </View>
             </ScrollView>
           </View>
         </View>
@@ -1007,5 +1015,23 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     marginBottom: 8,
+  },
+  contentScrollView: {
+    flex: 1,
+  },
+  contentPadding: {
+    padding: 20,
+  },
+  completedIndicator: {
+    marginTop: 24,
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  completedIndicatorText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
   },
 });
