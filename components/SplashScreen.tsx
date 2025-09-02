@@ -89,7 +89,8 @@ export default function SplashScreen({ onFinish }: SplashScreenProps) {
         ]}
       >
         <View style={[styles.iconWrapper, { backgroundColor: colors.primary }]}>
-          <Shield size={48} color="#FFFFFF" />
+          {/* <Shield size={48} color="#FFFFFF" /> */}
+          <Image source={require('../assets/images/logozinha.png')} style={styles.icon} />
         </View>
         
         <Text style={[styles.appName, { color: colors.text }]}>
@@ -157,6 +158,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
+  },
+  icon: {
+    width: 48,
+    height: 48,
   },
   gradientCircle: {
     position: 'absolute',
