@@ -1005,17 +1005,6 @@ const styles = StyleSheet.create({
     borderColor: '#E5E7EB',
     backgroundColor: '#F9FAFB',
   },
-  tipsTitle: {
-    fontFamily: 'Inter-SemiBold',
-    fontSize: 16,
-    marginBottom: 12,
-  },
-  tipText: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 14,
-    lineHeight: 20,
-    marginBottom: 8,
-  },
   contentScrollView: {
     flex: 1,
   },

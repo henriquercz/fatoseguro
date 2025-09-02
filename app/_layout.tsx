@@ -12,6 +12,7 @@ import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 import AuthForm from '@/components/AuthForm';
 import EmailConfirmationScreen from '@/components/EmailConfirmationScreen';
 import FloatingTabBar from '@/components/FloatingTabBar';
+import CustomSplashScreen from '@/components/SplashScreen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import {
   Inter_400Regular,
@@ -28,6 +29,7 @@ SplashScreen.preventAutoHideAsync().catch(() => {
 function RootLayoutNav() {
   const { user, loading: authLoading, pendingEmailConfirmation } = useAuth(); // Corrigido: isLoading para loading
   const { colors } = useTheme();
+  const [showCustomSplash, setShowCustomSplash] = React.useState(true);
   const router = useRouter();
   const pathname = usePathname();
   const [fontsLoaded] = useFonts({
@@ -38,26 +40,17 @@ function RootLayoutNav() {
   });
 
   useEffect(() => {
-    if (fontsLoaded && Platform.OS !== 'web') {
-      SplashScreen.hideAsync().catch(() => {
-        /* reloading the app might trigger some race conditions, ignore them */
-      });
+    if (fontsLoaded) {
+      SplashScreen.hideAsync();
     }
   }, [fontsLoaded]);
 
-  useEffect(() => {
-    if ((fontsLoaded || authLoading === false) && Platform.OS !== 'web') {
-      SplashScreen.hideAsync().catch(() => {
-        /* reloading the app might trigger some race conditions, ignore them */
-      });
-    }
-  }, [fontsLoaded, authLoading]);
-
-  if (!fontsLoaded || authLoading) {
+  // Mostrar splash personalizada se ainda não carregou
+  if (showCustomSplash || !fontsLoaded) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}>
-        <ActivityIndicator size="large" color={colors.primary} />
-      </View>
+      <CustomSplashScreen 
+        onFinish={() => setShowCustomSplash(false)}
+      />
     );
   }
 
@@ -77,7 +70,7 @@ function RootLayoutNav() {
 
   // Função para lidar com navegação do FloatingTabBar
   const handleTabPress = (route: string) => {
-    console.log('🔄 Navegando para:', route);
+    console.log(' Navegando para:', route);
     try {
       if (route === 'index') {
         router.replace('/');
