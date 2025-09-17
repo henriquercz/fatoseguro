@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { SafeAreaView, StyleSheet } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import VerificationResult from '@/components/VerificationResult';
@@ -20,18 +20,24 @@ export default function VerificationResultScreen() {
     }
   };
 
+  // Usar useEffect para navegação para evitar setState durante render
+  useEffect(() => {
+    if (!currentVerification) {
+      router.replace('/history');
+    }
+  }, [currentVerification]);
+
   if (!currentVerification) {
-    // Se não há verificação atual, redirecionar para o histórico
-    router.replace('/history');
     return null;
   }
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <CustomHeader 
-        title="Resultado da Verificação"
+        title="Resultado"
         showBackButton={true}
         onBackPress={handleClose}
+        showEducationIcon={false}
       />
       <VerificationResult 
         result={currentVerification} 

@@ -49,32 +49,30 @@ export default function CustomHeader({
       }
     ]}>
       <View style={styles.content}>
-        {/* Seção Esquerda - Botão Voltar ou Logo */}
+        {/* Seção Esquerda - Logo + Nome + Título */}
         <View style={styles.leftSection}>
-          {showBackButton ? (
+          {showBackButton && (
             <TouchableOpacity
               style={[styles.backButton, { backgroundColor: colors.primary + '15' }]}
               onPress={onBackPress}
               activeOpacity={0.7}
             >
-              <ArrowLeft size={24} color={colors.primary} />
+              <ArrowLeft size={20} color={colors.primary} />
             </TouchableOpacity>
-          ) : (
-            <Image
-              source={require('@/assets/images/logozinha.png')}
-              style={styles.logo}
-              resizeMode="contain"
-            />
           )}
           
-          {!showBackButton && (
-            <Text style={[styles.appName, { color: colors.text }]}>
-              Check Now
-            </Text>
-          )}
+          <Image
+            source={require('@/assets/images/logozinha.png')}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+          
+          <Text style={[styles.appName, { color: colors.text }]}>
+            Check Now
+          </Text>
           
           <Text style={[styles.separator, { color: colors.textSecondary }]}>
-            {!showBackButton ? '•' : ''}
+            •
           </Text>
           
           <Text style={[styles.title, { color: colors.text }]}>
@@ -140,7 +138,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingBottom: 16,
+    paddingBottom: 12,
   },
   leftSection: {
     flexDirection: 'row',
@@ -200,16 +198,16 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   backButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
+    marginRight: 8,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowRadius: 2,
+    elevation: 2,
   },
 });

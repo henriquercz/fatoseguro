@@ -22,6 +22,8 @@ import { useVerification } from '@/contexts/VerificationContext';
 import { gnewsService, ProcessedNews } from '@/lib/gnews';
 import { router } from 'expo-router';
 import { Newspaper, Clock, ExternalLink, Search, Filter, TrendingUp, Share2, Bookmark, BookmarkCheck } from 'lucide-react-native';
+import AdDisplay from '@/components/AdDisplay';
+import VerificationResult from '@/components/VerificationResult';
 
 const categories = [
   { id: 'all', name: 'Todas', icon: '📰' },
@@ -36,7 +38,15 @@ const categories = [
 export default function NewsScreen() {
   const { colors } = useTheme();
   const { user } = useAuth();
-  const { verifyNews: verifyNewsContext, verificationCount, loading: verificationLoading } = useVerification();
+  const { 
+    verifyNews: verifyNewsContext, 
+    verificationCount, 
+    loading: verificationLoading,
+    currentVerification,
+    clearCurrentVerification,
+    showAd,
+    hideAd
+  } = useVerification();
   const [news, setNews] = useState<ProcessedNews[]>([]);
   const [filteredNews, setFilteredNews] = useState<ProcessedNews[]>([]);
   const [loading, setLoading] = useState(true);
@@ -144,9 +154,6 @@ export default function NewsScreen() {
               const verificationType = newsItem.url ? 'link' : 'text';
               
               await verifyNewsContext(newsToVerify, verificationType);
-              
-              // Navega para a tela principal onde o resultado será exibido
-              router.push('/');
             } catch (error) {
               Alert.alert('Erro', 'Não foi possível verificar a notícia. Tente novamente.');
             }
@@ -163,6 +170,13 @@ export default function NewsScreen() {
   useEffect(() => {
     loadNews();
   }, []);
+
+  // Navegar para tela de resultado quando verificação estiver completa
+  useEffect(() => {
+    if (currentVerification && !verificationLoading && !showAd) {
+      router.push('/verification-result');
+    }
+  }, [currentVerification, verificationLoading, showAd]);
 
   const renderNewsItem = ({ item }: { item: ProcessedNews }) => (
     <TouchableOpacity
@@ -349,45 +363,70 @@ export default function NewsScreen() {
         onEducationPress={handleEducationPress}
       />
       <KeyboardDismissWrapper>
-        <View style={styles.header}>
-          <View style={styles.headerContent}>
-            <View style={styles.headerTitle}>
-              <TrendingUp size={20} color={colors.primary} />
-              <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-                {filteredNews.length} notícias • Brasil
+        {/* Mostrar loading durante verificação */}
+        {verificationLoading && (
+          <View style={styles.loadingOverlay}>
+            <View style={[styles.loadingContent, { backgroundColor: colors.surface }]}>
+              <ActivityIndicator size="large" color={colors.primary} />
+              <Text style={[styles.loadingText, { color: colors.text }]}>
+                Verificando notícia...
+              </Text>
+              <Text style={[styles.loadingSubtext, { color: colors.textSecondary }]}>
+                Nossa IA está analisando a informação
               </Text>
             </View>
           </View>
-        </View>
+        )}
 
-        {renderCategoryFilter()}
+        {/* Mostrar anúncio para usuários free */}
+        {showAd && (
+          <AdDisplay onClose={hideAd} />
+        )}
 
-        <FlatList
-          data={filteredNews}
-          renderItem={renderNewsItem}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.newsList}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={() => loadNews(true)}
-              colors={[colors.primary]}
-              tintColor={colors.primary}
-            />
-          }
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <Filter size={48} color={colors.textSecondary} />
-              <Text style={[styles.emptyTitle, { color: colors.text }]}>
-                Nenhuma notícia encontrada
-              </Text>
-              <Text style={[styles.emptyMessage, { color: colors.textSecondary }]}>
-                Tente selecionar uma categoria diferente
-              </Text>
+        {/* Conteúdo principal das notícias */}
+        {!verificationLoading && !showAd && (
+          <>
+            <View style={styles.header}>
+              <View style={styles.headerContent}>
+                <View style={styles.headerTitle}>
+                  <TrendingUp size={20} color={colors.primary} />
+                  <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+                    {filteredNews.length} notícias • Brasil
+                  </Text>
+                </View>
+              </View>
             </View>
-          }
-        />
+
+            {renderCategoryFilter()}
+
+            <FlatList
+              data={filteredNews}
+              renderItem={renderNewsItem}
+              keyExtractor={(item) => item.id}
+              contentContainerStyle={styles.newsList}
+              showsVerticalScrollIndicator={false}
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={() => loadNews(true)}
+                  colors={[colors.primary]}
+                  tintColor={colors.primary}
+                />
+              }
+              ListEmptyComponent={
+                <View style={styles.emptyContainer}>
+                  <Filter size={48} color={colors.textSecondary} />
+                  <Text style={[styles.emptyTitle, { color: colors.text }]}>
+                    Nenhuma notícia encontrada
+                  </Text>
+                  <Text style={[styles.emptyMessage, { color: colors.textSecondary }]}>
+                    Tente selecionar uma categoria diferente
+                  </Text>
+                </View>
+              }
+            />
+          </>
+        )}
       </KeyboardDismissWrapper>
     </SafeAreaView>
   );
@@ -586,8 +625,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   loadingText: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 15,
+    fontFamily: 'Inter-Bold',
+    fontSize: 18,
+    marginTop: 16,
+    textAlign: 'center',
   },
   errorContainer: {
     flex: 1,
@@ -634,5 +675,34 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     opacity: 0.7,
     lineHeight: 20,
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  loadingContent: {
+    padding: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    marginHorizontal: 32,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  loadingSubtext: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 14,
+    marginTop: 8,
+    textAlign: 'center',
+    opacity: 0.8,
   },
 });
