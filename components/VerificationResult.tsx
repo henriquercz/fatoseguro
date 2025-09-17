@@ -37,10 +37,7 @@ export default function VerificationResult({ result, onClose }: VerificationResu
   
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <TouchableOpacity style={styles.backButton} onPress={onClose}>
-        <ArrowLeft size={24} color={colors.primary} />
-        <Text style={[styles.backText, { color: colors.primary }]}>Voltar a tela de histórico</Text>
-      </TouchableOpacity>
+      {/* Botão de voltar removido - agora está no header */}
 
       <View 
         style={[
@@ -123,23 +120,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  backButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  backText: {
-    marginLeft: 8,
-    fontFamily: 'Inter-Medium',
-    fontSize: 16,
-  },
   statusBanner: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 16,
     marginHorizontal: 16,
+    marginTop: 16,
     borderRadius: 8,
     marginBottom: 16,
   },

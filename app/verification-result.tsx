@@ -2,6 +2,7 @@ import React from 'react';
 import { SafeAreaView, StyleSheet } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import VerificationResult from '@/components/VerificationResult';
+import CustomHeader from '@/components/CustomHeader';
 import { useVerification } from '@/hooks/useVerification';
 import { useTheme } from '@/contexts/ThemeContext';
 
@@ -27,6 +28,11 @@ export default function VerificationResultScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <CustomHeader 
+        title="Resultado da Verificação"
+        showBackButton={true}
+        onBackPress={handleClose}
+      />
       <VerificationResult 
         result={currentVerification} 
         onClose={handleClose} 

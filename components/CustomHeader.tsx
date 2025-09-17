@@ -17,18 +17,22 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { BookOpen, Crown, Zap } from 'lucide-react-native';
+import { BookOpen, Crown, Zap, ArrowLeft } from 'lucide-react-native';
 
 interface CustomHeaderProps {
   title: string;
   showEducationIcon?: boolean;
   onEducationPress?: () => void;
+  showBackButton?: boolean;
+  onBackPress?: () => void;
 }
 
 export default function CustomHeader({ 
   title, 
   showEducationIcon = true, 
-  onEducationPress 
+  onEducationPress,
+  showBackButton = false,
+  onBackPress
 }: CustomHeaderProps) {
   const { colors } = useTheme();
   const { user } = useAuth();
@@ -45,19 +49,34 @@ export default function CustomHeader({
       }
     ]}>
       <View style={styles.content}>
-        {/* Logo + Nome do App */}
+        {/* Seção Esquerda - Botão Voltar ou Logo */}
         <View style={styles.leftSection}>
-          <Image
-            source={require('@/assets/images/logozinha.png')}
-            style={styles.logo}
-            resizeMode="contain"
-          />
-          <Text style={[styles.appName, { color: colors.text }]}>
-            Check Now
-          </Text>
+          {showBackButton ? (
+            <TouchableOpacity
+              style={[styles.backButton, { backgroundColor: colors.primary + '15' }]}
+              onPress={onBackPress}
+              activeOpacity={0.7}
+            >
+              <ArrowLeft size={24} color={colors.primary} />
+            </TouchableOpacity>
+          ) : (
+            <Image
+              source={require('@/assets/images/logozinha.png')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+          )}
+          
+          {!showBackButton && (
+            <Text style={[styles.appName, { color: colors.text }]}>
+              Check Now
+            </Text>
+          )}
+          
           <Text style={[styles.separator, { color: colors.textSecondary }]}>
-            •
+            {!showBackButton ? '•' : ''}
           </Text>
+          
           <Text style={[styles.title, { color: colors.text }]}>
             {title}
           </Text>
@@ -179,5 +198,18 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
+  },
+  backButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
 });
