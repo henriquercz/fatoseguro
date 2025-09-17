@@ -6,7 +6,6 @@ import NewsItem from '@/components/NewsItem';
 import KeyboardDismissWrapper from '@/components/KeyboardDismissWrapper';
 import CustomHeader from '@/components/CustomHeader';
 import { useVerification } from '@/hooks/useVerification';
-import VerificationResult from '@/components/VerificationResult';
 import { NewsVerification } from '@/types';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -99,6 +98,7 @@ export default function HistoryScreen() {
 
   const handleNewsPress = useCallback((newsItem: NewsVerification) => {
     setViewingVerification(newsItem);
+    router.push('/verification-result');
   }, [setViewingVerification]);
 
   const renderSectionHeader = useCallback(({ section }: { section: { title: string } }) => (
@@ -160,104 +160,95 @@ export default function HistoryScreen() {
         onEducationPress={handleEducationPress}
       />
       <KeyboardDismissWrapper>
-        {!currentVerification ? (
-          <>
-            <View style={styles.header}>
-              <Text style={[styles.headerSubtext, { color: colors.textSecondary }]}>
+        <View style={styles.header}>
+          <Text style={[styles.headerSubtext, { color: colors.textSecondary }]}>
+            {filterMode === 'community' 
+              ? 'Confira as notícias verificadas pela comunidade'
+              : 'Suas verificações pessoais'
+            }
+          </Text>
+          
+          {user && (
+            <View style={[styles.filterContainer, { backgroundColor: colors.surface }]}>
+              <Animated.View 
+                style={[
+                  styles.filterSlider,
+                  { 
+                    backgroundColor: colors.primary,
+                    transform: [{
+                      translateX: slideAnimation.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [4, 150], // Usar valor fixo para evitar erro de tipo
+                      })
+                    }]
+                  }
+                ]} 
+              />
+              
+              <TouchableOpacity
+                style={[styles.filterButton, filterMode === 'community' && styles.activeFilterButton]}
+                onPress={() => handleFilterToggle('community')}
+                activeOpacity={0.7}
+              >
+                <Users 
+                  size={16} 
+                  color={filterMode === 'community' ? colors.surface : colors.textSecondary} 
+                />
+                <Text style={[
+                  styles.filterButtonText,
+                  { color: filterMode === 'community' ? colors.surface : colors.textSecondary }
+                ]}>
+                  Comunidade
+                </Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={[styles.filterButton, filterMode === 'personal' && styles.activeFilterButton]}
+                onPress={() => handleFilterToggle('personal')}
+                activeOpacity={0.7}
+              >
+                <User 
+                  size={16} 
+                  color={filterMode === 'personal' ? colors.surface : colors.textSecondary} 
+                />
+                <Text style={[
+                  styles.filterButtonText,
+                  { color: filterMode === 'personal' ? colors.surface : colors.textSecondary }
+                ]}>
+                  Minhas
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
+
+        <SectionList
+          sections={groupedVerifications}
+          keyExtractor={(item) => item.id}
+          renderItem={renderNewsItem}
+          renderSectionHeader={renderSectionHeader}
+          contentContainerStyle={styles.listContent}
+          stickySectionHeadersEnabled={false}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Filter size={48} color={colors.textSecondary} style={styles.emptyIcon} />
+              <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
                 {filterMode === 'community' 
-                  ? 'Confira as notícias verificadas pela comunidade'
-                  : 'Suas verificações pessoais'
+                  ? 'Nenhuma verificação da comunidade encontrada.'
+                  : user 
+                    ? 'Você ainda não verificou nenhuma notícia.'
+                    : 'Faça login para ver seu histórico pessoal.'
                 }
               </Text>
-              
-              {user && (
-                <View style={[styles.filterContainer, { backgroundColor: colors.surface }]}>
-                  <Animated.View 
-                    style={[
-                      styles.filterSlider,
-                      { 
-                        backgroundColor: colors.primary,
-                        transform: [{
-                          translateX: slideAnimation.interpolate({
-                            inputRange: [0, 1],
-                            outputRange: [4, 150], // Usar valor fixo para evitar erro de tipo
-                          })
-                        }]
-                      }
-                    ]} 
-                  />
-                  
-                  <TouchableOpacity
-                    style={[styles.filterButton, filterMode === 'community' && styles.activeFilterButton]}
-                    onPress={() => handleFilterToggle('community')}
-                    activeOpacity={0.7}
-                  >
-                    <Users 
-                      size={16} 
-                      color={filterMode === 'community' ? colors.surface : colors.textSecondary} 
-                    />
-                    <Text style={[
-                      styles.filterButtonText,
-                      { color: filterMode === 'community' ? colors.surface : colors.textSecondary }
-                    ]}>
-                      Comunidade
-                    </Text>
-                  </TouchableOpacity>
-                  
-                  <TouchableOpacity
-                    style={[styles.filterButton, filterMode === 'personal' && styles.activeFilterButton]}
-                    onPress={() => handleFilterToggle('personal')}
-                    activeOpacity={0.7}
-                  >
-                    <User 
-                      size={16} 
-                      color={filterMode === 'personal' ? colors.surface : colors.textSecondary} 
-                    />
-                    <Text style={[
-                      styles.filterButtonText,
-                      { color: filterMode === 'personal' ? colors.surface : colors.textSecondary }
-                    ]}>
-                      Minhas
-                    </Text>
-                  </TouchableOpacity>
-                </View>
+              {filterMode === 'personal' && !user && (
+                <Text style={[styles.emptySubtext, { color: colors.textSecondary }]}>
+                  Entre na sua conta para acessar suas verificações.
+                </Text>
               )}
             </View>
-
-            <SectionList
-              sections={groupedVerifications}
-              keyExtractor={(item) => item.id}
-              renderItem={renderNewsItem}
-              renderSectionHeader={renderSectionHeader}
-              contentContainerStyle={styles.listContent}
-              stickySectionHeadersEnabled={false}
-              ListEmptyComponent={
-                <View style={styles.emptyContainer}>
-                  <Filter size={48} color={colors.textSecondary} style={styles.emptyIcon} />
-                  <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
-                    {filterMode === 'community' 
-                      ? 'Nenhuma verificação da comunidade encontrada.'
-                      : user 
-                        ? 'Você ainda não verificou nenhuma notícia.'
-                        : 'Faça login para ver seu histórico pessoal.'
-                    }
-                  </Text>
-                  {filterMode === 'personal' && !user && (
-                    <Text style={[styles.emptySubtext, { color: colors.textSecondary }]}>
-                      Entre na sua conta para acessar suas verificações.
-                    </Text>
-                  )}
-                </View>
-              }
-              ListFooterComponent={renderLoadMoreButton}
-            />
-          </>
-        ) : (
-          <VerificationResult 
-            result={currentVerification} 
-            onClose={clearCurrentVerification} 
-          />
-        )}
+          }
+          ListFooterComponent={renderLoadMoreButton}
+        />
       </KeyboardDismissWrapper>
     </SafeAreaView>
   );

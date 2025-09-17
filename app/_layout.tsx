@@ -93,7 +93,7 @@ function RootLayoutNav() {
 
   // Verifica se deve mostrar o FloatingTabBar
   const shouldShowFloatingTabBar = () => {
-    return !pathname.startsWith('/education');
+    return !pathname.startsWith('/education') && !pathname.startsWith('/verification-result');
   };
 
   // Usuário logado, mostra as abas principais com FloatingTabBar customizado
@@ -146,6 +146,12 @@ function RootLayoutNav() {
         />
         <Tabs.Screen
           name="education"
+          options={{
+            href: null,
+          }}
+        />
+        <Tabs.Screen
+          name="verification-result"
           options={{
             href: null,
           }}
