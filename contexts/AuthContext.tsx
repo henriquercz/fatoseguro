@@ -306,37 +306,37 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       console.log('🗑️ Iniciando exclusão da conta...');
       
-      // 1. Deletar dados relacionados (verificações, consentimentos)
-      const { error: verificationsError } = await supabase
-        .from('verifications')
-        .delete()
-        .eq('user_id', state.user.id);
+      // Chama a função do banco que deleta tudo
+      const { error: deleteError } = await supabase.rpc('delete_user_account');
 
-      if (verificationsError) {
-        console.error('Erro ao deletar verificações:', verificationsError);
+      if (deleteError) {
+        console.error('Erro na função de exclusão:', deleteError);
+        
+        // Fallback: tentar deletar manualmente
+        console.log('Tentando exclusão manual...');
+        
+        const { error: verificationsError } = await supabase
+          .from('verifications')
+          .delete()
+          .eq('user_id', state.user.id);
+
+        const { error: consentsError } = await supabase
+          .from('consent_records')
+          .delete()
+          .eq('user_id', state.user.id);
+
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .delete()
+          .eq('id', state.user.id);
+
+        if (profileError) {
+          console.error('Erro ao deletar perfil:', profileError);
+          throw profileError;
+        }
       }
 
-      const { error: consentsError } = await supabase
-        .from('consent_records')
-        .delete()
-        .eq('user_id', state.user.id);
-
-      if (consentsError) {
-        console.error('Erro ao deletar consentimentos:', consentsError);
-      }
-
-      // 2. Deletar perfil (cascade irá deletar o usuário auth)
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .delete()
-        .eq('id', state.user.id);
-
-      if (profileError) {
-        console.error('Erro ao deletar perfil:', profileError);
-        throw profileError;
-      }
-
-      // 3. Fazer logout
+      // Fazer logout
       await supabase.auth.signOut();
       
       if (isMounted.current) {

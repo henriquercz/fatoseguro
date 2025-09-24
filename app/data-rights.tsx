@@ -20,6 +20,7 @@ import {
   CheckCircle,
   AlertCircle,
   Info,
+  ArrowLeft,
 } from 'lucide-react-native';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -27,6 +28,7 @@ import { useConsent } from '@/contexts/ConsentContext';
 import { supabase } from '@/lib/supabase';
 import { router } from 'expo-router';
 import ConsentManager from '@/components/ConsentManager';
+import { exportUserDataToPDF } from '@/lib/pdfExporter';
 
 export default function DataRightsScreen() {
   const { colors } = useTheme();
@@ -71,64 +73,47 @@ export default function DataRightsScreen() {
   };
 
   const handleExportData = async () => {
-    if (!user || !userData) return;
-
     setIsLoading(true);
     try {
+      // Monta dados para exportação
       const exportData = {
-        export_info: {
-          generated_at: new Date().toISOString(),
-          user_id: user.id,
-          export_type: 'complete_user_data',
-          lgpd_article: 'Art. 18º, V - Portabilidade dos dados',
-        },
-        personal_data: {
-          profile: userData.profile,
-          account_created: userData.profile?.created_at,
-          account_status: userData.profile?.is_premium ? 'Premium' : 'Gratuito',
-        },
-        verification_history: userData.verifications.map((v: any) => ({
-          id: v.id,
-          news_url: v.news_url,
-          news_title: v.news_title,
-          verification_status: v.verification_status,
-          verification_summary: v.verification_summary,
-          verified_at: v.verified_at,
-          // Remove dados sensíveis da IA
-          ai_response_summary: v.raw_ai_response ? 'Análise realizada' : 'Sem análise',
-        })),
-        consent_records: consents.map(consent => ({
-          purpose: consent.purpose,
-          granted: consent.granted,
-          granted_at: consent.granted_at,
-          revoked_at: consent.revoked_at,
-          legal_basis: consent.legal_basis,
-        })),
+        profile: userData.profile,
+        verifications: userData.verifications || [],
+        consents: consents,
         statistics: {
-          total_verifications: userData.verificationsCount,
-          account_age_days: Math.floor(
-            (new Date().getTime() - new Date(userData.profile?.created_at).getTime()) / 
+          total_verifications: userData.verificationsCount || 0,
+          account_age_days: userData.profile?.created_at ? Math.floor(
+            (new Date().getTime() - new Date(userData.profile.created_at).getTime()) / 
             (1000 * 60 * 60 * 24)
-          ),
+          ) : 0,
         },
       };
 
-      const jsonData = JSON.stringify(exportData, null, 2);
+      // Usa o novo exportador de PDF
+      const result = await exportUserDataToPDF(exportData);
       
-      // Compartilha os dados
-      await Share.share({
-        message: `CheckNow - Exportação de Dados Pessoais\n\nConforme Art. 18º, V da LGPD\n\n${jsonData}`,
-        title: 'Meus Dados - CheckNow',
-      });
-
-      Alert.alert(
-        'Dados Exportados',
-        'Seus dados pessoais foram exportados com sucesso. Este arquivo contém todas as informações que temos sobre você.',
-        [{ text: 'OK' }]
-      );
+      if (result.success) {
+        Alert.alert(
+          'Dados Exportados',
+          'Seu relatório de dados pessoais foi gerado com sucesso conforme a LGPD. O documento contém todas as informações que temos sobre você.',
+          [{ text: 'OK' }]
+        );
+      } else {
+        throw new Error('Falha na exportação');
+      }
     } catch (error) {
       console.error('Erro ao exportar dados:', error);
-      Alert.alert('Erro', 'Não foi possível exportar seus dados. Tente novamente.');
+      Alert.alert(
+        'Erro na Exportação', 
+        'Não foi possível gerar o relatório de dados. Tente novamente ou entre em contato conosco.',
+        [
+          { text: 'OK' },
+          {
+            text: 'Contatar Suporte',
+            onPress: () => Linking.openURL('mailto:henriquechagas06@gmail.com?subject=CheckNow - Erro na Exportação de Dados&body=Ocorreu um erro ao tentar exportar meus dados pessoais.'),
+          },
+        ]
+      );
     } finally {
       setIsLoading(false);
     }
@@ -227,6 +212,12 @@ export default function DataRightsScreen() {
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <ArrowLeft size={24} color={colors.text} />
+          </TouchableOpacity>
           <View style={styles.headerIcon}>
             <Shield size={32} color={colors.primary} />
           </View>
@@ -478,7 +469,17 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    paddingVertical: 32,
+    paddingVertical: 24,
+    paddingHorizontal: 20,
+    position: 'relative',
+  },
+  backButton: {
+    position: 'absolute',
+    left: 20,
+    top: 24,
+    padding: 8,
+    borderRadius: 8,
+    zIndex: 1,
   },
   headerIcon: {
     marginBottom: 16,

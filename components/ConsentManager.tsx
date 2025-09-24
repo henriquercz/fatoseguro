@@ -6,7 +6,7 @@ import {
   StyleSheet,
   Alert,
 } from 'react-native';
-import { CheckCircle, Circle, Info, RotateCcw } from 'lucide-react-native';
+import { Info, RotateCcw } from 'lucide-react-native';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useConsent, ConsentRecord } from '@/contexts/ConsentContext';
 
@@ -124,15 +124,22 @@ export default function ConsentManager({ consents, onUpdate }: ConsentManagerPro
           <View key={purpose} style={[styles.consentItem, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <View style={styles.consentHeader}>
               <TouchableOpacity
-                style={styles.consentToggle}
+                style={[
+                  styles.switchContainer,
+                  { backgroundColor: isGranted ? colors.primary : colors.border },
+                  (info.required && isGranted) && { opacity: 0.6 }
+                ]}
                 onPress={() => handleToggleConsent(purpose, isGranted)}
                 disabled={isLoading || (info.required && isGranted)}
+                activeOpacity={0.7}
               >
-                {isGranted ? (
-                  <CheckCircle size={24} color={colors.primary} />
-                ) : (
-                  <Circle size={24} color={colors.textSecondary} />
-                )}
+                <View style={[
+                  styles.switchThumb,
+                  { 
+                    backgroundColor: colors.background,
+                    transform: [{ translateX: isGranted ? 20 : 2 }]
+                  }
+                ]} />
               </TouchableOpacity>
 
               <View style={styles.consentInfo}>
@@ -216,9 +223,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
   },
-  consentToggle: {
+  switchContainer: {
+    width: 44,
+    height: 24,
+    borderRadius: 12,
     marginRight: 12,
     marginTop: 2,
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  switchThumb: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    position: 'absolute',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 3,
   },
   consentInfo: {
     flex: 1,

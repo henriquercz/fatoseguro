@@ -75,29 +75,44 @@ export default function ConsentModal({ visible, onComplete, onSkip }: ConsentMod
     setSelectedConsents(newConsents);
   };
 
-  const handleSaveConsents = async () => {
+  const handleComplete = async () => {
     setIsProcessing(true);
+    
     try {
-      // Concede consentimentos selecionados
+      // Sempre salva consentimentos obrigatórios primeiro
+      await grantConsent('essential', 'contract');
+      await grantConsent('terms_of_service', 'contract');
+      await grantConsent('privacy_policy', 'contract');
+      
+      // Concede consentimentos opcionais selecionados
       for (const consentId of selectedConsents) {
         const option = consentOptions.find(opt => opt.id === consentId);
-        if (option) {
+        if (option && !['essential', 'terms_of_service', 'privacy_policy'].includes(option.purpose)) {
           await grantConsent(option.purpose, option.legalBasis);
         }
       }
       
-      console.log('Consentimentos salvos:', Array.from(selectedConsents));
+      console.log('✅ Consentimentos salvos:', ['essential', 'terms_of_service', 'privacy_policy', ...Array.from(selectedConsents)]);
       onComplete();
     } catch (error) {
-      console.error('Erro ao salvar consentimentos:', error);
+      console.error('❌ Erro ao salvar consentimentos:', error);
+      // Mesmo com erro, permite continuar
+      onComplete();
     } finally {
       setIsProcessing(false);
     }
   };
 
-  const handleSkip = () => {
-    // Mesmo se pular, precisa conceder o essencial
-    grantConsent('essential', 'contract');
+  const handleSkip = async () => {
+    // Mesmo se pular, salva os consentimentos obrigatórios
+    try {
+      await grantConsent('essential', 'contract');
+      await grantConsent('terms_of_service', 'contract');
+      await grantConsent('privacy_policy', 'contract');
+      console.log('✅ Consentimentos obrigatórios salvos');
+    } catch (error) {
+      console.error('❌ Erro ao salvar consentimentos obrigatórios:', error);
+    }
     onSkip?.();
   };
 
@@ -219,7 +234,7 @@ export default function ConsentModal({ visible, onComplete, onSkip }: ConsentMod
                 { backgroundColor: colors.primary },
                 isProcessing && { opacity: 0.7 }
               ]}
-              onPress={handleSaveConsents}
+              onPress={handleComplete}
               disabled={isProcessing}
             >
               <Text style={styles.saveButtonText}>

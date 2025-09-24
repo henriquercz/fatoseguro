@@ -263,21 +263,11 @@ export default function AuthForm() {
 
         <TermsAcceptanceModal
           visible={showTermsModal}
-          onAccept={async () => {
-            try {
-              // Salva consentimento dos termos
-              await grantConsent('terms_of_service', 'contract');
-              await grantConsent('privacy_policy', 'contract');
-              
-              setTermsAccepted(true);
-              setShowTermsModal(false);
-              console.log('✅ Consentimentos dos termos salvos');
-            } catch (error) {
-              console.error('❌ Erro ao salvar consentimentos:', error);
-              // Mesmo com erro, permite continuar
-              setTermsAccepted(true);
-              setShowTermsModal(false);
-            }
+          onAccept={() => {
+            // Apenas aceita os termos, consentimentos serão salvos após confirmação do email
+            setTermsAccepted(true);
+            setShowTermsModal(false);
+            console.log('✅ Termos aceitos - consentimentos serão salvos após confirmação do email');
           }}
           onDecline={() => {
             setShowTermsModal(false);
