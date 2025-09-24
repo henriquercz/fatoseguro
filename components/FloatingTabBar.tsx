@@ -1,9 +1,10 @@
 /**
- * FloatingTabBar - Menu de navegação simples e funcional
- * Design limpo adaptado à paleta do app
+ * FloatingTabBar - Menu de navegação moderno e adaptativo
+ * Design compacto: apenas ícones nas abas inativas, ícone + título na aba ativa
+ * Bordas mais arredondadas e tamanho otimizado
  * 
  * @author CheckNow Team
- * @version 2.0.0
+ * @version 3.0.0
  */
 
 import React from 'react';
@@ -73,46 +74,47 @@ export default function FloatingTabBar({ activeTab, onTabPress }: FloatingTabBar
     return (
       <TouchableOpacity
         key={tab.key}
-        style={styles.tabItem}
+        style={[
+          styles.tabItem,
+          isActive ? styles.activeTabItem : styles.inactiveTabItem
+        ]}
         onPress={() => handleTabPress(tab.route)}
-        activeOpacity={0.6}
+        activeOpacity={0.7}
       >
         <View style={[
           styles.tabContainer,
-          isActive && {
-            backgroundColor: isDarkMode ? colors.primary + '20' : colors.primary + '15',
-          }
+          isActive && [
+            styles.activeTabContainer,
+            {
+              backgroundColor: isDarkMode ? colors.primary + '20' : colors.primary + '15',
+            }
+          ]
         ]}>
-          {/* Indicador da aba ativa */}
-          {isActive && (
-            <View 
-              style={[
-                styles.activeIndicator,
-                { backgroundColor: colors.primary }
-              ]} 
-            />
-          )}
-
           {/* Ícone */}
-          <View style={styles.iconContainer}>
+          <View style={[
+            styles.iconContainer,
+            isActive && styles.activeIconContainer
+          ]}>
             <IconComponent 
-              size={24} 
+              size={isActive ? 22 : 20} 
               color={isActive ? colors.primary : colors.textSecondary}
             />
           </View>
 
-          {/* Texto do título */}
-          <Text
-            style={[
-              styles.tabText,
-              {
-                color: isActive ? colors.primary : colors.textSecondary,
-                fontWeight: isActive ? '600' : '500',
-              },
-            ]}
-          >
-            {tab.title}
-          </Text>
+          {/* Texto do título - apenas para aba ativa */}
+          {isActive && (
+            <Text
+              style={[
+                styles.tabText,
+                {
+                  color: colors.primary,
+                  fontWeight: '600',
+                },
+              ]}
+            >
+              {tab.title}
+            </Text>
+          )}
         </View>
       </TouchableOpacity>
     );
@@ -140,22 +142,22 @@ export default function FloatingTabBar({ activeTab, onTabPress }: FloatingTabBar
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    left: 20,
-    right: 20,
-    borderRadius: 24,
+    left: 24,
+    right: 24,
+    borderRadius: 32, // Mais arredondado
     borderWidth: 1,
-    paddingVertical: 8,
-    paddingHorizontal: 8,
+    paddingVertical: 6, // Menor altura
+    paddingHorizontal: 12,
     zIndex: 1000,
     ...Platform.select({
       ios: {
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.15,
+        shadowRadius: 12,
         shadowColor: '#000',
       },
       android: {
-        elevation: 4,
+        elevation: 6,
       },
     }),
   },
@@ -165,33 +167,48 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   tabItem: {
-    flex: 1,
     alignItems: 'center',
+    justifyContent: 'center',
+  },
+  activeTabItem: {
+    flex: 2, // Aba ativa ocupa mais espaço
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  inactiveTabItem: {
+    flex: 1, // Abas inativas ocupam menos espaço
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   tabContainer: {
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-    minHeight: 56,
+    paddingHorizontal: 8,
+    borderRadius: 20, // Mais arredondado
+    minHeight: 44, // Menor altura
     position: 'relative',
   },
-  activeIndicator: {
-    position: 'absolute',
-    top: 0,
-    left: '50%',
-    marginLeft: -12,
-    width: 24,
-    height: 3,
-    borderRadius: 2,
+  activeTabContainer: {
+    flexDirection: 'row', // Ícone e texto lado a lado
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 24,
+    minHeight: 44,
+    gap: 8, // Espaço entre ícone e texto
   },
   iconContainer: {
-    marginBottom: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  activeIconContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   tabText: {
-    fontSize: 12,
-    fontFamily: 'Inter-Medium',
+    fontSize: 13,
+    fontFamily: 'Inter-SemiBold',
     textAlign: 'center',
+    letterSpacing: -0.2,
   },
 });

@@ -7,6 +7,7 @@ import {
   ScrollView,
   StyleSheet,
   SafeAreaView,
+  Platform,
 } from 'react-native';
 import { X, FileText, Shield } from 'lucide-react-native';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -24,8 +25,9 @@ export default function TermsAcceptanceModal({ visible, onAccept, onDecline }: T
     <Modal
       visible={visible}
       animationType="slide"
-      presentationStyle="formSheet"
+      presentationStyle={Platform.OS === 'ios' ? 'pageSheet' : 'formSheet'}
       onRequestClose={onDecline}
+      transparent={false}
     >
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
         {/* Header */}
@@ -33,7 +35,7 @@ export default function TermsAcceptanceModal({ visible, onAccept, onDecline }: T
           <TouchableOpacity onPress={onDecline} style={styles.closeButton}>
             <X size={24} color={colors.textSecondary} />
           </TouchableOpacity>
-          <Text style={[styles.title, { color: colors.text }]}>Termos de Uso</Text>
+          <Text style={[styles.title, { color: colors.text }]}>Termos e Política LGPD</Text>
           <View style={{ width: 24 }} />
         </View>
 
@@ -47,7 +49,10 @@ export default function TermsAcceptanceModal({ visible, onAccept, onDecline }: T
               Bem-vindo ao CheckNow
             </Text>
             <Text style={[styles.introText, { color: colors.textSecondary }]}>
-              Para criar sua conta, você precisa aceitar nossos Termos de Uso e Política de Privacidade.
+              Para criar sua conta, você precisa aceitar nossos Termos de Uso e Política de Privacidade conforme a LGPD.
+            </Text>
+            <Text style={[styles.lgpdBadge, { color: colors.primary, backgroundColor: colors.primary + '20' }]}>
+              ✓ Conforme LGPD (Lei 13.709/2018)
             </Text>
           </View>
 
@@ -79,19 +84,32 @@ export default function TermsAcceptanceModal({ visible, onAccept, onDecline }: T
             </Text>
           </View>
 
-          {/* Política de Privacidade Resumida */}
+          {/* Política de Privacidade LGPD */}
           <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>Política de Privacidade (Resumo)</Text>
+            <View style={styles.sectionHeader}>
+              <Shield size={20} color={colors.primary} style={{ marginBottom: 16 }} />
+              <Text style={[styles.sectionTitle, { color: colors.text, marginLeft: 8 }]}>Política de Privacidade LGPD</Text>
+            </View>
             
-            <Text style={[styles.text, { color: colors.textSecondary }]}>
-              Coletamos apenas as informações necessárias para fornecer nossos serviços:
-            </Text>
-            <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>• Endereço de email para criação de conta</Text>
-            <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>• Histórico de verificações realizadas</Text>
-            <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>• Preferências de configuração do aplicativo</Text>
+            <Text style={[styles.subsectionTitle, { color: colors.text }]}>Dados que Coletamos (Art. 5º LGPD):</Text>
+            <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>• E-mail para identificação e autenticação</Text>
+            <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>• Histórico de verificações (URLs e resultados)</Text>
+            <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>• Preferências e configurações do app</Text>
+            <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>• Dados técnicos (sessões, tokens JWT)</Text>
+
+            <Text style={[styles.subsectionTitle, { color: colors.text }]}>Base Legal (Art. 6º LGPD):</Text>
+            <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>• Execução de contrato (fornecimento do serviço)</Text>
+            <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>• Legítimo interesse (melhorias e segurança)</Text>
+            <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>• Consentimento (quando aplicável)</Text>
+
+            <Text style={[styles.subsectionTitle, { color: colors.text }]}>Seus Direitos (Art. 18º LGPD):</Text>
+            <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>• Acessar e corrigir seus dados</Text>
+            <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>• Exportar dados em formato estruturado</Text>
+            <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>• Solicitar exclusão da conta</Text>
+            <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>• Revogar consentimentos</Text>
 
             <Text style={[styles.text, { color: colors.textSecondary }]}>
-              Não vendemos, alugamos ou compartilhamos suas informações pessoais com terceiros, exceto quando exigido por lei.
+              Não comercializamos seus dados pessoais. Compartilhamento ocorre apenas com processadores (Supabase, Google Gemini) ou por obrigação legal.
             </Text>
           </View>
 
@@ -99,9 +117,17 @@ export default function TermsAcceptanceModal({ visible, onAccept, onDecline }: T
           <View style={styles.actionSection}>
             <View style={[styles.warningBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
               <Shield size={20} color={colors.primary} />
-              <Text style={[styles.warningText, { color: colors.textSecondary }]}>
-                Ao aceitar, você confirma que leu e concorda com nossos Termos de Uso e Política de Privacidade.
-              </Text>
+              <View style={styles.warningContent}>
+                <Text style={[styles.warningText, { color: colors.textSecondary }]}>
+                  Ao aceitar, você confirma que:
+                </Text>
+                <Text style={[styles.warningBullet, { color: colors.textSecondary }]}>• Leu e concorda com os Termos de Uso</Text>
+                <Text style={[styles.warningBullet, { color: colors.textSecondary }]}>• Aceita a Política de Privacidade LGPD</Text>
+                <Text style={[styles.warningBullet, { color: colors.textSecondary }]}>• Consente com o tratamento de dados conforme descrito</Text>
+                <Text style={[styles.warningFooter, { color: colors.primary }]}>
+                  Você pode revogar este consentimento a qualquer momento.
+                </Text>
+              </View>
             </View>
 
             <View style={styles.buttonContainer}>
@@ -206,6 +232,20 @@ const styles = StyleSheet.create({
   actionSection: {
     marginBottom: 40,
   },
+  lgpdBadge: {
+    fontSize: 12,
+    fontFamily: 'Inter-SemiBold',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    marginTop: 12,
+    textAlign: 'center',
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
   warningBox: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -214,12 +254,27 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 24,
   },
+  warningContent: {
+    flex: 1,
+    marginLeft: 12,
+  },
   warningText: {
     fontSize: 14,
     fontFamily: 'Inter-Medium',
     lineHeight: 20,
-    marginLeft: 12,
-    flex: 1,
+    marginBottom: 8,
+  },
+  warningBullet: {
+    fontSize: 13,
+    fontFamily: 'Inter-Regular',
+    lineHeight: 18,
+    marginBottom: 4,
+  },
+  warningFooter: {
+    fontSize: 12,
+    fontFamily: 'Inter-SemiBold',
+    marginTop: 8,
+    fontStyle: 'italic',
   },
   buttonContainer: {
     flexDirection: 'row',

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, Image, Alert } from 'react-native';
-import { LogOut, Shield, Settings, CircleHelp as HelpCircle, MessageSquare, Gift } from 'lucide-react-native';
+import { LogOut, Shield, Settings, CircleHelp as HelpCircle, MessageSquare, Gift, FileText } from 'lucide-react-native';
 import PremiumCard from '@/components/PremiumCard';
 import AuthForm from '@/components/AuthForm';
 import FeedbackModal from '@/components/FeedbackModal';
@@ -10,6 +10,7 @@ import KeyboardDismissWrapper from '@/components/KeyboardDismissWrapper';
 import CustomHeader from '@/components/CustomHeader';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import { router } from 'expo-router';
 
 export default function AccountScreen() {
   const { user, logout, upgradeToPremium } = useAuth();
@@ -144,7 +145,7 @@ export default function AccountScreen() {
             <Shield color="#22C55E" size={40} />
             <Text style={[styles.thankYouTitle, { color: colors.text }]}>Obrigado por ser Premium!</Text>
             <Text style={[styles.thankYouText, { color: colors.textSecondary }]}>
-              Você tem acesso ilimitado a todas as funcionalidades do FatoSeguro.
+              Você tem acesso ilimitado a todas as funcionalidades do CheckNow.
             </Text>
           </View>
         )}
@@ -152,6 +153,12 @@ export default function AccountScreen() {
         <View style={styles.menuSection}>
           <Text style={[styles.menuTitle, { color: colors.text }]}>Configurações e Ajuda</Text>
           
+          <TouchableOpacity style={[styles.menuItem, { backgroundColor: colors.surface, borderBottomColor: colors.border }]} onPress={() => router.push('/data-rights')}>
+            <FileText size={20} color={colors.primary} />
+            <Text style={[styles.menuItemText, { color: colors.text }]}>Meus Direitos de Dados</Text>
+            <Text style={[styles.menuItemSubtext, { color: colors.textSecondary }]}>LGPD</Text>
+          </TouchableOpacity>
+
           <TouchableOpacity style={[styles.menuItem, { backgroundColor: colors.surface, borderBottomColor: colors.border }]} onPress={() => setSettingsModalVisible(true)}>
             <Settings size={20} color={colors.textSecondary} />
             <Text style={[styles.menuItemText, { color: colors.text }]}>Configurações</Text>
@@ -171,7 +178,7 @@ export default function AccountScreen() {
         </View>
         
         <View style={styles.footer}>
-          <Text style={[styles.footerText, { color: colors.textSecondary }]}>CheckNow v2.6.7</Text>
+          <Text style={[styles.footerText, { color: colors.textSecondary }]}>CheckNow v2.7</Text>
           <Text style={[styles.footerText, { color: colors.textSecondary }]}>© 2025 CheckNow</Text>
         </View>
       </ScrollView>
@@ -316,6 +323,16 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Medium',
     fontSize: 15,
     marginLeft: 12,
+    flex: 1,
+    // color aplicada via tema
+  },
+  menuItemSubtext: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+    backgroundColor: 'rgba(59, 130, 246, 0.1)',
     // color aplicada via tema
   },
   footer: {

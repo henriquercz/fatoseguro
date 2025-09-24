@@ -1,7 +1,7 @@
 import React, { createContext, useReducer, ReactNode, useEffect, useRef } from 'react';
 import { AuthState, User } from '@/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { supabase } from '@/lib/supabase';
+import { supabase, checkAuthSettings } from '@/lib/supabase';
 
 
 const initialState: AuthState = {
@@ -9,6 +9,7 @@ const initialState: AuthState = {
   isLoading: true,
   error: null,
   pendingEmailConfirmation: null,
+  showConsentModal: false,
 };
 
 type AuthAction =
@@ -19,6 +20,8 @@ type AuthAction =
   | { type: 'REGISTER_SUCCESS'; payload: User }
   | { type: 'REGISTER_FAILURE'; payload: string }
   | { type: 'REGISTER_PENDING_CONFIRMATION'; payload: string }
+  | { type: 'SHOW_CONSENT_MODAL' }
+  | { type: 'HIDE_CONSENT_MODAL' }
   | { type: 'LOGOUT' }
   | { type: 'UPDATE_USER'; payload: Partial<User> }
   | { type: 'CLEAR_ERROR' };
@@ -36,6 +39,10 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
       return { ...state, isLoading: false, error: action.payload };
     case 'REGISTER_PENDING_CONFIRMATION':
       return { ...state, isLoading: false, pendingEmailConfirmation: action.payload, error: null };
+    case 'SHOW_CONSENT_MODAL':
+      return { ...state, showConsentModal: true };
+    case 'HIDE_CONSENT_MODAL':
+      return { ...state, showConsentModal: false };
     case 'LOGOUT':
       return { ...initialState, isLoading: false };
     case 'UPDATE_USER':
@@ -55,26 +62,29 @@ type AuthContextType = {
   loading: boolean;
   error: string | null;
   pendingEmailConfirmation: string | null;
+  showConsentModal: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   clearError: () => void;
-  upgradeToPremium: () => Promise<void>; // Adicionado para upgrade de usuário
+  upgradeToPremium: () => Promise<void>;
+  hideConsentModal: () => void;
+  deleteAccount: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType>({
-  // Mantive AuthContext com 'const' para que useAuth possa ser definido abaixo antes da exportação do Provider
-  // Se AuthContext fosse exportado diretamente aqui, useAuth teria que ser definido em outro lugar ou AuthProvider teria que importar useContext diretamente.
-  // Esta abordagem mantém useAuth junto com a definição do contexto.
   user: null,
   loading: false,
   error: null,
   pendingEmailConfirmation: null,
+  showConsentModal: false,
   login: async () => {},
   register: async () => {},
   logout: async () => {},
   clearError: () => {},
-  upgradeToPremium: async () => {}, // Adicionado para upgrade de usuário
+  upgradeToPremium: async () => {},
+  hideConsentModal: () => {},
+  deleteAccount: async () => {},
 });
 
 // Hook customizado para usar o AuthContext
@@ -214,21 +224,52 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const register = async (email: string, password: string) => {
     safeDispatch({ type: 'REGISTER_REQUEST' });
     try {
+      console.log('🔐 Iniciando cadastro para:', email);
+      
+      // Verifica configurações do Supabase
+      await checkAuthSettings();
+      
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          emailRedirectTo: undefined, // Força o envio de email de confirmação
+        }
       });
 
-      if (error) throw error;
+      console.log('📧 Resposta do Supabase:', { data, error });
 
-      // Se o usuário não foi confirmado automaticamente, significa que precisa confirmar email
-      if (data.user && !data.user.email_confirmed_at) {
-        if (isMounted.current) {
-          safeDispatch({
-            type: 'REGISTER_PENDING_CONFIRMATION',
-            payload: email,
-          });
+      if (error) {
+        console.error('❌ Erro no cadastro:', error);
+        throw error;
+      }
+
+      if (data.user) {
+        console.log('👤 Usuário criado:', {
+          id: data.user.id,
+          email: data.user.email,
+          email_confirmed_at: data.user.email_confirmed_at,
+          confirmation_sent_at: data.user.confirmation_sent_at
+        });
+
+        // Se o usuário não foi confirmado automaticamente, significa que precisa confirmar email
+        if (!data.user.email_confirmed_at) {
+          console.log('📨 Email de confirmação deve ser enviado');
+          if (isMounted.current) {
+            safeDispatch({
+              type: 'REGISTER_PENDING_CONFIRMATION',
+              payload: email,
+            });
+          }
+        } else {
+          console.log('✅ Usuário confirmado automaticamente');
+          // Usuário criado e confirmado automaticamente - mostrar ConsentModal
+          if (isMounted.current) {
+            safeDispatch({ type: 'SHOW_CONSENT_MODAL' });
+          }
         }
+      } else {
+        console.warn('⚠️ Nenhum usuário retornado do Supabase');
       }
     } catch (error: any) {
       if (isMounted.current) {
@@ -253,6 +294,62 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const hideConsentModal = () => {
+    if (isMounted.current) {
+      safeDispatch({ type: 'HIDE_CONSENT_MODAL' });
+    }
+  };
+
+  const deleteAccount = async () => {
+    if (!state.user) throw new Error('Usuário não autenticado');
+
+    try {
+      console.log('🗑️ Iniciando exclusão da conta...');
+      
+      // 1. Deletar dados relacionados (verificações, consentimentos)
+      const { error: verificationsError } = await supabase
+        .from('verifications')
+        .delete()
+        .eq('user_id', state.user.id);
+
+      if (verificationsError) {
+        console.error('Erro ao deletar verificações:', verificationsError);
+      }
+
+      const { error: consentsError } = await supabase
+        .from('consent_records')
+        .delete()
+        .eq('user_id', state.user.id);
+
+      if (consentsError) {
+        console.error('Erro ao deletar consentimentos:', consentsError);
+      }
+
+      // 2. Deletar perfil (cascade irá deletar o usuário auth)
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', state.user.id);
+
+      if (profileError) {
+        console.error('Erro ao deletar perfil:', profileError);
+        throw profileError;
+      }
+
+      // 3. Fazer logout
+      await supabase.auth.signOut();
+      
+      if (isMounted.current) {
+        safeDispatch({ type: 'LOGOUT' });
+      }
+
+      console.log('✅ Conta excluída com sucesso');
+    } catch (error: any) {
+      console.error('❌ Erro ao excluir conta:', error);
+      throw error;
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -260,11 +357,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         loading: state.isLoading,
         error: state.error,
         pendingEmailConfirmation: state.pendingEmailConfirmation,
+        showConsentModal: state.showConsentModal,
         login,
         register,
         logout,
         clearError,
-        upgradeToPremium, // Adicionado para upgrade de usuário
+        upgradeToPremium,
+        hideConsentModal,
+        deleteAccount,
       }}>
       {children}
     </AuthContext.Provider>

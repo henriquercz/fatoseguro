@@ -16,7 +16,9 @@ import { Mail, Lock, Eye, EyeOff, Square, CheckSquare, X } from 'lucide-react-na
 import KeyboardDismissWrapper from '@/components/KeyboardDismissWrapper';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useConsent } from '@/contexts/ConsentContext';
 import TermsAcceptanceModal from '@/components/TermsAcceptanceModal';
+import AuthDebugInfo from '@/components/AuthDebugInfo';
 
 type FormMode = 'login' | 'register';
 
@@ -28,10 +30,12 @@ export default function AuthForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
+  const [showDebugInfo, setShowDebugInfo] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   
   const { login, register, loading, error } = useAuth();
   const { colors } = useTheme();
+  const { grantConsent } = useConsent();
 
   React.useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
@@ -259,9 +263,21 @@ export default function AuthForm() {
 
         <TermsAcceptanceModal
           visible={showTermsModal}
-          onAccept={() => {
-            setTermsAccepted(true);
-            setShowTermsModal(false);
+          onAccept={async () => {
+            try {
+              // Salva consentimento dos termos
+              await grantConsent('terms_of_service', 'contract');
+              await grantConsent('privacy_policy', 'contract');
+              
+              setTermsAccepted(true);
+              setShowTermsModal(false);
+              console.log('✅ Consentimentos dos termos salvos');
+            } catch (error) {
+              console.error('❌ Erro ao salvar consentimentos:', error);
+              // Mesmo com erro, permite continuar
+              setTermsAccepted(true);
+              setShowTermsModal(false);
+            }
           }}
           onDecline={() => {
             setShowTermsModal(false);
@@ -444,5 +460,19 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Medium',
     fontSize: 12,
     marginLeft: 6,
+  },
+  debugContainer: {
+    alignItems: 'center',
+    marginTop: 16,
+  },
+  debugButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+  },
+  debugButtonText: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
   },
 });

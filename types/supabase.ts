@@ -67,6 +67,53 @@ export interface Database {
           verified_at?: string
         }
       }
+      consent_records: {
+        Row: {
+          id: string
+          user_id: string
+          purpose: string
+          legal_basis: string
+          granted: boolean
+          granted_at: string
+          revoked_at: string | null
+          expires_at: string | null
+          ip_address: string | null
+          user_agent: string | null
+          version: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          purpose: string
+          legal_basis?: string
+          granted?: boolean
+          granted_at?: string
+          revoked_at?: string | null
+          expires_at?: string | null
+          ip_address?: string | null
+          user_agent?: string | null
+          version?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          purpose?: string
+          legal_basis?: string
+          granted?: boolean
+          granted_at?: string
+          revoked_at?: string | null
+          expires_at?: string | null
+          ip_address?: string | null
+          user_agent?: string | null
+          version?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
   }
 }

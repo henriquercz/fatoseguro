@@ -37,6 +37,7 @@ export interface AuthState {
   isLoading: boolean;
   error: string | null;
   pendingEmailConfirmation: string | null;
+  showConsentModal: boolean;
 }
 
 export interface VerificationState {

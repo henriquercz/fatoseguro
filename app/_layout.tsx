@@ -9,8 +9,10 @@ import { ShieldCheck, History, User as UserIconLucide, Newspaper } from 'lucide-
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { VerificationProvider } from '@/contexts/VerificationContext';
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
+import { ConsentProvider } from '@/contexts/ConsentContext';
 import AuthForm from '@/components/AuthForm';
 import EmailConfirmationScreen from '@/components/EmailConfirmationScreen';
+import ConsentModal from '@/components/ConsentModal';
 import FloatingTabBar from '@/components/FloatingTabBar';
 import CustomSplashScreen from '@/components/SplashScreen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -27,7 +29,7 @@ SplashScreen.preventAutoHideAsync().catch(() => {
 });
 
 function RootLayoutNav() {
-  const { user, loading: authLoading, pendingEmailConfirmation } = useAuth(); // Corrigido: isLoading para loading
+  const { user, loading: authLoading, pendingEmailConfirmation, showConsentModal, hideConsentModal } = useAuth();
   const { colors } = useTheme();
   const [showCustomSplash, setShowCustomSplash] = React.useState(true);
   const router = useRouter();
@@ -156,6 +158,12 @@ function RootLayoutNav() {
             href: null,
           }}
         />
+        <Tabs.Screen
+          name="data-rights"
+          options={{
+            href: null,
+          }}
+        />
       </Tabs>
       
       {/* FloatingTabBar customizado - oculto na tela de educação */}
@@ -165,6 +173,13 @@ function RootLayoutNav() {
           onTabPress={handleTabPress}
         />
       )}
+
+      {/* ConsentModal para novos usuários */}
+      <ConsentModal
+        visible={showConsentModal}
+        onComplete={hideConsentModal}
+        onSkip={hideConsentModal}
+      />
     </View>
   );
 }
@@ -176,11 +191,13 @@ export default function AppLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider>
         <AuthProvider>
-          <VerificationProvider>
-            <RootLayoutNav />
-            {/* A StatusBar foi movida de RootLayoutNav para cá para evitar duplicação e centralizar */}
-            <StatusBar style="auto" /> 
-          </VerificationProvider>
+          <ConsentProvider>
+            <VerificationProvider>
+              <RootLayoutNav />
+              {/* A StatusBar foi movida de RootLayoutNav para cá para evitar duplicação e centralizar */}
+              <StatusBar style="auto" /> 
+            </VerificationProvider>
+          </ConsentProvider>
         </AuthProvider>
       </ThemeProvider>
     </GestureHandlerRootView>
