@@ -8,8 +8,9 @@ import {
   StyleSheet,
   SafeAreaView,
   Platform,
+  Animated,
 } from 'react-native';
-import { X, Shield, CheckCircle, Circle, Info } from 'lucide-react-native';
+import { X, Shield, Info } from 'lucide-react-native';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useConsent } from '@/contexts/ConsentContext';
 
@@ -59,9 +60,13 @@ export default function ConsentModal({ visible, onComplete, onSkip }: ConsentMod
   const { colors } = useTheme();
   const { grantConsent } = useConsent();
   const [selectedConsents, setSelectedConsents] = useState<Set<string>>(
-    new Set(['essential']) // Essential sempre selecionado
+    new Set(['essential']) // Essential sempre selecionado por padrão
   );
   const [isProcessing, setIsProcessing] = useState(false);
+
+  const isConsentActive = (consentId: string, required: boolean) => {
+    return required || selectedConsents.has(consentId);
+  };
 
   const toggleConsent = (consentId: string, required: boolean) => {
     if (required) return; // Não permite desmarcar essenciais
@@ -164,8 +169,9 @@ export default function ConsentModal({ visible, onComplete, onSkip }: ConsentMod
                   styles.optionCard,
                   { 
                     backgroundColor: colors.card,
-                    borderColor: selectedConsents.has(option.id) ? colors.primary : colors.border,
-                    borderWidth: selectedConsents.has(option.id) ? 2 : 1,
+                    borderColor: isConsentActive(option.id, option.required) ? colors.primary : colors.border,
+                    borderWidth: isConsentActive(option.id, option.required) ? 2 : 1,
+                    opacity: option.required ? 0.9 : 1,
                   }
                 ]}
                 onPress={() => toggleConsent(option.id, option.required)}
@@ -185,12 +191,22 @@ export default function ConsentModal({ visible, onComplete, onSkip }: ConsentMod
                     )}
                   </View>
                   
-                  <View style={styles.checkboxContainer}>
-                    {selectedConsents.has(option.id) ? (
-                      <CheckCircle size={24} color={colors.primary} />
-                    ) : (
-                      <Circle size={24} color={colors.textSecondary} />
-                    )}
+                  <View style={styles.switchContainer}>
+                    <View style={[
+                      styles.switch,
+                      { 
+                        backgroundColor: isConsentActive(option.id, option.required) ? colors.primary : colors.border,
+                        opacity: option.required ? 0.8 : 1
+                      }
+                    ]}>
+                      <View style={[
+                        styles.switchThumb,
+                        { 
+                          backgroundColor: colors.background,
+                          transform: [{ translateX: isConsentActive(option.id, option.required) ? 20 : 2 }]
+                        }
+                      ]} />
+                    </View>
                   </View>
                 </View>
 
@@ -342,6 +358,28 @@ const styles = StyleSheet.create({
   },
   checkboxContainer: {
     marginTop: 2,
+  },
+  switchContainer: {
+    marginTop: 2,
+  },
+  switch: {
+    width: 44,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: 'center',
+    position: 'relative',
+    padding: 2,
+  },
+  switchThumb: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    position: 'absolute',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3,
+    elevation: 4,
   },
   optionDescription: {
     fontSize: 15,
