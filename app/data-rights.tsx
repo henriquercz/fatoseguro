@@ -94,8 +94,8 @@ export default function DataRightsScreen() {
       
       if (result.success) {
         Alert.alert(
-          'Dados Exportados',
-          'Seu relatório de dados pessoais foi gerado com sucesso conforme a LGPD. O documento contém todas as informações que temos sobre você.',
+          'Relatório Gerado',
+          'Seu relatório de dados pessoais foi gerado em formato Markdown profissional, conforme a LGPD. O documento contém todas as informações que temos sobre você e pode ser visualizado em qualquer editor de texto ou convertido para PDF.',
           [{ text: 'OK' }]
         );
       } else {
@@ -286,25 +286,6 @@ export default function DataRightsScreen() {
           <Text style={[styles.cardTitle, { color: colors.text }]}>
             Direitos Disponíveis
           </Text>
-          
-          {/* Acesso aos Dados */}
-          <TouchableOpacity
-            style={[styles.rightItem, { borderBottomColor: colors.border }]}
-            onPress={() => router.push('/account')}
-          >
-            <View style={styles.rightIcon}>
-              <Eye size={24} color={colors.primary} />
-            </View>
-            <View style={styles.rightContent}>
-              <Text style={[styles.rightTitle, { color: colors.text }]}>
-                Acessar Meus Dados
-              </Text>
-              <Text style={[styles.rightDescription, { color: colors.textSecondary }]}>
-                Visualizar informações do perfil e histórico (Art. 18º, II)
-              </Text>
-            </View>
-            <CheckCircle size={20} color={colors.success} />
-          </TouchableOpacity>
 
           {/* Exportar Dados */}
           <TouchableOpacity
