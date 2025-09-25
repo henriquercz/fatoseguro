@@ -154,6 +154,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (error) throw error;
 
+      // Verifica se é um novo usuário (sem consentimentos)
+      const { data: consents } = await supabase
+        .from('consent_records')
+        .select('id')
+        .eq('user_id', userId)
+        .limit(1);
+
+      const isNewUser = !consents || consents.length === 0;
+
       if (isMounted.current) {
         safeDispatch({
           type: 'LOGIN_SUCCESS',
@@ -164,6 +173,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             isAdmin: profile.is_admin,
           },
         });
+
+        // Se é um novo usuário, mostra o modal de consentimento
+        if (isNewUser) {
+          console.log('🆕 Novo usuário detectado - mostrando modal de consentimento');
+          safeDispatch({ type: 'SHOW_CONSENT_MODAL' });
+        }
       }
     } catch (error) {
       console.error('Error loading user profile:', error);
