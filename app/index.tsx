@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Text, Image, SafeAreaView, Alert } from 'react-native';
 import { router } from 'expo-router';
 import VerifyForm from '@/components/VerifyForm';
-import VerificationResult from '@/components/VerificationResult';
 import AdDisplay from '@/components/AdDisplay';
 import KeyboardDismissWrapper from '@/components/KeyboardDismissWrapper';
 import CustomHeader from '@/components/CustomHeader';
@@ -14,20 +13,23 @@ export default function HomeScreen() {
     currentVerification,
     clearCurrentVerification,
     showAd,
-    hideAd
+    hideAd,
+    loading: verificationLoading
   } = useVerification();
   const { colors } = useTheme();
 
   const [formKey, setFormKey] = useState(0);
 
-  const handleCloseResult = () => {
-    clearCurrentVerification();
-    setFormKey(prevKey => prevKey + 1); // Increment key to force VerifyForm remount
-  };
-
   const handleEducationPress = () => {
     router.push('/education');
   };
+
+  // Navegar para tela de resultado quando verificação estiver completa
+  useEffect(() => {
+    if (currentVerification && !verificationLoading && !showAd) {
+      router.push('/verification-result');
+    }
+  }, [currentVerification, verificationLoading, showAd]);
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -36,40 +38,31 @@ export default function HomeScreen() {
         onEducationPress={handleEducationPress}
       />
       <KeyboardDismissWrapper>
-        {!currentVerification && (
-          <View style={styles.content}>
-            <VerifyForm key={formKey} />
-            
-            <View style={[styles.infoContainer, { backgroundColor: colors.surface }]}>
-              <Text style={[styles.infoTitle, { color: colors.text }]}>Como funciona:</Text>
-              <View style={styles.infoStep}>
-                <View style={[styles.infoNumber, { backgroundColor: colors.primary }]}>
-                  <Text style={styles.infoNumberText}>1</Text>
-                </View>
-                <Text style={[styles.infoText, { color: colors.textSecondary }]}>Cole um link ou texto de notícia que deseja verificar</Text>
+        <View style={styles.content}>
+          <VerifyForm key={formKey} />
+          
+          <View style={[styles.infoContainer, { backgroundColor: colors.surface }]}>
+            <Text style={[styles.infoTitle, { color: colors.text }]}>Como funciona:</Text>
+            <View style={styles.infoStep}>
+              <View style={[styles.infoNumber, { backgroundColor: colors.primary }]}>
+                <Text style={styles.infoNumberText}>1</Text>
               </View>
-              <View style={styles.infoStep}>
-                <View style={[styles.infoNumber, { backgroundColor: colors.primary }]}>
-                  <Text style={styles.infoNumberText}>2</Text>
-                </View>
-                <Text style={[styles.infoText, { color: colors.textSecondary }]}>Nossa IA analisará a informação comparando com fontes confiáveis</Text>
+              <Text style={[styles.infoText, { color: colors.textSecondary }]}>Cole um link ou texto de notícia que deseja verificar</Text>
+            </View>
+            <View style={styles.infoStep}>
+              <View style={[styles.infoNumber, { backgroundColor: colors.primary }]}>
+                <Text style={styles.infoNumberText}>2</Text>
               </View>
-              <View style={styles.infoStep}>
-                <View style={[styles.infoNumber, { backgroundColor: colors.primary }]}>
-                  <Text style={styles.infoNumberText}>3</Text>
-                </View>
-                <Text style={[styles.infoText, { color: colors.textSecondary }]}>Você receberá uma análise detalhada e saberá se a notícia é verdadeira ou falsa</Text>
+              <Text style={[styles.infoText, { color: colors.textSecondary }]}>Nossa IA analisará a informação comparando com fontes confiáveis</Text>
+            </View>
+            <View style={styles.infoStep}>
+              <View style={[styles.infoNumber, { backgroundColor: colors.primary }]}>
+                <Text style={styles.infoNumberText}>3</Text>
               </View>
+              <Text style={[styles.infoText, { color: colors.textSecondary }]}>Você receberá uma análise detalhada e saberá se a notícia é verdadeira ou falsa</Text>
             </View>
           </View>
-        )}
-
-        {currentVerification && !showAd && (
-          <VerificationResult 
-            result={currentVerification}
-            onClose={handleCloseResult} // Use the new handler
-          />
-        )}
+        </View>
 
         {showAd && (
           <AdDisplay onClose={hideAd} />

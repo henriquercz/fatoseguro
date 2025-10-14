@@ -1,0 +1,256 @@
+@startuml CheckNow_Classes_Real
+title Diagrama de Classes - CheckNow com Conformidade LGPD\nArquitetura Atual - 85% Conformidade LGPD Implementada
+
+' 1. Sistema centralizado
+package "Sistema CheckNow - Verificador de Notícias" {
+class Profiles {
+  - id: UUID
+  - email: TEXT
+  - is_premium: BOOLEAN
+  - is_admin: BOOLEAN
+  - created_at: TIMESTAMPTZ
+  - updated_at: TIMESTAMPTZ
+  --
+  + readOwnProfile(): Profiles
+  + updateOwnProfile(): void
+  + upgradeToPremium(): void
+  --
+  <<RLS Policies Implementadas>>
+  "Users can read own profile"
+  "Users can update own profile"
+  "Users cannot delete profiles"
+  "Admins can update all profiles"
+}
+
+class Verifications {
+  - id: UUID
+  - user_id: UUID
+  - news_url: TEXT
+  - news_title: TEXT
+  - news_text_snippet: TEXT
+  - verification_status: TEXT
+  - verification_summary: TEXT
+  - raw_ai_response: JSONB
+  - related_facts: TEXT[]
+  - verified_at: TIMESTAMPTZ
+  - error_message: TEXT
+  --
+  + insertOwnVerification(): void
+  + readAllVerifications(): Verifications[]
+  + loadHistory(): void
+  + loadCommunityHistory(): void
+  --
+  <<RLS Policies Implementadas>>
+  "Users can insert their own verifications"
+  "Permitir leitura de todas as verificações"
+}
+
+' Contextos React implementados
+class AuthContext {
+  - user: User
+  - isLoading: BOOLEAN
+  - error: TEXT
+  - pendingEmailConfirmation: TEXT
+  --
+  + login(email, password): void
+  + register(email, password): void
+  + logout(): void
+  + upgradeToPremium(): void
+  + loadUserProfile(): void
+}
+
+class VerificationContext {
+  - verifications: NewsVerification[]
+  - currentVerification: NewsVerification
+  - verificationCount: INTEGER
+  - isLoading: BOOLEAN
+  - showAd: BOOLEAN
+  --
+  + verifyNews(news, type): void
+  + loadHistory(): void
+  + loadCommunityHistory(): void
+  + callGeminiAPI(): void
+  + loadVerificationCount(): void
+}
+
+' Serviços externos integrados
+class SupabaseAuth {
+  + signInWithPassword(): void
+  + signUp(): void
+  + signOut(): void
+  + getSession(): Session
+  + onAuthStateChange(): void
+}
+
+class GeminiAI {
+  - model: "gemini-2.5-flash"
+  - apiKey: TEXT
+  --
+  + generateContent(prompt): Response
+  + analyzeNews(): VerificationResult
+}
+
+class BraveSearchAPI {
+  + getEnrichedContext(query): TEXT
+  + searchNews(): SearchResult[]
+}
+
+class WebScraperService {
+  + extractContent(url): ScrapingResult
+  + formatForAI(data): TEXT
+}
+
+' Extensões PostgreSQL disponíveis
+class PostgreSQLExtensions {
+  + uuid_ossp: "1.1" {installed}
+  + pg_stat_statements: "1.11" {installed}
+  + pgcrypto: "1.3" {installed}
+  + supabase_vault: "0.3.1" {installed}
+  --
+  + generateUUID(): UUID
+  + trackStatements(): void
+  + encryptData(): TEXT
+  + storeSecrets(): void
+}
+
+' Componentes de UI com privacidade
+class PrivacyPolicyModal {
+  - visible: BOOLEAN
+  --
+  + showBasicPolicy(): void
+  + displaySections(): void
+}
+
+' Relacionamentos implementados
+Profiles ||--o{ Verifications : user_id
+AuthContext --> Profiles : manages
+VerificationContext --> Verifications : manages
+AuthContext --> SupabaseAuth : uses
+VerificationContext --> GeminiAI : uses
+VerificationContext --> BraveSearchAPI : uses
+VerificationContext --> WebScraperService : uses
+PostgreSQLExtensions ..> Profiles : supports
+PostgreSQLExtensions ..> Verifications : supports
+
+' Classes LGPD Implementadas
+class ConsentRecords {
+  - id: UUID
+  - user_id: UUID
+  - purpose: TEXT
+  - legal_basis: TEXT
+  - granted: BOOLEAN
+  - granted_at: TIMESTAMPTZ
+  - revoked_at: TIMESTAMPTZ
+  - version: TEXT
+  --
+  + grantConsent(): void ✅
+  + revokeConsent(): void ✅
+  + checkConsentStatus(): BOOLEAN ✅
+  --
+  <<RLS Policies Implementadas>>
+  "Users can read own consents"
+  "Users can insert own consents"
+  "Users can update own consents"
+}
+
+class ConsentContext {
+  - consents: ConsentRecord[] ✅
+  - isLoading: BOOLEAN ✅
+  - hasRequiredConsents: BOOLEAN ✅
+  --
+  + loadConsents(): void ✅
+  + grantConsent(): void ✅
+  + revokeConsent(): void ✅
+  + checkConsentStatus(): BOOLEAN ✅
+  + showConsentModal(): void ✅
+}
+
+class DataRightsScreen {
+  - userData: UserData ✅
+  - isLoading: BOOLEAN ✅
+  - consents: ConsentRecord[] ✅
+  --
+  + handleExportData(): void ✅
+  + handleDeleteAccount(): void ✅
+  + handleContactDPO(): void ✅
+  + loadUserData(): void ✅
+  + exportToMarkdown(): void ✅
+  + deleteUserCompletely(): void ✅
+}
+
+class ConsentModal {
+  - visible: BOOLEAN ✅
+  - selectedConsents: Set<string> ✅
+  - isProcessing: BOOLEAN ✅
+  --
+  + toggleConsent(): void ✅
+  + handleComplete(): void ✅
+  + isConsentActive(): BOOLEAN ✅
+  + showForNewUsers(): void ✅
+}
+
+class PDFExporter {
+  --
+  + exportUserDataToPDF(): Promise<Result> ✅
+  + generateMarkdownReport(): string ✅
+  + getConsentTitle(): string ✅
+  + getConsentLegalBasis(): string ✅
+}
+
+' Relacionamentos implementados LGPD
+Profiles ||--o{ ConsentRecords : user_id
+ConsentContext --> ConsentRecords : manages ✅
+DataRightsScreen --> Profiles : exports ✅
+DataRightsScreen --> Verifications : exports ✅
+DataRightsScreen --> ConsentRecords : displays ✅
+ConsentModal --> ConsentContext : uses ✅
+PDFExporter --> Profiles : exports ✅
+PDFExporter --> Verifications : exports ✅
+PDFExporter --> ConsentRecords : exports ✅
+AuthContext --> ConsentModal : triggers ✅
+AuthContext --> ConsentContext : integrates ✅
+
+class AuditLogger #lightgray {
+  - audit_logs: AuditLog[] {not_implemented}
+  --
+  + logActivity(): void {not_implemented}
+  + generateReport(): Report {not_implemented}
+  + detectAnomalies(): void {not_implemented}
+}
+
+}
+
+' Relacionamentos não implementados
+AuditLogger ..> Verifications : {not_implemented}
+
+' 2. NOTAS TÉCNICAS DISTRIBUÍDAS
+note top of ConsentRecords : **LGPD Art. 7º**\nConsentimento
+
+note bottom of DataRightsScreen : **LGPD Art. 18**\nDireitos
+
+note right of PDFExporter : **LGPD Art. 18º V**\nPortabilidade
+
+note left of Profiles : **LGPD Art. 46**\nSegurança RLS
+
+note top of ConsentModal : **Implementado**\nModal funcional
+
+' 3. Estilo visual
+skinparam note {
+  BackgroundColor #F9F9F9
+  BorderColor #000000
+  FontSize 8
+  MaxWidth 80
+}
+
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+}
+
+skinparam package {
+  BackgroundColor #E8F4FD
+  BorderColor #2E86AB
+  FontStyle bold
+}
+
+@enduml

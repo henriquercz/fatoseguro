@@ -13,6 +13,7 @@ import {
   Animated,
   Dimensions,
   Image,
+  Platform,
 } from 'react-native';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Shield, CheckCircle } from 'lucide-react-native';
@@ -182,6 +183,7 @@ const styles = StyleSheet.create({
   logoContainer: {
     alignItems: 'center',
     marginBottom: 40,
+    paddingHorizontal: 20,
   },
   iconWrapper: {
     width: 96,
@@ -197,9 +199,11 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   appName: {
-    fontSize: 32,
+    fontSize: Platform.OS === 'android' ? 28 : 32,
     fontFamily: 'Inter-Bold',
     marginBottom: 8,
+    letterSpacing: Platform.OS === 'android' ? 0 : -0.5,
+    textAlign: 'center',
   },
   checkIconContainer: {
     position: 'absolute',

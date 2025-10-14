@@ -35,9 +35,6 @@ yarn-error.*
 *.tsbuildinfo
 
 # atividade ipss
-ativ ipss
-ativ ipss\
-ativ ipss/*
-ativ ipss/
+
 
 

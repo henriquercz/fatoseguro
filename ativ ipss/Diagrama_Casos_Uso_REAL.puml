@@ -1,0 +1,151 @@
+@startuml CheckNow_Casos_Uso_Real
+title Casos de Uso - CheckNow com Conformidade LGPD\nImplementação Atual - 85% Conformidade LGPD
+
+' 1. Definir atores
+actor "Usuário Anônimo" as UA
+actor "Usuário Free" as UF  
+actor "Usuário Premium" as UP
+actor "Administrador" as Admin
+actor "Google Gemini IA" as IA
+actor "Supabase" as DB
+
+' Herança de atores
+UA <|-- UF
+UF <|-- UP
+
+' 2. Definir casos de uso dentro do sistema
+rectangle "Sistema CheckNow - Verificador de Notícias" {
+  
+  ' Autenticação
+  usecase "UC001: Fazer Login" as UC001
+  usecase "UC002: Criar Conta" as UC002
+  usecase "UC003: Fazer Logout" as UC003
+  usecase "Verificar JWT Token" as UC001_INC
+  
+  ' Verificação de Notícias
+  usecase "UC004: Verificar Notícia por Texto" as UC004
+  usecase "UC005: Verificar Notícia por Link" as UC005
+  usecase "UC006: Consultar Histórico Pessoal" as UC006
+  usecase "UC007: Consultar Histórico Comunitário" as UC007
+  usecase "Processar com IA" as UC004_INC
+  usecase "Salvar no Banco" as UC004_INC2
+  
+  ' Controle de Acesso
+  usecase "UC008: Aplicar Row Level Security" as UC008
+  usecase "UC009: Controlar Limite de Verificações" as UC009
+  usecase "UC010: Upgrade para Premium" as UC010
+  
+  ' Privacidade Básica
+  usecase "UC011: Visualizar Política de Privacidade" as UC011
+  usecase "UC012: Gerenciar Perfil" as UC012
+  
+  ' LGPD - Conformidade Implementada
+  usecase "UC013: Gerenciar Consentimentos" as UC013
+  usecase "UC014: Exercer Direitos LGPD" as UC014
+  usecase "UC015: Exportar Dados Pessoais" as UC015
+  usecase "UC016: Visualizar Política LGPD" as UC016
+  usecase "UC017: Excluir Conta Completa" as UC017
+  usecase "UC018: Modal Consentimento Inicial" as UC018
+  usecase "UC019: Gestão Granular Consentimentos" as UC019
+  
+  ' Funcionalidades Futuras
+  usecase "UC020: Registrar Logs de Auditoria" as UC020
+  usecase "UC021: Detectar Incidentes" as UC021
+  usecase "UC022: Monitoramento Segurança" as UC022
+}
+
+' 3. Relações diretas dos atores
+UA --> UC001
+UA --> UC002
+UA --> UC011
+
+UF --> UC004
+UF --> UC005
+UF --> UC006
+UF --> UC007
+UF --> UC012
+UF --> UC013
+UF --> UC014
+UF --> UC015
+UF --> UC016
+UF --> UC017
+UF --> UC018
+UF --> UC019
+UF --> UC003
+
+UP --> UC004
+UP --> UC005
+UP --> UC006
+
+Admin --> UC008
+Admin --> UC020
+Admin --> UC021
+Admin --> UC022
+
+IA --> UC004
+IA --> UC005
+DB --> UC008
+DB --> UC009
+
+' 4. Relações de INCLUDE (Obrigatórias)
+UC001 --> UC001_INC : <<include>>
+UC002 --> UC001_INC : <<include>>
+UC002 --> UC018 : <<include>>\n(Consentimento obrigatório)
+UC004 --> UC004_INC : <<include>>
+UC004 --> UC004_INC2 : <<include>>
+UC005 --> UC004_INC : <<include>>
+UC005 --> UC004_INC2 : <<include>>
+UC006 --> UC008 : <<include>>
+UC007 --> UC008 : <<include>>
+UC009 --> UC008 : <<include>>
+UC010 --> UC008 : <<include>>
+UC012 --> UC008 : <<include>>
+UC017 --> UC020 : <<include>>\n(Log obrigatório)
+
+' 5. Relações de EXTEND (LGPD - Opcionais)
+UC012 --> UC013 : <<extend>>
+UC012 --> UC014 : <<extend>>
+UC012 --> UC015 : <<extend>>
+UC012 --> UC017 : <<extend>>
+UC013 --> UC019 : <<extend>>
+UC014 --> UC015 : <<extend>>
+UC016 --> UC014 : <<extend>>
+
+' 6. NOTAS LEGAIS DISTRIBUÍDAS
+note top of UC018 : **LGPD Art. 7º**\nConsentimento
+
+note bottom of UC013 : **LGPD Art. 8º**\nRevogável
+
+note top of UC014 : **LGPD Art. 18**\nDireitos
+
+note bottom of UC015 : **LGPD Art. 18º V**\nPortabilidade
+
+note top of UC017 : **LGPD Art. 18º VI**\nEliminação
+
+note bottom of UC008 : **LGPD Art. 46**\nSegurança
+
+' 7. Estilo visual
+skinparam note {
+  BackgroundColor #F9F9F9
+  BorderColor #000000
+  FontSize 8
+  MaxWidth 80
+}
+
+skinparam usecase {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+}
+
+skinparam actor {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+}
+
+skinparam rectangle {
+  BackgroundColor #E8F4FD
+  BorderColor #2E86AB
+  FontStyle bold
+}
+
+@enduml
