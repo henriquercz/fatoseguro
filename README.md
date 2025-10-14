@@ -2,7 +2,7 @@
 
 <div align="center">
   
-  ![CheckNow Logo](https://img.shields.io/badge/CheckNow-v2.5-4CAF50?style=for-the-badge&logo=shield&logoColor=white)
+  ![CheckNow Logo](https://img.shields.io/badge/CheckNow-v2.7.1-4CAF50?style=for-the-badge&logo=shield&logoColor=white)
   
   **🛡️ Sua defesa definitiva contra a desinformação!**  
   *Verificação inteligente de notícias com IA avançada e extração de conteúdo em tempo real*
@@ -546,7 +546,7 @@ O curso de **Desenvolvimento de Sistemas** da Etec Taboão da Serra forma profis
 
 <div align="center">
 
-### 🚀 **CheckNow v2.5 - Verificação Inteligente de Notícias**
+### 🚀 **CheckNow v2.7.1 - Verificação Inteligente de Notícias**
 
 [![Feito com ❤️](https://img.shields.io/badge/Feito%20com-❤️-red?style=for-the-badge)](https://github.com/ricks18/checknow)
 [![TCC 2025](https://img.shields.io/badge/TCC-2025-blue?style=for-the-badge&logo=graduation-cap)](https://www.cps.sp.gov.br/)

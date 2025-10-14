@@ -150,7 +150,7 @@ if (!isPremium && state.verificationCount <= 0) {
 
 - ✅ Tabela `consent_records` com RLS
 - ✅ Context de gerenciamento de consentimentos
-- ✅ Política de privacidade expandida (v2.0)
+- ✅ Política de privacidade expandida (v2.7.1)
 - ✅ Tela de exercício de direitos (`data-rights.tsx`)
 - ✅ Exportação de dados pessoais
 - ✅ Visualização de consentimentos
@@ -200,7 +200,7 @@ console.log(`Consentimento revogado: ${consentId}`);
 **Implementado Recentemente:**
 
 - ✅ Sistema de consentimento com tabela dedicada
-- ✅ Política de privacidade completa LGPD v2.0
+- ✅ Política de privacidade completa LGPD v2.7.1
 - ✅ Mecanismo de exercício de direitos
 - ✅ Exportação de dados pessoais
 - ✅ Visualização de consentimentos
@@ -315,7 +315,7 @@ console.log(`Consentimento revogado: ${consentId}`);
 3. **Governança LGPD**
 
    - ✅ DPO designado (Henrique Rezende)
-   - ✅ Política de privacidade v2.0
+   - ✅ Política de privacidade v2.7.1
    - ✅ Conformidade 85% implementada
 
 ### 6.4 Longo Prazo (1 mês restante)
@@ -368,7 +368,7 @@ O CheckNow alcançou **85% de conformidade LGPD** mantendo sua **base sólida de
 5. ✅ Hard delete de conta completo
 6. ✅ Gestão granular de consentimentos
 7. ✅ DPO designado (Henrique Rezende)
-8. ✅ Política de privacidade v2.0 expandida
+8. ✅ Política de privacidade v2.7.1 expandida
 
 **🔄 Próximas Prioridades (15% restante):**
 
