@@ -125,7 +125,7 @@ export default function FloatingTabBar({ activeTab, onTabPress }: FloatingTabBar
       style={[
         styles.container,
         {
-          bottom: insets.bottom + 17,
+          bottom: insets.bottom + 12,
           backgroundColor: isDarkMode ? colors.surface : colors.background,
           borderColor: isDarkMode ? colors.border : colors.primary + '20',
         },

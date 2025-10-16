@@ -128,11 +128,12 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: 16,
-    paddingBottom: 130, // Espaço para o FloatingTabBar
+    paddingTop: 8,
+    paddingBottom: 110, // Espaço reduzido para o FloatingTabBar
   },
   infoContainer: {
-    marginTop: 32,
-    padding: 20,
+    marginTop: 20,
+    padding: 16,
     borderRadius: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },

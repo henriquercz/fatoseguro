@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
   },
   card: {
     borderRadius: 12,
-    padding: 20,
+    padding: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   title: {
     fontSize: 18,
@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
   },
   inputTypeToggle: {
     flexDirection: 'row',
-    marginBottom: 16,
+    marginBottom: 12,
     borderRadius: 8,
     padding: 2,
   },
@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     position: 'relative',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   input: {
     borderWidth: 1,
@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   verificationCountContainer: {
-    minHeight: 44,
+    minHeight: 40,
     justifyContent: 'center',
     alignItems: 'center',
   },
