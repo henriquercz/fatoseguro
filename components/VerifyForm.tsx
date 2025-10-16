@@ -148,11 +148,14 @@ export default function VerifyForm() {
             )}
           </TouchableOpacity>
 
-          {verificationCount !== null && (
-            <Text style={[styles.verificationCount, { color: colors.textSecondary }]}>
-              Verificações restantes hoje: {verificationCount}/3
-            </Text>
-          )}
+          {/* Espaço reservado para manter layout consistente entre free e premium */}
+          <View style={styles.verificationCountContainer}>
+            {verificationCount !== null && (
+              <Text style={[styles.verificationCount, { color: colors.textSecondary }]}>
+                Verificações restantes hoje: {verificationCount}/3
+              </Text>
+            )}
+          </View>
         </View>
         
         {keyboardVisible && (
@@ -272,11 +275,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginLeft: 8,
   },
+  verificationCountContainer: {
+    minHeight: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   verificationCount: {
     textAlign: 'center',
-    marginTop: 16,
+    marginTop: 12,
     fontFamily: 'Inter-Medium',
-    fontSize: 14,
+    fontSize: 13,
   },
   keyboardDismissButton: {
     position: 'absolute',
