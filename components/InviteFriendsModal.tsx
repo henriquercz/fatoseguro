@@ -10,8 +10,9 @@ import {
   Dimensions,
   ScrollView,
   Platform,
+  Linking,
 } from 'react-native';
-import { X, Share2, Copy, Users } from 'lucide-react-native';
+import { X, Share2, Copy, Users, Instagram } from 'lucide-react-native';
 import QRCode from 'react-native-qrcode-svg';
 import * as Clipboard from 'expo-clipboard';
 import { useAuth } from '@/contexts/AuthContext';
@@ -50,15 +51,19 @@ export default function InviteFriendsModal({ visible, onClose }: InviteFriendsMo
       
       setQrValue(JSON.stringify(qrData));
       
-      const text = `🔍 Descubra a verdade sobre as notícias com o Check Now!\n\n` +
+      const text = `🔍 Descubra a verdade sobre as notícias com o CheckNow!\n\n` +
         `Eu uso este app incrível para verificar se as notícias são verdadeiras ou falsas. ` +
         `É super fácil e rápido!\n\n` +
+        `🤖 Verificação com IA\n` +
+        `✅ Checagem de fontes\n` +
+        `⚡ Resultados instantâneos\n\n` +
         `📱 Baixe agora:\n` +
         `• Expo: ${expoUrl}\n` +
         `• Android: ${playStoreUrl}\n` +
         `• iOS: ${appStoreUrl}\n\n` +
         `🎁 Use meu código de convite: ${inviteCode}\n\n` +
-        `#CheckNow #FakeNews #FactCheck`;
+        `📍 Instagram: @checknow.br\n\n` +
+        `#CheckNow #FakeNews #Verificação`;
       
       setShareText(text);
     }
@@ -93,6 +98,20 @@ export default function InviteFriendsModal({ visible, onClose }: InviteFriendsMo
     } catch (error) {
       console.error('Erro ao copiar:', error);
       Alert.alert('Erro', 'Não foi possível copiar o link.');
+    }
+  };
+
+  const handleOpenInstagram = async () => {
+    const instagramUrl = 'https://instagram.com/checknow.br';
+    try {
+      const supported = await Linking.canOpenURL(instagramUrl);
+      if (supported) {
+        await Linking.openURL(instagramUrl);
+      } else {
+        Alert.alert('Erro', 'Não foi possível abrir o Instagram.');
+      }
+    } catch (error) {
+      Alert.alert('Erro', 'Erro ao tentar abrir o Instagram.');
     }
   };
 
@@ -195,15 +214,25 @@ export default function InviteFriendsModal({ visible, onClose }: InviteFriendsMo
 
         {/* Botões de ação */}
         <View style={[styles.footer, { borderTopColor: colors.border }]}>
-          <TouchableOpacity style={[styles.copyButton, { backgroundColor: colors.background, borderColor: colors.primary }]} onPress={handleCopyText}>
-            <Copy size={20} color={colors.primary} />
-            <Text style={[styles.copyButtonText, { color: colors.primary }]}>Copiar Texto</Text>
+          <TouchableOpacity 
+            style={[styles.instagramButton, { backgroundColor: '#E4405F' }]} 
+            onPress={handleOpenInstagram}
+          >
+            <Instagram size={20} color="#FFFFFF" />
+            <Text style={styles.instagramButtonText}>@checknow.br</Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity style={[styles.shareButton, { backgroundColor: colors.primary }]} onPress={handleShare}>
-            <Share2 size={20} color={colors.surface} />
-            <Text style={[styles.shareButtonText, { color: colors.surface }]}>Compartilhar</Text>
-          </TouchableOpacity>
+
+          <View style={styles.actionButtons}>
+            <TouchableOpacity style={[styles.copyButton, { backgroundColor: colors.background, borderColor: colors.primary }]} onPress={handleCopyText}>
+              <Copy size={20} color={colors.primary} />
+              <Text style={[styles.copyButtonText, { color: colors.primary }]}>Copiar</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={[styles.shareButton, { backgroundColor: colors.primary }]} onPress={handleShare}>
+              <Share2 size={20} color={colors.surface} />
+              <Text style={[styles.shareButtonText, { color: colors.surface }]}>Compartilhar</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </Modal>
@@ -306,9 +335,32 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   footer: {
-    flexDirection: 'row',
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
     borderTopWidth: 1,
+    gap: 12,
+  },
+  instagramButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+    borderRadius: 12,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  instagramButtonText: {
+    color: '#FFFFFF',
+    fontFamily: 'Inter-SemiBold',
+    fontSize: 16,
+    marginLeft: 8,
+  },
+  actionButtons: {
+    flexDirection: 'row',
     gap: 12,
   },
   copyButton: {

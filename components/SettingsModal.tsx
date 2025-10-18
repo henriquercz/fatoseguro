@@ -8,6 +8,7 @@ import {
   Switch,
   ScrollView,
   Alert,
+  Linking,
 } from 'react-native';
 import {
   X,
@@ -18,6 +19,7 @@ import {
   Smartphone,
   Trash2,
   LogOut,
+  Instagram,
 } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -32,6 +34,20 @@ export default function SettingsModal({ visible, onClose }: SettingsModalProps) 
   const { logout, user } = useAuth();
   const { isDarkMode, toggleDarkMode, colors } = useTheme();
   const [privacyModalVisible, setPrivacyModalVisible] = useState(false);
+
+  const handleOpenInstagram = async () => {
+    const instagramUrl = 'https://instagram.com/checknow.br';
+    try {
+      const supported = await Linking.canOpenURL(instagramUrl);
+      if (supported) {
+        await Linking.openURL(instagramUrl);
+      } else {
+        Alert.alert('Erro', 'Não foi possível abrir o Instagram.');
+      }
+    } catch (error) {
+      Alert.alert('Erro', 'Erro ao tentar abrir o Instagram.');
+    }
+  };
 
   const handleDeleteAccount = () => {
     Alert.alert(
@@ -132,6 +148,18 @@ export default function SettingsModal({ visible, onClose }: SettingsModalProps) 
                 title="Idioma"
                 subtitle="Português (Brasil)"
                 onPress={() => Alert.alert('Funcionalidade em desenvolvimento')}
+              />
+            </View>
+
+            {/* Redes Sociais */}
+            <View style={styles.section}>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>Redes Sociais</Text>
+              
+              <SettingItem
+                icon={<Instagram size={20} color="#E4405F" />}
+                title="Siga-nos no Instagram"
+                subtitle="@checknow.br"
+                onPress={handleOpenInstagram}
               />
             </View>
 

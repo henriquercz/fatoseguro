@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Platform } from 'react-native';
-import { CircleCheck as CheckCircle, Circle as XCircle, CircleAlert as AlertCircle, ArrowLeft } from 'lucide-react-native';
+import { View, Text, StyleSheet, ScrollView, Platform, Share, Alert } from 'react-native';
+import { CircleCheck as CheckCircle, Circle as XCircle, CircleAlert as AlertCircle, ArrowLeft, Share2 } from 'lucide-react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { NewsVerification } from '@/types';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -13,6 +13,29 @@ interface VerificationResultProps {
 export default function VerificationResult({ result, onClose }: VerificationResultProps) {
   const { colors } = useTheme();
   const [showFullContent, setShowFullContent] = useState(false);
+
+  const handleShare = async () => {
+    try {
+      const statusEmoji = 
+        result.verification_status === 'VERDADEIRO' ? '✅' : 
+        result.verification_status === 'FALSO' ? '❌' : '⚠️';
+      
+      const statusText = 
+        result.verification_status === 'VERDADEIRO' ? 'VERDADEIRA' : 
+        result.verification_status === 'FALSO' ? 'FALSA' : 'INDETERMINADA';
+      
+      const newsTitle = result.news_title || result.news_content?.substring(0, 100) || 'Notícia verificada';
+      
+      const shareMessage = `${statusEmoji} NOTÍCIA ${statusText}\n\n“${newsTitle}”\n\n🔍 Verificado por: CheckNow\n🤖 Análise com IA e checagem de fontes\n\n📱 Baixe o app e verifique suas notícias!\n📍 Instagram: @checknow.br\n\n#CheckNow #FakeNews #Verificação`;
+      
+      await Share.share({
+        message: shareMessage,
+        title: `CheckNow - Notícia ${statusText}`,
+      });
+    } catch (error) {
+      console.error('Erro ao compartilhar:', error);
+    }
+  };
   
   // Detectar se é um link (URL) ou texto
   const isUrl = result.news_url ? true : false;
@@ -111,6 +134,16 @@ export default function VerificationResult({ result, onClose }: VerificationResu
             })}
           </Text>
         </View>
+
+        {/* Botão de compartilhamento */}
+        <TouchableOpacity 
+          style={[styles.shareButton, { backgroundColor: colors.primary }]}
+          onPress={handleShare}
+          activeOpacity={0.8}
+        >
+          <Share2 size={20} color="#FFFFFF" />
+          <Text style={styles.shareButtonText}>Compartilhar Verificação</Text>
+        </TouchableOpacity>
       </ScrollView>
     </View>
   );
@@ -208,5 +241,26 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: 140, // Espaço para o FloatingTabBar (100px) + margem extra (40px)
+  },
+  shareButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    marginHorizontal: 16,
+    marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  shareButtonText: {
+    color: '#FFFFFF',
+    fontFamily: 'Inter-SemiBold',
+    fontSize: 16,
+    marginLeft: 8,
   },
 });
