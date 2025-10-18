@@ -194,11 +194,16 @@ export default function VerificationResult({ result, onClose }: VerificationResu
           ) : (
             <XCircle size={24} color="#FFFFFF" />
           )}
-          <Text style={styles.statusText}>
-            {result.verification_status === 'VERDADEIRO' ? 'Notícia Verdadeira' : 
-             result.verification_status === 'INDETERMINADO' ? 'Notícia Indeterminada' : 
-             'Notícia Falsa'}
-          </Text>
+          <View style={styles.statusTextContainer}>
+            <Text style={styles.statusText}>
+              {result.verification_status === 'VERDADEIRO' ? 'Notícia Verdadeira' : 
+               result.verification_status === 'INDETERMINADO' ? 'Notícia Indeterminada' : 
+               'Notícia Falsa'}
+            </Text>
+            {result.fromCache && (
+              <Text style={styles.cacheBadge}>⚡ Resultado instantâneo</Text>
+            )}
+          </View>
         </View>
         
         {/* Botão de compartilhamento compacto */}
@@ -514,6 +519,17 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Bold',
     color: '#FFFFFF',
     textAlign: 'center',
+  },
+  statusTextContainer: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  cacheBadge: {
+    fontSize: 11,
+    fontFamily: 'Inter-Medium',
+    color: '#FFFFFF',
+    opacity: 0.9,
+    marginTop: 2,
   },
   shareCardContent: {
     padding: 20,

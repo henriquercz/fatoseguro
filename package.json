@@ -20,6 +20,7 @@
     "@react-navigation/bottom-tabs": "^7.2.0",
     "@react-navigation/native": "^7.0.14",
     "@supabase/supabase-js": "^2.39.8",
+    "crypto-js": "^4.2.0",
     "eas-cli": "^16.18.0",
     "expo": "~54.0.10",
     "expo-auth-session": "~7.0.8",
@@ -62,6 +63,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
+    "@types/crypto-js": "^4.2.2",
     "@types/react": "~19.1.10",
     "babel-plugin-module-resolver": "^5.0.2",
     "typescript": "~5.9.2"

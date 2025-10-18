@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { BarChart3, CheckCircle, XCircle, AlertCircle } from 'lucide-react-native';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
+import SkeletonLoader from './SkeletonLoader';
+import AnimatedView from './AnimatedView';
 
 interface StatsData {
   total: number;
@@ -32,16 +34,17 @@ export default function UserStats() {
       const { data, error } = await supabase
         .from('verifications')
         .select('verification_status')
-        .eq('user_id', user?.id);
+        .eq('user_id', user?.id || '');
 
       if (error) throw error;
 
       // Calcular estatísticas
+      const verifications = (data || []) as Array<{ verification_status: string }>;
       const statsData: StatsData = {
-        total: data?.length || 0,
-        verdadeiro: data?.filter(v => v.verification_status === 'VERDADEIRO').length || 0,
-        falso: data?.filter(v => v.verification_status === 'FALSO').length || 0,
-        indeterminado: data?.filter(v => v.verification_status === 'INDETERMINADO').length || 0,
+        total: verifications.length,
+        verdadeiro: verifications.filter(v => v.verification_status === 'VERDADEIRO').length,
+        falso: verifications.filter(v => v.verification_status === 'FALSO').length,
+        indeterminado: verifications.filter(v => v.verification_status === 'INDETERMINADO').length,
       };
 
       setStats(statsData);
@@ -55,7 +58,30 @@ export default function UserStats() {
   if (loading) {
     return (
       <View style={[styles.container, { backgroundColor: colors.surface }]}>
-        <ActivityIndicator size="large" color={colors.primary} />
+        {/* Header Skeleton */}
+        <View style={styles.header}>
+          <SkeletonLoader width={24} height={24} borderRadius={12} />
+          <SkeletonLoader width={150} height={20} borderRadius={4} />
+        </View>
+
+        {/* Total Skeleton */}
+        <View style={styles.totalCard}>
+          <SkeletonLoader width={80} height={48} borderRadius={8} style={{ marginBottom: 8 }} />
+          <SkeletonLoader width={180} height={14} borderRadius={4} />
+        </View>
+
+        {/* Stats Skeleton */}
+        <View style={styles.statsGrid}>
+          {[1, 2, 3].map((item) => (
+            <View key={item} style={[styles.statCard, { backgroundColor: colors.background }]}>
+              <SkeletonLoader width={48} height={48} borderRadius={24} style={{ marginBottom: 12 }} />
+              <SkeletonLoader width={60} height={32} borderRadius={4} style={{ marginBottom: 4 }} />
+              <SkeletonLoader width={100} height={14} borderRadius={4} style={{ marginBottom: 12 }} />
+              <SkeletonLoader width="100%" height={6} borderRadius={3} style={{ marginBottom: 8 }} />
+              <SkeletonLoader width={50} height={16} borderRadius={4} />
+            </View>
+          ))}
+        </View>
       </View>
     );
   }
@@ -70,7 +96,8 @@ export default function UserStats() {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.surface }]}>
+    <AnimatedView type="slideUp" duration={400}>
+      <View style={[styles.container, { backgroundColor: colors.surface }]}>
       {/* Header */}
       <View style={styles.header}>
         <BarChart3 size={24} color={colors.primary} />
@@ -156,7 +183,8 @@ export default function UserStats() {
           </Text>
         </View>
       </View>
-    </View>
+      </View>
+    </AnimatedView>
   );
 }
 

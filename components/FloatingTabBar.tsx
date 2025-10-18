@@ -18,6 +18,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/contexts/ThemeContext';
 import { ShieldCheck, History, User, Newspaper } from 'lucide-react-native';
+import { selectionHaptic } from '@/utils/haptics';
 
 interface TabItem {
   key: string;
@@ -64,6 +65,7 @@ export default function FloatingTabBar({ activeTab, onTabPress }: FloatingTabBar
 
   const handleTabPress = (route: string) => {
     console.log('🎯 FloatingTabBar: Clique na aba', route);
+    selectionHaptic(); // Feedback háptico ao trocar de aba
     onTabPress(route);
   };
 

@@ -27,6 +27,9 @@ export interface NewsVerification {
   verified_at: string;   // ISO string timestamp
   // verifiedBy?: string; // Could be 'AI', 'USER_X', 'MODERATOR_Y' in the future
   
+  // Cache metadata
+  fromCache?: boolean;   // Indica se o resultado veio do cache
+  
   // Fields kept for compatibility during transition, review if still needed
   isTrue?: boolean; // Should be derived from verification_status ideally
   explanation?: string; // Should be replaced by verification_summary

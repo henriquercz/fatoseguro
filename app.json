@@ -37,7 +37,8 @@
       "expo-router",
       "expo-font",
       "expo-web-browser",
-      "react-native-google-mobile-ads"
+      "react-native-google-mobile-ads",
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true

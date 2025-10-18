@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext'; // Import useAuth hook
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
 import { braveSearchService } from '@/lib/braveSearch';
 import { webScraperService } from '@/lib/webScraper';
+import { cacheService } from '@/lib/cacheService';
 
 const MAX_FREE_VERIFICATIONS = 3; // 3 verificações mensais para usuários free
 
@@ -460,6 +461,23 @@ export const VerificationProvider = ({ children }: { children: ReactNode }) => {
         dispatch({ type: 'VERIFY_FAILURE', payload: 'Você atingiu o limite de verificações gratuitas para hoje.' });
         return;
       }
+
+      // 🚀 NOVO: Verifica cache antes de fazer chamadas de API
+      console.log('🔍 Verificando cache...');
+      const cachedResult = await cacheService.findInCache(news, type);
+      
+      if (cachedResult) {
+        console.log('⚡ Usando resultado do cache - economia de API!');
+        // Marca como resultado do cache
+        const cachedResultWithFlag = { ...cachedResult, fromCache: true };
+        // Resultado encontrado no cache - retorna instantaneamente
+        dispatch({ type: 'VERIFY_SUCCESS', payload: cachedResultWithFlag });
+        // Não mostra anúncio para cache hits (experiência premium)
+        return;
+      }
+
+      console.log('📡 Cache miss - fazendo verificação completa...');
+      
       if (!isPremium) {
         dispatch({ type: 'SHOW_AD' });
       }
@@ -568,6 +586,10 @@ export const VerificationProvider = ({ children }: { children: ReactNode }) => {
           year: currentYear 
         }));
       }
+      
+      // 💾 NOVO: Salva resultado no cache para reutilização futura
+      await cacheService.saveToCache(finalVerificationResult, news, type);
+      
       // The reducer will handle decrementing the count for both user types upon VERIFY_SUCCESS
       dispatch({ type: 'VERIFY_SUCCESS', payload: finalVerificationResult });
 
