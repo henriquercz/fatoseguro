@@ -54,7 +54,7 @@ export default function VerificationResult({ result, onClose }: VerificationResu
         return;
       }
 
-      // Capturar screenshot da view
+      // Capturar screenshot do card customizado
       const uri = await captureRef(viewShotRef, {
         format: 'png',
         quality: 1,
@@ -65,8 +65,12 @@ export default function VerificationResult({ result, onClose }: VerificationResu
         result.verification_status === 'VERDADEIRO' ? 'VERDADEIRA' : 
         result.verification_status === 'FALSO' ? 'FALSA' : 'INDETERMINADA';
       
+      const newsTitle = result.news_title || result.news_content?.substring(0, 100) || 'Notícia verificada';
+      const summary = result.verification_summary?.substring(0, 150) || '';
+      const statusEmoji = result.verification_status === 'VERDADEIRO' ? '✅' : result.verification_status === 'FALSO' ? '❌' : '⚠️';
       const hashtags = generateHashtags();
-      const shareMessage = `✅ Verificado por CheckNow\n📍 Instagram: @checknow.br\n\n${hashtags}`;
+      
+      const shareMessage = `${statusEmoji} NOTÍCIA ${statusText}\n\n"📰 ${newsTitle}"\n\n🔍 Análise: ${summary}${summary.length >= 150 ? '...' : ''}\n\n✅ Verificado por CheckNow\n📍 Instagram: @checknow.br\n\n${hashtags}`;
 
       // Verificar se o dispositivo suporta compartilhamento
       const isAvailable = await Sharing.isAvailableAsync();
@@ -77,14 +81,18 @@ export default function VerificationResult({ result, onClose }: VerificationResu
           dialogTitle: `CheckNow - Notícia ${statusText}`,
           UTI: 'public.png',
         });
-      } else {
-        // Fallback para Share nativo (apenas texto)
-        const newsTitle = result.news_title || result.news_content?.substring(0, 100) || 'Notícia verificada';
-        const summary = result.verification_summary?.substring(0, 150) || '';
-        const statusEmoji = result.verification_status === 'VERDADEIRO' ? '✅' : result.verification_status === 'FALSO' ? '❌' : '⚠️';
         
+        // Compartilhar texto também (alguns apps suportam)
+        setTimeout(() => {
+          Share.share({
+            message: shareMessage,
+            title: `CheckNow - Notícia ${statusText}`,
+          });
+        }, 500);
+      } else {
+        // Fallback para Share nativo com texto
         await Share.share({
-          message: `${statusEmoji} NOTÍCIA ${statusText}\n\n"📰 ${newsTitle}"\n\n🔍 Análise: ${summary}${summary.length >= 150 ? '...' : ''}\n\n${shareMessage}`,
+          message: shareMessage,
           title: `CheckNow - Notícia ${statusText}`,
         });
       }
@@ -149,8 +157,6 @@ export default function VerificationResult({ result, onClose }: VerificationResu
         </TouchableOpacity>
       </View>
 
-      {/* View capturável para screenshot */}
-      <View ref={viewShotRef} collapsable={false} style={{ flex: 1, backgroundColor: colors.background }}>
       <ScrollView style={styles.content} contentContainerStyle={styles.scrollContent}>
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Notícia analisada:</Text>
@@ -203,6 +209,54 @@ export default function VerificationResult({ result, onClose }: VerificationResu
           </Text>
         </View>
       </ScrollView>
+
+      {/* Card customizado para screenshot (oculto) */}
+      <View style={styles.hiddenCard}>
+        <View ref={viewShotRef} collapsable={false} style={[styles.shareCard, { backgroundColor: colors.surface }]}>
+          {/* Header com logo */}
+          <View style={[styles.shareCardHeader, { backgroundColor: colors.primary }]}>
+            <Text style={styles.shareCardLogo}>CheckNow</Text>
+            <Text style={styles.shareCardSubtitle}>Verificação de Notícias</Text>
+          </View>
+
+          {/* Status */}
+          <View style={[
+            styles.shareCardStatus,
+            result.verification_status === 'VERDADEIRO' ? { backgroundColor: '#22C55E' } :
+            result.verification_status === 'FALSO' ? { backgroundColor: '#EF4444' } :
+            { backgroundColor: '#F59E0B' }
+          ]}>
+            {result.verification_status === 'VERDADEIRO' ? (
+              <CheckCircle size={32} color="#FFFFFF" />
+            ) : result.verification_status === 'FALSO' ? (
+              <XCircle size={32} color="#FFFFFF" />
+            ) : (
+              <AlertCircle size={32} color="#FFFFFF" />
+            )}
+            <Text style={styles.shareCardStatusText}>
+              {result.verification_status === 'VERDADEIRO' ? 'NOTÍCIA VERDADEIRA' :
+               result.verification_status === 'FALSO' ? 'NOTÍCIA FALSA' :
+               'NOTÍCIA INDETERMINADA'}
+            </Text>
+          </View>
+
+          {/* Conteúdo */}
+          <View style={styles.shareCardContent}>
+            <Text style={[styles.shareCardTitle, { color: colors.text }]} numberOfLines={3}>
+              {result.news_title || result.news_content?.substring(0, 120) || 'Notícia verificada'}
+            </Text>
+            <Text style={[styles.shareCardSummary, { color: colors.textSecondary }]} numberOfLines={4}>
+              {result.verification_summary?.substring(0, 180) || ''}
+            </Text>
+          </View>
+
+          {/* Footer */}
+          <View style={[styles.shareCardFooter, { borderTopColor: colors.border }]}>
+            <Text style={[styles.shareCardFooterText, { color: colors.textSecondary }]}>
+              📍 Instagram: @checknow.br
+            </Text>
+          </View>
+        </View>
       </View>
     </View>
   );
@@ -318,5 +372,71 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: 140, // Espaço para o FloatingTabBar (100px) + margem extra (40px)
+  },
+  hiddenCard: {
+    position: 'absolute',
+    left: -9999,
+    top: -9999,
+    opacity: 0,
+  },
+  shareCard: {
+    width: 400,
+    borderRadius: 16,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  shareCardHeader: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  shareCardLogo: {
+    fontSize: 28,
+    fontFamily: 'Inter-Bold',
+    color: '#FFFFFF',
+    marginBottom: 4,
+  },
+  shareCardSubtitle: {
+    fontSize: 12,
+    fontFamily: 'Inter-Medium',
+    color: '#FFFFFF',
+    opacity: 0.9,
+  },
+  shareCardStatus: {
+    padding: 24,
+    alignItems: 'center',
+    gap: 12,
+  },
+  shareCardStatusText: {
+    fontSize: 20,
+    fontFamily: 'Inter-Bold',
+    color: '#FFFFFF',
+    textAlign: 'center',
+  },
+  shareCardContent: {
+    padding: 20,
+    gap: 12,
+  },
+  shareCardTitle: {
+    fontSize: 18,
+    fontFamily: 'Inter-Bold',
+    lineHeight: 24,
+  },
+  shareCardSummary: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    lineHeight: 20,
+  },
+  shareCardFooter: {
+    padding: 16,
+    borderTopWidth: 1,
+    alignItems: 'center',
+  },
+  shareCardFooterText: {
+    fontSize: 12,
+    fontFamily: 'Inter-Medium',
   },
 });
