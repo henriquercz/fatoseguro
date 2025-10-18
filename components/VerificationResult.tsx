@@ -6,7 +6,6 @@ import { NewsVerification } from '@/types';
 import { useTheme } from '@/contexts/ThemeContext';
 import { captureRef } from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
-import * as FileSystem from 'expo-file-system';
 
 interface VerificationResultProps {
   result: NewsVerification;
@@ -73,33 +72,32 @@ export default function VerificationResult({ result, onClose }: VerificationResu
       
       const shareMessage = `${statusEmoji} NOTÍCIA ${statusText}\n\n"📰 ${newsTitle}"\n\n🔍 Análise: ${summary}${summary.length >= 150 ? '...' : ''}\n\n✅ Verificado por CheckNow\n📍 Instagram: @checknow.br\n\n${hashtags}`;
 
-      // Compartilhar imagem com legenda (Android/iOS nativo)
-      if (Platform.OS === 'android' || Platform.OS === 'ios') {
-        // Usar Share nativo que suporta imagem + texto
-        const base64 = await FileSystem.readAsStringAsync(uri, {
-          encoding: 'base64',
+      // Compartilhar imagem com legenda
+      const isAvailable = await Sharing.isAvailableAsync();
+      
+      if (isAvailable) {
+        // Compartilhar imagem
+        await Sharing.shareAsync(uri, {
+          mimeType: 'image/png',
+          dialogTitle: `CheckNow - Notícia ${statusText}`,
+          UTI: 'public.png',
         });
         
-        await Share.share(
-          {
+        // Aguardar um pouco e compartilhar texto (para apps que suportam)
+        setTimeout(() => {
+          Share.share({
             message: shareMessage,
-            url: `data:image/png;base64,${base64}`,
             title: `CheckNow - Notícia ${statusText}`,
-          },
-          {
-            dialogTitle: `CheckNow - Notícia ${statusText}`,
-          }
-        );
-      } else {
-        // Fallback para web ou outras plataformas
-        const isAvailable = await Sharing.isAvailableAsync();
-        if (isAvailable) {
-          await Sharing.shareAsync(uri, {
-            mimeType: 'image/png',
-            dialogTitle: `CheckNow - Notícia ${statusText}`,
-            UTI: 'public.png',
+          }).catch(() => {
+            // Ignorar erro se usuário cancelar
           });
-        }
+        }, 1000);
+      } else {
+        // Fallback: apenas texto
+        await Share.share({
+          message: shareMessage,
+          title: `CheckNow - Notícia ${statusText}`,
+        });
       }
     } catch (error) {
       console.error('Erro ao compartilhar:', error);
