@@ -19,6 +19,8 @@ export default function AccountScreen() {
   const [feedbackModalVisible, setFeedbackModalVisible] = useState(false);
   const [inviteFriendsModalVisible, setInviteFriendsModalVisible] = useState(false);
   const [settingsModalVisible, setSettingsModalVisible] = useState(false);
+  const scrollViewRef = React.useRef<ScrollView>(null);
+  const premiumSectionRef = React.useRef<View>(null);
 
   const handleLogout = () => {
     Alert.alert(
@@ -85,17 +87,31 @@ export default function AccountScreen() {
         title="Conta" 
         onEducationPress={handleEducationPress}
       />
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView ref={scrollViewRef} contentContainerStyle={styles.scrollContent}>
         <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
           <View>
             <Text style={[styles.welcomeText, { color: colors.text }]}>Bem-vindo(a)</Text>
             <Text style={[styles.emailText, { color: colors.textSecondary }]}>{user.email}</Text>
             <View style={styles.badgeContainer}>
-              <View style={[styles.badge, user.isPremium ? styles.premiumBadge : styles.freeBadge]}>
+              <TouchableOpacity 
+                style={[styles.badge, user.isPremium ? styles.premiumBadge : styles.freeBadge]}
+                onPress={() => {
+                  if (!user.isPremium && premiumSectionRef.current) {
+                    premiumSectionRef.current.measureLayout(
+                      scrollViewRef.current as any,
+                      (x, y) => {
+                        scrollViewRef.current?.scrollTo({ y: y - 20, animated: true });
+                      },
+                      () => {}
+                    );
+                  }
+                }}
+                disabled={user.isPremium}
+              >
                 <Text style={[styles.badgeText, user.isPremium ? styles.premiumBadgeText : styles.freeBadgeText]}>
                   {user.isPremium ? 'Premium' : 'Gratuito'}
                 </Text>
-              </View>
+              </TouchableOpacity>
             </View>
           </View>
           <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
@@ -103,11 +119,8 @@ export default function AccountScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Estatísticas do Usuário */}
-        <UserStats />
-
         {!user.isPremium ? (
-          <View style={styles.premiumSection}>
+          <View ref={premiumSectionRef} style={styles.premiumSection}>
             <Text style={[styles.sectionTitle, { color: colors.text }]}>Assine o Premium</Text>
             <Text style={[styles.sectionDescription, { color: colors.textSecondary }]}>
               Tenha acesso ilimitado a verificações de notícias, sem anúncios!
@@ -150,6 +163,9 @@ export default function AccountScreen() {
             </Text>
           </View>
         )}
+
+        {/* Estatísticas do Usuário */}
+        <UserStats />
         
         <View style={styles.menuSection}>
           <Text style={[styles.menuTitle, { color: colors.text }]}>Configurações e Ajuda</Text>
