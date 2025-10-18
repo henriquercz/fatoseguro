@@ -380,17 +380,17 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   shareCardHeader: {
-    padding: 32,
+    padding: 12,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#FFFFFF',
   },
   shareCardLogoImage: {
-    width: 120,
-    height: 120,
+    width: 100,
+    height: 100,
   },
   shareCardStatus: {
-    padding: 24,
+    padding: 14,
     alignItems: 'center',
     gap: 12,
   },
