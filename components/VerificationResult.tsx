@@ -72,33 +72,17 @@ export default function VerificationResult({ result, onClose }: VerificationResu
       
       const shareMessage = `${statusEmoji} NOTÍCIA ${statusText}\n\n"📰 ${newsTitle}"\n\n🔍 Análise: ${summary}${summary.length >= 150 ? '...' : ''}\n\n✅ Verificado por CheckNow\n📍 Instagram: @checknow.br\n\n${hashtags}`;
 
-      // Compartilhar imagem com legenda
-      const isAvailable = await Sharing.isAvailableAsync();
-      
-      if (isAvailable) {
-        // Compartilhar imagem
-        await Sharing.shareAsync(uri, {
-          mimeType: 'image/png',
-          dialogTitle: `CheckNow - Notícia ${statusText}`,
-          UTI: 'public.png',
-        });
-        
-        // Aguardar um pouco e compartilhar texto (para apps que suportam)
-        setTimeout(() => {
-          Share.share({
-            message: shareMessage,
-            title: `CheckNow - Notícia ${statusText}`,
-          }).catch(() => {
-            // Ignorar erro se usuário cancelar
-          });
-        }, 1000);
-      } else {
-        // Fallback: apenas texto
-        await Share.share({
+      // Compartilhar imagem COM legenda usando Share nativo
+      await Share.share(
+        {
           message: shareMessage,
+          url: Platform.OS === 'ios' ? uri : `file://${uri}`,
           title: `CheckNow - Notícia ${statusText}`,
-        });
-      }
+        },
+        {
+          dialogTitle: `CheckNow - Notícia ${statusText}`,
+        }
+      );
     } catch (error) {
       console.error('Erro ao compartilhar:', error);
       Alert.alert('Erro', 'Não foi possível compartilhar a verificação.');
@@ -217,7 +201,7 @@ export default function VerificationResult({ result, onClose }: VerificationResu
       <View style={styles.hiddenCard}>
         <View ref={viewShotRef} collapsable={false} style={[styles.shareCard, { backgroundColor: colors.surface }]}>
           {/* Header com logo */}
-          <View style={[styles.shareCardHeader, { backgroundColor: colors.primary }]}>
+          <View style={styles.shareCardHeader}>
             <Image 
               source={require('@/assets/images/icon.png')} 
               style={styles.shareCardLogoImage}
@@ -396,13 +380,14 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   shareCardHeader: {
-    padding: 24,
+    padding: 32,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
   },
   shareCardLogoImage: {
-    width: 80,
-    height: 80,
+    width: 120,
+    height: 120,
   },
   shareCardStatus: {
     padding: 24,
