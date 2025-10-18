@@ -37,7 +37,8 @@ expoAutolinking.useExpoVersionCatalog()
 
 def reactNativeRootDir = new File(["node", "--print", "require.resolve('react-native/package.json')"].execute(null, rootDir).text.trim()).getParentFile()
 
-apply from: new File(reactNativeRootDir, "node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesSettingsGradle(settings)
+// Comentado: React Native 0.81.4 não tem esse arquivo - o Expo já gerencia os módulos nativos
+// apply from: new File(reactNativeRootDir, "node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesSettingsGradle(settings)
 
 include ':app'
 includeBuild(expoAutolinking.reactNativeGradlePlugin)

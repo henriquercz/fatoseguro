@@ -11,7 +11,6 @@ buildscript {
     // expoGoVersion = "2.30.6" // Optional: If you need to align with a specific Expo Go version for dev clients
   }
   repositories {
-  repositories {
     google()
     mavenCentral()
   }
