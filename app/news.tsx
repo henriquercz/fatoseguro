@@ -369,10 +369,10 @@ export default function NewsScreen() {
             <View style={[styles.loadingContent, { backgroundColor: colors.surface }]}>
               <ActivityIndicator size="large" color={colors.primary} />
               <Text style={[styles.loadingText, { color: colors.text }]}>
-                Verificando notícia...
+                Analisando notícia...
               </Text>
               <Text style={[styles.loadingSubtext, { color: colors.textSecondary }]}>
-                Nossa IA está analisando a informação
+                Verificando fontes e contexto web
               </Text>
             </View>
           </View>

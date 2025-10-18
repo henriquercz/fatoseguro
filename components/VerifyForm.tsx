@@ -139,7 +139,10 @@ export default function VerifyForm() {
             onPress={handleVerify}
             disabled={!newsInput.trim() || loading}>
             {loading ? (
-              <ActivityIndicator color="#FFFFFF" size="small" />
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator color="#FFFFFF" size="small" />
+                <Text style={styles.loadingText}>Analisando notícia...</Text>
+              </View>
             ) : (
               <>
                 <RefreshCcw color="#FFFFFF" size={18} />
@@ -307,5 +310,16 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Medium',
     fontSize: 12,
     marginLeft: 6,
+  },
+  loadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  loadingText: {
+    color: '#FFFFFF',
+    fontFamily: 'Inter-Medium',
+    fontSize: 14,
+    marginLeft: 8,
   },
 });
