@@ -52,57 +52,43 @@ export default function VerificationResult({ result, onClose }: VerificationResu
   const captureImage = async () => {
     try {
       if (!viewShotRef.current) {
-        console.error('viewShotRef.current é null');
         Alert.alert('Erro', 'Não foi possível capturar a tela.');
         return null;
       }
 
-      console.log('📸 Iniciando captura de imagem...');
-      
       // Capturar screenshot do card customizado
       const uri = await captureRef(viewShotRef, {
         format: 'png',
-        quality: 0.9,
+        quality: 1,
         result: 'tmpfile',
       });
       
-      console.log('✅ Imagem capturada:', uri);
       return uri;
     } catch (error) {
-      console.error('❌ Erro ao capturar imagem:', error);
-      Alert.alert('Erro', 'Não foi possível capturar a imagem. Tente novamente.');
+      console.error('Erro ao capturar imagem:', error);
       return null;
     }
   };
 
   const shareToInstagramStories = async () => {
     try {
-      console.log('📱 Iniciando compartilhamento Instagram...');
-      
       const uri = capturedImageUri.current || await captureImage();
-      if (!uri) {
-        console.error('❌ URI da imagem é null');
-        return;
-      }
+      if (!uri) return;
 
-      console.log('🔍 Verificando Instagram...');
+      const instagramURL = `instagram-stories://share?source_application=${Platform.OS === 'ios' ? 'com.checknow.app' : 'com.checknow'}`;
       
       // Verificar se o Instagram está instalado
       const canOpen = await Linking.canOpenURL('instagram://story-camera');
       
       if (canOpen) {
-        console.log('✅ Instagram encontrado, compartilhando...');
-        
         // Usar Sharing API para Instagram Stories
-        const result = await Sharing.shareAsync(uri, {
+        await Sharing.shareAsync(uri, {
           mimeType: 'image/png',
           UTI: 'public.png',
         });
         
-        console.log('📤 Resultado do compartilhamento:', result);
         setShowShareModal(false);
       } else {
-        console.log('⚠️ Instagram não encontrado');
         Alert.alert(
           'Instagram não encontrado',
           'Instale o Instagram para compartilhar nos Stories.',
@@ -120,22 +106,16 @@ export default function VerificationResult({ result, onClose }: VerificationResu
           ]
         );
       }
-    } catch (error: any) {
-      console.error('❌ Erro ao compartilhar no Instagram:', error);
-      console.error('Stack:', error.stack);
-      Alert.alert('Erro', `Não foi possível compartilhar no Instagram Stories.\n${error.message || ''}`);
+    } catch (error) {
+      console.error('Erro ao compartilhar no Instagram:', error);
+      Alert.alert('Erro', 'Não foi possível compartilhar no Instagram Stories.');
     }
   };
 
   const shareNormal = async () => {
     try {
-      console.log('📤 Iniciando compartilhamento normal...');
-      
       const uri = capturedImageUri.current || await captureImage();
-      if (!uri) {
-        console.error('❌ URI da imagem é null');
-        return;
-      }
+      if (!uri) return;
 
       const statusText = 
         result.verification_status === 'VERDADEIRO' ? 'VERDADEIRA' : 
@@ -148,55 +128,32 @@ export default function VerificationResult({ result, onClose }: VerificationResu
       
       const shareMessage = `${statusEmoji} NOTÍCIA ${statusText}\n\n"📰 ${newsTitle}"\n\n🔍 Análise: ${summary}${summary.length >= 150 ? '...' : ''}\n\n✅ Verificado por CheckNow\n📍 Instagram: @checknow.br\n\n${hashtags}`;
 
-      console.log('📝 Mensagem preparada, compartilhando...');
-
-      // Android: usar Sharing.shareAsync para melhor compatibilidade
-      if (Platform.OS === 'android') {
-        await Sharing.shareAsync(uri, {
-          mimeType: 'image/png',
+      // Compartilhar imagem COM legenda usando Share nativo
+      await Share.share(
+        {
+          message: shareMessage,
+          url: Platform.OS === 'ios' ? uri : `file://${uri}`,
+          title: `CheckNow - Notícia ${statusText}`,
+        },
+        {
           dialogTitle: `CheckNow - Notícia ${statusText}`,
-        });
-      } else {
-        // iOS: usar Share.share nativo
-        await Share.share(
-          {
-            message: shareMessage,
-            url: uri,
-            title: `CheckNow - Notícia ${statusText}`,
-          },
-          {
-            dialogTitle: `CheckNow - Notícia ${statusText}`,
-          }
-        );
-      }
+        }
+      );
       
-      console.log('✅ Compartilhamento concluído');
       setShowShareModal(false);
-    } catch (error: any) {
-      console.error('❌ Erro ao compartilhar:', error);
-      console.error('Stack:', error.stack);
-      Alert.alert('Erro', `Não foi possível compartilhar a verificação.\n${error.message || ''}`);
+    } catch (error) {
+      console.error('Erro ao compartilhar:', error);
+      Alert.alert('Erro', 'Não foi possível compartilhar a verificação.');
     }
   };
 
   const handleShare = async () => {
-    try {
-      console.log('🎯 handleShare chamado');
-      
-      // Capturar imagem uma vez
-      const uri = await captureImage();
-      if (!uri) {
-        console.error('❌ Falha ao capturar imagem');
-        return;
-      }
-      
-      console.log('✅ Imagem capturada, abrindo modal');
-      capturedImageUri.current = uri;
-      setShowShareModal(true);
-    } catch (error: any) {
-      console.error('❌ Erro em handleShare:', error);
-      Alert.alert('Erro', `Não foi possível preparar o compartilhamento.\n${error.message || ''}`);
-    }
+    // Capturar imagem uma vez
+    const uri = await captureImage();
+    if (!uri) return;
+    
+    capturedImageUri.current = uri;
+    setShowShareModal(true);
   };
   
   // Detectar se é um link (URL) ou texto
@@ -433,7 +390,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 16,
+    paddingHorizontal: 12,
     borderRadius: 8,
+    gap: 12,
   },
   shareButtonCompact: {
     width: 44,
@@ -460,7 +419,6 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontFamily: 'Inter-Bold',
     fontSize: 18,
-    marginLeft: 8,
   },
   content: {
     flex: 1,
@@ -564,8 +522,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   statusTextContainer: {
-    flex: 1,
-    marginLeft: 12,
+    alignItems: 'center',
   },
   cacheBadge: {
     fontSize: 11,
