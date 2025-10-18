@@ -8,6 +8,7 @@ import InviteFriendsModal from '@/components/InviteFriendsModal';
 import SettingsModal from '@/components/SettingsModal';
 import KeyboardDismissWrapper from '@/components/KeyboardDismissWrapper';
 import CustomHeader from '@/components/CustomHeader';
+import UserStats from '@/components/UserStats';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { router } from 'expo-router';
@@ -101,6 +102,9 @@ export default function AccountScreen() {
             <LogOut size={18} color={colors.textSecondary} />
           </TouchableOpacity>
         </View>
+
+        {/* Estatísticas do Usuário */}
+        <UserStats />
 
         {!user.isPremium ? (
           <View style={styles.premiumSection}>
