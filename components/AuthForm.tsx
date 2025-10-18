@@ -12,13 +12,14 @@ import {
   Image,
   Keyboard,
 } from 'react-native';
-import { Mail, Lock, Eye, EyeOff, Square, CheckSquare, X } from 'lucide-react-native';
+import { Mail, Lock, Eye, EyeOff, Square, CheckSquare, X, AlertCircle } from 'lucide-react-native';
 import KeyboardDismissWrapper from '@/components/KeyboardDismissWrapper';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useConsent } from '@/contexts/ConsentContext';
 import TermsAcceptanceModal from '@/components/TermsAcceptanceModal';
-import AuthDebugInfo from '@/components/AuthDebugInfo';
+import EmailConfirmationModal from '@/components/EmailConfirmationModal';
+import { validateEmail } from '@/utils/emailValidation';
 
 type FormMode = 'login' | 'register';
 
@@ -30,6 +31,10 @@ export default function AuthForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
+  const [showEmailConfirmModal, setShowEmailConfirmModal] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState('');
+  const [pendingPassword, setPendingPassword] = useState('');
+  const [emailValidationError, setEmailValidationError] = useState<string | null>(null);
   const [showDebugInfo, setShowDebugInfo] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   
@@ -73,16 +78,45 @@ export default function AuthForm() {
       return;
     }
     
+    // Validar email com validação robusta
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.isValid) {
+      setEmailValidationError(emailValidation.error || 'Email inválido');
+      return;
+    }
+    
     if (mode === 'login') {
       await login(email, password);
     } else {
-      await register(email, password);
+      // Mostrar modal de confirmação antes de registrar
+      setPendingEmail(email);
+      setPendingPassword(password);
+      setShowEmailConfirmModal(true);
     }
   };
 
-  const isEmailValid = (email: string) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const handleConfirmEmail = async () => {
+    setShowEmailConfirmModal(false);
+    await register(pendingEmail, pendingPassword);
   };
+
+  const handleCancelEmailConfirmation = () => {
+    setShowEmailConfirmModal(false);
+    setPendingEmail('');
+    setPendingPassword('');
+  };
+
+  const isEmailValid = (email: string) => {
+    const validation = validateEmail(email);
+    return validation.isValid;
+  };
+
+  // Limpar erro de validação quando o email mudar
+  React.useEffect(() => {
+    if (emailValidationError && email) {
+      setEmailValidationError(null);
+    }
+  }, [email]);
 
   const isPasswordValid = (password: string) => {
     return password.length >= 6;
@@ -155,6 +189,14 @@ export default function AuthForm() {
               <Text style={[styles.validationError, { color: colors.error || '#EF4444' }]}>
                 Digite um e-mail válido
               </Text>
+            )}
+            {emailValidationError && (
+              <View style={[styles.emailErrorContainer, { backgroundColor: colors.error + '15' || '#FEE2E2', borderColor: colors.error + '30' || '#FCA5A5' }]}>
+                <AlertCircle size={16} color={colors.error || '#EF4444'} />
+                <Text style={[styles.emailErrorText, { color: colors.error || '#EF4444' }]}>
+                  {emailValidationError}
+                </Text>
+              </View>
             )}
           </View>
 
@@ -272,6 +314,13 @@ export default function AuthForm() {
           onDecline={() => {
             setShowTermsModal(false);
           }}
+        />
+        
+        <EmailConfirmationModal
+          visible={showEmailConfirmModal}
+          email={pendingEmail}
+          onConfirm={handleConfirmEmail}
+          onCancel={handleCancelEmailConfirmation}
         />
         </ScrollView>
         
@@ -464,5 +513,20 @@ const styles = StyleSheet.create({
   debugButtonText: {
     fontSize: 14,
     fontFamily: 'Inter-Regular',
+  },
+  emailErrorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    borderRadius: 8,
+    marginTop: 8,
+    borderWidth: 1,
+    gap: 8,
+  },
+  emailErrorText: {
+    flex: 1,
+    fontFamily: 'Inter-Medium',
+    fontSize: 13,
+    lineHeight: 18,
   },
 });

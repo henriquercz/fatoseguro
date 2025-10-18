@@ -89,21 +89,22 @@ export default function AccountScreen() {
         onEducationPress={handleEducationPress}
       />
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>{/* Remove whitespace between View elements */}
-            <View>
-              <Text style={[styles.welcomeText, { color: colors.text }]}>Bem-vindo(a)</Text>
-              <Text style={[styles.emailText, { color: colors.textSecondary }]}>{user.email}</Text>
-              <View style={styles.badgeContainer}>
-                <View style={[styles.badge, user.isPremium ? styles.premiumBadge : styles.freeBadge]}>
-                  <Text style={[styles.badgeText, user.isPremium ? styles.premiumBadgeText : styles.freeBadgeText]}>
-                    {user.isPremium ? 'Premium' : 'Gratuito'}
-                  </Text>
-                </View>
+        <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
+          <View>
+            <Text style={[styles.welcomeText, { color: colors.text }]}>Bem-vindo(a)</Text>
+            <Text style={[styles.emailText, { color: colors.textSecondary }]}>{user.email}</Text>
+            <View style={styles.badgeContainer}>
+              <View style={[styles.badge, user.isPremium ? styles.premiumBadge : styles.freeBadge]}>
+                <Text style={[styles.badgeText, user.isPremium ? styles.premiumBadgeText : styles.freeBadgeText]}>
+                  {user.isPremium ? 'Premium' : 'Gratuito'}
+                </Text>
               </View>
-            </View><TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-              <LogOut size={18} color={colors.textSecondary} />
-            </TouchableOpacity>
+            </View>
           </View>
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+            <LogOut size={18} color={colors.textSecondary} />
+          </TouchableOpacity>
+        </View>
 
         {!user.isPremium ? (
           <View style={styles.premiumSection}>
