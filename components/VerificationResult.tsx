@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, Platform, Share, Alert, Image } from 'react-native';
-import { CircleCheck as CheckCircle, Circle as XCircle, CircleAlert as AlertCircle, ArrowLeft, Share2 } from 'lucide-react-native';
+import { View, Text, StyleSheet, ScrollView, Platform, Share, Alert, Image, Linking, Modal } from 'react-native';
+import { CircleCheck as CheckCircle, Circle as XCircle, CircleAlert as AlertCircle, ArrowLeft, Share2, Instagram } from 'lucide-react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { NewsVerification } from '@/types';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -15,7 +15,9 @@ interface VerificationResultProps {
 export default function VerificationResult({ result, onClose }: VerificationResultProps) {
   const { colors } = useTheme();
   const [showFullContent, setShowFullContent] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
   const viewShotRef = useRef<View>(null);
+  const capturedImageUri = useRef<string | null>(null);
 
   const generateHashtags = () => {
     const newsTitle = result.news_title || result.news_content || '';
@@ -47,11 +49,11 @@ export default function VerificationResult({ result, onClose }: VerificationResu
     return hashtags.map(tag => `#${tag}`).join(' ');
   };
 
-  const handleShare = async () => {
+  const captureImage = async () => {
     try {
       if (!viewShotRef.current) {
         Alert.alert('Erro', 'Não foi possível capturar a tela.');
-        return;
+        return null;
       }
 
       // Capturar screenshot do card customizado
@@ -60,6 +62,60 @@ export default function VerificationResult({ result, onClose }: VerificationResu
         quality: 1,
         result: 'tmpfile',
       });
+      
+      return uri;
+    } catch (error) {
+      console.error('Erro ao capturar imagem:', error);
+      return null;
+    }
+  };
+
+  const shareToInstagramStories = async () => {
+    try {
+      const uri = capturedImageUri.current || await captureImage();
+      if (!uri) return;
+
+      const instagramURL = `instagram-stories://share?source_application=${Platform.OS === 'ios' ? 'com.checknow.app' : 'com.checknow'}`;
+      
+      // Verificar se o Instagram está instalado
+      const canOpen = await Linking.canOpenURL('instagram://story-camera');
+      
+      if (canOpen) {
+        // Usar Sharing API para Instagram Stories
+        await Sharing.shareAsync(uri, {
+          mimeType: 'image/png',
+          UTI: 'public.png',
+        });
+        
+        setShowShareModal(false);
+      } else {
+        Alert.alert(
+          'Instagram não encontrado',
+          'Instale o Instagram para compartilhar nos Stories.',
+          [
+            { text: 'Cancelar', style: 'cancel' },
+            { 
+              text: 'Instalar', 
+              onPress: () => {
+                const storeUrl = Platform.OS === 'ios' 
+                  ? 'https://apps.apple.com/app/instagram/id389801252'
+                  : 'https://play.google.com/store/apps/details?id=com.instagram.android';
+                Linking.openURL(storeUrl);
+              }
+            }
+          ]
+        );
+      }
+    } catch (error) {
+      console.error('Erro ao compartilhar no Instagram:', error);
+      Alert.alert('Erro', 'Não foi possível compartilhar no Instagram Stories.');
+    }
+  };
+
+  const shareNormal = async () => {
+    try {
+      const uri = capturedImageUri.current || await captureImage();
+      if (!uri) return;
 
       const statusText = 
         result.verification_status === 'VERDADEIRO' ? 'VERDADEIRA' : 
@@ -83,10 +139,21 @@ export default function VerificationResult({ result, onClose }: VerificationResu
           dialogTitle: `CheckNow - Notícia ${statusText}`,
         }
       );
+      
+      setShowShareModal(false);
     } catch (error) {
       console.error('Erro ao compartilhar:', error);
       Alert.alert('Erro', 'Não foi possível compartilhar a verificação.');
     }
+  };
+
+  const handleShare = async () => {
+    // Capturar imagem uma vez
+    const uri = await captureImage();
+    if (!uri) return;
+    
+    capturedImageUri.current = uri;
+    setShowShareModal(true);
   };
   
   // Detectar se é um link (URL) ou texto
@@ -196,6 +263,54 @@ export default function VerificationResult({ result, onClose }: VerificationResu
           </Text>
         </View>
       </ScrollView>
+
+      {/* Modal de escolha de compartilhamento */}
+      <Modal
+        visible={showShareModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowShareModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: colors.surface }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>Compartilhar Verificação</Text>
+            <Text style={[styles.modalSubtitle, { color: colors.textSecondary }]}>Escolha onde deseja compartilhar</Text>
+            
+            <TouchableOpacity 
+              style={[styles.shareOption, { backgroundColor: colors.background }]}
+              onPress={shareToInstagramStories}
+            >
+              <View style={styles.instagramGradient}>
+                <Instagram size={28} color="#FFFFFF" />
+              </View>
+              <View style={styles.shareOptionText}>
+                <Text style={[styles.shareOptionTitle, { color: colors.text }]}>Instagram Stories</Text>
+                <Text style={[styles.shareOptionSubtitle, { color: colors.textSecondary }]}>Compartilhar como sticker interativo</Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={[styles.shareOption, { backgroundColor: colors.background }]}
+              onPress={shareNormal}
+            >
+              <View style={[styles.shareOptionIcon, { backgroundColor: colors.primary }]}>
+                <Share2 size={24} color="#FFFFFF" />
+              </View>
+              <View style={styles.shareOptionText}>
+                <Text style={[styles.shareOptionTitle, { color: colors.text }]}>Outros Apps</Text>
+                <Text style={[styles.shareOptionSubtitle, { color: colors.textSecondary }]}>WhatsApp, Telegram, etc.</Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={[styles.cancelButton, { borderColor: colors.border }]}
+              onPress={() => setShowShareModal(false)}
+            >
+              <Text style={[styles.cancelButtonText, { color: colors.textSecondary }]}>Cancelar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
       {/* Card customizado para screenshot (oculto) */}
       <View style={styles.hiddenCard}>
@@ -421,6 +536,82 @@ const styles = StyleSheet.create({
   },
   shareCardFooterText: {
     fontSize: 12,
+    fontFamily: 'Inter-Medium',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    width: '100%',
+    maxWidth: 400,
+    borderRadius: 20,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 10,
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontFamily: 'Inter-Bold',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    marginBottom: 24,
+    textAlign: 'center',
+  },
+  shareOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 12,
+    gap: 16,
+  },
+  instagramGradient: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#E4405F',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  shareOptionIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  shareOptionText: {
+    flex: 1,
+  },
+  shareOptionTitle: {
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+    marginBottom: 4,
+  },
+  shareOptionSubtitle: {
+    fontSize: 13,
+    fontFamily: 'Inter-Regular',
+  },
+  cancelButton: {
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    marginTop: 8,
+    alignItems: 'center',
+  },
+  cancelButtonText: {
+    fontSize: 16,
     fontFamily: 'Inter-Medium',
   },
 });
