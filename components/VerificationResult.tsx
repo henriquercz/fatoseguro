@@ -1,11 +1,12 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, Platform, Share, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Platform, Share, Alert, Image } from 'react-native';
 import { CircleCheck as CheckCircle, Circle as XCircle, CircleAlert as AlertCircle, ArrowLeft, Share2 } from 'lucide-react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { NewsVerification } from '@/types';
 import { useTheme } from '@/contexts/ThemeContext';
 import { captureRef } from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
+import * as FileSystem from 'expo-file-system';
 
 interface VerificationResultProps {
   result: NewsVerification;
@@ -72,29 +73,33 @@ export default function VerificationResult({ result, onClose }: VerificationResu
       
       const shareMessage = `${statusEmoji} NOTÍCIA ${statusText}\n\n"📰 ${newsTitle}"\n\n🔍 Análise: ${summary}${summary.length >= 150 ? '...' : ''}\n\n✅ Verificado por CheckNow\n📍 Instagram: @checknow.br\n\n${hashtags}`;
 
-      // Verificar se o dispositivo suporta compartilhamento
-      const isAvailable = await Sharing.isAvailableAsync();
-      
-      if (isAvailable) {
-        await Sharing.shareAsync(uri, {
-          mimeType: 'image/png',
-          dialogTitle: `CheckNow - Notícia ${statusText}`,
-          UTI: 'public.png',
+      // Compartilhar imagem com legenda (Android/iOS nativo)
+      if (Platform.OS === 'android' || Platform.OS === 'ios') {
+        // Usar Share nativo que suporta imagem + texto
+        const base64 = await FileSystem.readAsStringAsync(uri, {
+          encoding: 'base64',
         });
         
-        // Compartilhar texto também (alguns apps suportam)
-        setTimeout(() => {
-          Share.share({
+        await Share.share(
+          {
             message: shareMessage,
+            url: `data:image/png;base64,${base64}`,
             title: `CheckNow - Notícia ${statusText}`,
-          });
-        }, 500);
+          },
+          {
+            dialogTitle: `CheckNow - Notícia ${statusText}`,
+          }
+        );
       } else {
-        // Fallback para Share nativo com texto
-        await Share.share({
-          message: shareMessage,
-          title: `CheckNow - Notícia ${statusText}`,
-        });
+        // Fallback para web ou outras plataformas
+        const isAvailable = await Sharing.isAvailableAsync();
+        if (isAvailable) {
+          await Sharing.shareAsync(uri, {
+            mimeType: 'image/png',
+            dialogTitle: `CheckNow - Notícia ${statusText}`,
+            UTI: 'public.png',
+          });
+        }
       }
     } catch (error) {
       console.error('Erro ao compartilhar:', error);
@@ -215,8 +220,11 @@ export default function VerificationResult({ result, onClose }: VerificationResu
         <View ref={viewShotRef} collapsable={false} style={[styles.shareCard, { backgroundColor: colors.surface }]}>
           {/* Header com logo */}
           <View style={[styles.shareCardHeader, { backgroundColor: colors.primary }]}>
-            <Text style={styles.shareCardLogo}>CheckNow</Text>
-            <Text style={styles.shareCardSubtitle}>Verificação de Notícias</Text>
+            <Image 
+              source={require('@/assets/images/icon.png')} 
+              style={styles.shareCardLogoImage}
+              resizeMode="contain"
+            />
           </View>
 
           {/* Status */}
@@ -390,20 +398,13 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   shareCardHeader: {
-    padding: 20,
+    padding: 24,
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  shareCardLogo: {
-    fontSize: 28,
-    fontFamily: 'Inter-Bold',
-    color: '#FFFFFF',
-    marginBottom: 4,
-  },
-  shareCardSubtitle: {
-    fontSize: 12,
-    fontFamily: 'Inter-Medium',
-    color: '#FFFFFF',
-    opacity: 0.9,
+  shareCardLogoImage: {
+    width: 80,
+    height: 80,
   },
   shareCardStatus: {
     padding: 24,
