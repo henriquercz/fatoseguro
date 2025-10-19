@@ -1,11 +1,12 @@
-import React, { useState, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, Platform, Share, Alert, Image, Linking, Modal } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, Platform, Share, Alert, Image, Linking, Modal, ActivityIndicator } from 'react-native';
 import { CircleCheck as CheckCircle, Circle as XCircle, CircleAlert as AlertCircle, ArrowLeft, Share2, Instagram } from 'lucide-react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { NewsVerification } from '@/types';
 import { useTheme } from '@/contexts/ThemeContext';
 import { captureRef } from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
+import * as FileSystem from 'expo-file-system';
 
 interface VerificationResultProps {
   result: NewsVerification;
@@ -16,8 +17,18 @@ export default function VerificationResult({ result, onClose }: VerificationResu
   const { colors } = useTheme();
   const [showFullContent, setShowFullContent] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [isCapturing, setIsCapturing] = useState(false);
+  const [cardReady, setCardReady] = useState(false);
   const viewShotRef = useRef<View>(null);
   const capturedImageUri = useRef<string | null>(null);
+
+  // Garantir que o card esteja renderizado antes de permitir captura
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setCardReady(true);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   const generateHashtags = () => {
     const newsTitle = result.news_title || result.news_content || '';
@@ -50,45 +61,80 @@ export default function VerificationResult({ result, onClose }: VerificationResu
   };
 
   const captureImage = async () => {
+    // Android: Usar abordagem mais estável
+    if (Platform.OS === 'android') {
+      return await captureImageAndroid();
+    }
+    // iOS: Manter abordagem original
+    return await captureImageIOS();
+  };
+
+  const captureImageIOS = async () => {
     try {
-      if (!viewShotRef.current) {
-        Alert.alert('Erro', 'Não foi possível capturar a tela.');
+      if (!viewShotRef.current || !cardReady) {
+        console.log('⚠️ iOS: View não está pronta para captura');
         return null;
       }
 
-      // Capturar screenshot do card customizado
+      console.log('📸 iOS: Capturando screenshot do card...');
       const uri = await captureRef(viewShotRef, {
         format: 'png',
         quality: 1,
         result: 'tmpfile',
       });
       
+      console.log('✅ iOS: Screenshot capturado:', uri);
       return uri;
     } catch (error) {
-      console.error('Erro ao capturar imagem:', error);
+      console.error('❌ iOS: Erro ao capturar imagem:', error);
       return null;
     }
   };
 
+  const captureImageAndroid = async () => {
+    // Android: DESABILITADO - Sempre retorna null para evitar travamentos
+    // O compartilhamento no Android será APENAS TEXTO
+    console.log('📱 Android: Screenshot desabilitado, usando apenas texto');
+    return null;
+  };
+
   const shareToInstagramStories = async () => {
     try {
-      const uri = capturedImageUri.current || await captureImage();
-      if (!uri) return;
-
-      const instagramURL = `instagram-stories://share?source_application=${Platform.OS === 'ios' ? 'com.checknow.app' : 'com.checknow'}`;
+      console.log('📱 Iniciando compartilhamento para Instagram Stories...');
       
+      // Android: Sempre usa texto
+      if (Platform.OS === 'android') {
+        console.log('📱 Android: Compartilhando apenas texto');
+        await shareTextOnly();
+        return;
+      }
+      
+      // iOS: Tenta usar imagem
+      setIsCapturing(true);
+      const uri = capturedImageUri.current || await captureImage();
+      
+      if (!uri) {
+        console.log('⚠️ iOS: Sem imagem, compartilhando apenas texto');
+        setIsCapturing(false);
+        await shareTextOnly();
+        return;
+      }
+
       // Verificar se o Instagram está instalado
       const canOpen = await Linking.canOpenURL('instagram://story-camera');
       
       if (canOpen) {
-        // Usar Sharing API para Instagram Stories
+        console.log('✅ Instagram detectado, compartilhando...');
+        
         await Sharing.shareAsync(uri, {
           mimeType: 'image/png',
           UTI: 'public.png',
         });
         
         setShowShareModal(false);
+        setIsCapturing(false);
       } else {
+        setIsCapturing(false);
         Alert.alert(
           'Instagram não encontrado',
           'Instale o Instagram para compartilhar nos Stories.',
@@ -107,16 +153,16 @@ export default function VerificationResult({ result, onClose }: VerificationResu
         );
       }
     } catch (error) {
-      console.error('Erro ao compartilhar no Instagram:', error);
+      console.error('❌ Erro ao compartilhar no Instagram:', error);
+      setIsCapturing(false);
       Alert.alert('Erro', 'Não foi possível compartilhar no Instagram Stories.');
     }
   };
 
   const shareNormal = async () => {
     try {
-      const uri = capturedImageUri.current || await captureImage();
-      if (!uri) return;
-
+      console.log('📤 Iniciando compartilhamento normal...');
+      
       const statusText = 
         result.verification_status === 'VERDADEIRO' ? 'VERDADEIRA' : 
         result.verification_status === 'FALSO' ? 'FALSA' : 'INDETERMINADA';
@@ -128,11 +174,76 @@ export default function VerificationResult({ result, onClose }: VerificationResu
       
       const shareMessage = `${statusEmoji} NOTÍCIA ${statusText}\n\n"📰 ${newsTitle}"\n\n🔍 Análise: ${summary}${summary.length >= 150 ? '...' : ''}\n\n✅ Verificado por CheckNow\n📍 Instagram: @checknow.br\n\n${hashtags}`;
 
-      // Compartilhar imagem COM legenda usando Share nativo
+      // Android: SEMPRE compartilha apenas texto (sem imagem)
+      if (Platform.OS === 'android') {
+        console.log('📱 Android: Compartilhando apenas texto');
+        await Share.share(
+          {
+            message: shareMessage,
+            title: `CheckNow - Notícia ${statusText}`,
+          },
+          {
+            dialogTitle: `CheckNow - Notícia ${statusText}`,
+          }
+        );
+        setShowShareModal(false);
+        return;
+      }
+      
+      // iOS: Tenta usar imagem
+      setIsCapturing(true);
+      const uri = capturedImageUri.current || await captureImage();
+      
+      if (!uri) {
+        console.log('⚠️ iOS: Sem imagem, compartilhando apenas texto');
+        await Share.share(
+          {
+            message: shareMessage,
+            title: `CheckNow - Notícia ${statusText}`,
+          },
+          {
+            dialogTitle: `CheckNow - Notícia ${statusText}`,
+          }
+        );
+      } else {
+        console.log('✅ iOS: Compartilhando com imagem:', uri);
+        await Share.share(
+          {
+            message: shareMessage,
+            url: uri,
+            title: `CheckNow - Notícia ${statusText}`,
+          },
+          {
+            dialogTitle: `CheckNow - Notícia ${statusText}`,
+          }
+        );
+      }
+      
+      setShowShareModal(false);
+      setIsCapturing(false);
+    } catch (error) {
+      console.error('❌ Erro ao compartilhar:', error);
+      setIsCapturing(false);
+      Alert.alert('Erro', 'Não foi possível compartilhar a verificação.');
+    }
+  };
+
+  const shareTextOnly = async () => {
+    try {
+      const statusText = 
+        result.verification_status === 'VERDADEIRO' ? 'VERDADEIRA' : 
+        result.verification_status === 'FALSO' ? 'FALSA' : 'INDETERMINADA';
+      
+      const newsTitle = result.news_title || result.news_content?.substring(0, 100) || 'Notícia verificada';
+      const summary = result.verification_summary?.substring(0, 150) || '';
+      const statusEmoji = result.verification_status === 'VERDADEIRO' ? '✅' : result.verification_status === 'FALSO' ? '❌' : '⚠️';
+      const hashtags = generateHashtags();
+      
+      const shareMessage = `${statusEmoji} NOTÍCIA ${statusText}\n\n"📰 ${newsTitle}"\n\n🔍 Análise: ${summary}${summary.length >= 150 ? '...' : ''}\n\n✅ Verificado por CheckNow\n📍 Instagram: @checknow.br\n\n${hashtags}`;
+
       await Share.share(
         {
           message: shareMessage,
-          url: Platform.OS === 'ios' ? uri : `file://${uri}`,
           title: `CheckNow - Notícia ${statusText}`,
         },
         {
@@ -142,18 +253,36 @@ export default function VerificationResult({ result, onClose }: VerificationResu
       
       setShowShareModal(false);
     } catch (error) {
-      console.error('Erro ao compartilhar:', error);
-      Alert.alert('Erro', 'Não foi possível compartilhar a verificação.');
+      console.error('❌ Erro ao compartilhar texto:', error);
+      Alert.alert('Erro', 'Não foi possível compartilhar.');
     }
   };
 
   const handleShare = async () => {
-    // Capturar imagem uma vez
-    const uri = await captureImage();
-    if (!uri) return;
-    
-    capturedImageUri.current = uri;
-    setShowShareModal(true);
+    console.log('🎯 Botão de compartilhar clicado');
+
+    // FLUXO NATIVO PARA ANDROID: SEM MODAL
+    if (Platform.OS === 'android') {
+      console.log('📱 Android: Iniciando fluxo de compartilhamento nativo direto...');
+      await shareTextOnly();
+      return;
+    }
+
+    // FLUXO CUSTOMIZADO PARA IOS: COM MODAL E IMAGEM
+    try {
+      setShowShareModal(true);
+      if (cardReady) {
+        console.log('📸 iOS: Capturando imagem em background...');
+        const uri = await captureImage();
+        if (uri) {
+          capturedImageUri.current = uri;
+          console.log('✅ iOS: Imagem capturada e armazenada');
+        }
+      }
+    } catch (error) {
+      console.error('❌ iOS: Erro ao preparar compartilhamento:', error);
+      setShowShareModal(true);
+    }
   };
   
   // Detectar se é um link (URL) ou texto
@@ -269,21 +398,34 @@ export default function VerificationResult({ result, onClose }: VerificationResu
         </View>
       </ScrollView>
 
-      {/* Modal de escolha de compartilhamento */}
+      {/* Modal de escolha de compartilhamento (APENAS iOS) */}
+      {Platform.OS === 'ios' && (
       <Modal
         visible={showShareModal}
         transparent
         animationType="fade"
-        onRequestClose={() => setShowShareModal(false)}
+        onRequestClose={() => {
+          if (!isCapturing) {
+            setShowShareModal(false);
+          }
+        }}
       >
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContent, { backgroundColor: colors.surface }]}>
             <Text style={[styles.modalTitle, { color: colors.text }]}>Compartilhar Verificação</Text>
             <Text style={[styles.modalSubtitle, { color: colors.textSecondary }]}>Escolha onde deseja compartilhar</Text>
             
+            {isCapturing && (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="small" color={colors.primary} />
+                <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Preparando imagem...</Text>
+              </View>
+            )}
+            
             <TouchableOpacity 
-              style={[styles.shareOption, { backgroundColor: colors.background }]}
+              style={[styles.shareOption, { backgroundColor: colors.background, opacity: isCapturing ? 0.5 : 1 }]}
               onPress={shareToInstagramStories}
+              disabled={isCapturing}
             >
               <View style={styles.instagramGradient}>
                 <Instagram size={28} color="#FFFFFF" />
@@ -295,8 +437,9 @@ export default function VerificationResult({ result, onClose }: VerificationResu
             </TouchableOpacity>
 
             <TouchableOpacity 
-              style={[styles.shareOption, { backgroundColor: colors.background }]}
+              style={[styles.shareOption, { backgroundColor: colors.background, opacity: isCapturing ? 0.5 : 1 }]}
               onPress={shareNormal}
+              disabled={isCapturing}
             >
               <View style={[styles.shareOptionIcon, { backgroundColor: colors.primary }]}>
                 <Share2 size={24} color="#FFFFFF" />
@@ -309,17 +452,28 @@ export default function VerificationResult({ result, onClose }: VerificationResu
 
             <TouchableOpacity 
               style={[styles.cancelButton, { borderColor: colors.border }]}
-              onPress={() => setShowShareModal(false)}
+              onPress={() => {
+                if (!isCapturing) {
+                  setShowShareModal(false);
+                }
+              }}
+              disabled={isCapturing}
             >
               <Text style={[styles.cancelButtonText, { color: colors.textSecondary }]}>Cancelar</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
+      )}
 
-      {/* Card customizado para screenshot (oculto) */}
-      <View style={styles.hiddenCard}>
-        <View ref={viewShotRef} collapsable={false} style={[styles.shareCard, { backgroundColor: colors.surface }]}>
+      {/* Card customizado para screenshot (oculto) - APENAS iOS */}
+      {Platform.OS === 'ios' && (
+        <View style={styles.hiddenCard} pointerEvents="none">
+          <View 
+            ref={viewShotRef} 
+            collapsable={false}
+            style={[styles.shareCard, { backgroundColor: colors.surface }]}
+          >
           {/* Header com logo */}
           <View style={styles.shareCardHeader}>
             <Image 
@@ -368,6 +522,7 @@ export default function VerificationResult({ result, onClose }: VerificationResu
           </View>
         </View>
       </View>
+      )}
     </View>
   );
 }
@@ -629,5 +784,16 @@ const styles = StyleSheet.create({
   cancelButtonText: {
     fontSize: 16,
     fontFamily: 'Inter-Medium',
+  },
+  loadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    gap: 8,
+  },
+  loadingText: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
   },
 });
