@@ -94,6 +94,10 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0.0"
+        
+        manifestPlaceholders = [
+            'appAuthRedirectScheme': 'myapp'
+        ]
     }
     signingConfigs {
         debug {
@@ -144,6 +148,15 @@ android {
         options.each {
             android.packagingOptions[prop] += it
         }
+    }
+}
+
+// Force Kotlin version to match KSP and avoid conflicts
+configurations.all {
+    resolutionStrategy {
+        force "org.jetbrains.kotlin:kotlin-stdlib:2.0.21"
+        force "org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.21"
+        force "org.jetbrains.kotlin:kotlin-reflect:2.0.21"
     }
 }
 

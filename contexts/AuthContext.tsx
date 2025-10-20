@@ -146,13 +146,40 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const loadUserProfile = async (userId: string) => {
     try {
-      const { data: profile, error } = await supabase
+      let { data: profile, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .single();
+        .single() as { data: any, error: any };
 
-      if (error) throw error;
+      // Se não existe perfil, cria um novo
+      if (error && error.code === 'PGRST116') {
+        console.log('👤 Perfil não encontrado, criando novo perfil...');
+        
+        const { data: user } = await supabase.auth.getUser();
+        
+        const { data: newProfile, error: createError } = await supabase
+          .from('profiles')
+          .insert([{
+            id: userId,
+            email: user.user?.email || '',
+            is_premium: false,
+            is_admin: false,
+          }] as any)
+          .select()
+          .single() as { data: any, error: any };
+
+        if (createError) throw createError;
+        profile = newProfile;
+        console.log('✅ Perfil criado com sucesso!');
+      } else if (error) {
+        throw error;
+      }
+
+      // Validar que profile não é null
+      if (!profile) {
+        throw new Error('Perfil não encontrado após criação');
+      }
 
       // Verifica se é um novo usuário (sem consentimentos)
       const { data: consents } = await supabase
@@ -195,6 +222,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
     try {
+      // @ts-expect-error Tipos do Supabase precisam ser regenerados
       const { error } = await supabase
         .from('profiles')
         .update({ is_premium: true })
@@ -256,6 +284,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (error) {
         console.error('❌ Erro no cadastro:', error);
+        
+        // Tratar erro de email já existente
+        if (error.message?.includes('already registered') || 
+            error.message?.includes('already been registered') ||
+            error.message?.includes('User already registered')) {
+          throw new Error('Este email já está cadastrado. Por favor, faça login ou use outro email.');
+        }
+        
         throw error;
       }
 

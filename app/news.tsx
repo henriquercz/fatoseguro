@@ -378,7 +378,6 @@ export default function NewsScreen() {
           </View>
         )}
 
-        {/* Mostrar anúncio para usuários free */}
         {showAd && (
           <AdDisplay onClose={hideAd} />
         )}

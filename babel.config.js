@@ -20,7 +20,7 @@ module.exports = function (api) {
           extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
         },
       ],
-      'react-native-worklets/plugin', // This should be last
+      'react-native-reanimated/plugin', // Reanimated 4.x já inclui worklets internamente
     ],
   };
 };
