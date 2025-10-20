@@ -35,6 +35,12 @@ yarn-error.*
 *.tsbuildinfo
 
 # atividade ipss
+ativ ipss/
 
+#android
+android/
+
+#idea
+.idea/
 
 

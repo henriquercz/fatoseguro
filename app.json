@@ -7,13 +7,13 @@
     "orientation": "portrait",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
-    "icon": "./assets/images/favicon.png",
+    "icon": "./assets/images/logozinha.png",
     "splash": {
-      "image": "./assets/images/icon.png",
+      "image": "./assets/images/logozinha.png",
       "resizeMode": "contain",
       "backgroundColor": "#2563EB",
       "dark": {
-        "image": "./assets/images/icon.png",
+        "image": "./assets/images/logozinha.png",
         "resizeMode": "contain",
         "backgroundColor": "#111827"
       }
@@ -21,9 +21,9 @@
     "newArchEnabled": true,
     "android": {
       "package": "com.checknow.app",
-      "versionCode": 1,
+      "versionCode": 2,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/favicon.png",
+        "foregroundImage": "./assets/images/logozinha.png",
         "backgroundColor": "#FFFFFF"
       },
       "permissions": [
