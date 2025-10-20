@@ -33,7 +33,13 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
       return { ...state, isLoading: true, error: null };
     case 'LOGIN_SUCCESS':
     case 'REGISTER_SUCCESS':
-      return { ...state, isLoading: false, user: action.payload, error: null };
+      return { 
+        ...state, 
+        isLoading: false, 
+        user: action.payload, 
+        error: null,
+        pendingEmailConfirmation: null  // ✅ Limpa para permitir login automático
+      };
     case 'LOGIN_FAILURE':
     case 'REGISTER_FAILURE':
       return { ...state, isLoading: false, error: action.payload };
@@ -305,6 +311,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         // Se o usuário não foi confirmado automaticamente, significa que precisa confirmar email
         if (!data.user.email_confirmed_at) {
           console.log('📨 Email de confirmação deve ser enviado');
+        
+          // Salva senha temporariamente para verificação automática
+          await AsyncStorage.setItem('@temp_password', password);
+        
           if (isMounted.current) {
             safeDispatch({
               type: 'REGISTER_PENDING_CONFIRMATION',
