@@ -222,8 +222,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
     try {
-      // @ts-expect-error Tipos do Supabase precisam ser regenerados
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('profiles')
         .update({ is_premium: true })
         .eq('id', state.user.id);

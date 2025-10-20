@@ -38,7 +38,7 @@ yarn-error.*
 ativ ipss/
 
 #android
-android/
+#android/
 
 #idea
 .idea/
