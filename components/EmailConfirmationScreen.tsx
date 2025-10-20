@@ -31,7 +31,10 @@ export default function EmailConfirmationScreen({ email }: EmailConfirmationScre
     loadPassword();
   }, []);
 
-  const handleBackToLogin = () => {
+  const handleBackToLogin = async () => {
+    // Limpa senha temporária
+    await AsyncStorage.removeItem('@temp_password');
+    // Volta ao login
     logout();
   };
 
