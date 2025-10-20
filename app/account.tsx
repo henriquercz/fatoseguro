@@ -195,7 +195,7 @@ export default function AccountScreen() {
         </View>
         
         <View style={styles.footer}>
-          <Text style={[styles.footerText, { color: colors.textSecondary }]}>CheckNow v2.7.3</Text>
+          <Text style={[styles.footerText, { color: colors.textSecondary }]}>CheckNow v2.7.6</Text>
           <Text style={[styles.footerText, { color: colors.textSecondary }]}>© 2025 CheckNow</Text>
         </View>
       </ScrollView>

@@ -196,7 +196,7 @@ export default function SplashScreen({ onFinish }: SplashScreenProps) {
       {/* Versão */}
       <View style={styles.versionContainer}>
         <Text style={[styles.versionText, { color: colors.textSecondary }]}>
-          v2.7.3
+          v2.7.6
         </Text>
       </View>
     </Animated.View>

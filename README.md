@@ -1,10 +1,10 @@
 # 🚀 CheckNow - Verificador Inteligente de Notícias
 
 <div align="center">
-  
+
   ![CheckNow Logo](https://img.shields.io/badge/CheckNow-v2.7.3-4CAF50?style=for-the-badge&logo=shield&logoColor=white)
-  
-  **🛡️ Sua defesa definitiva contra a desinformação!**  
+
+  **🛡️ Sua defesa definitiva contra a desinformação!**
   *Verificação inteligente de notícias com IA avançada e extração de conteúdo em tempo real*
 
   [![TCC Etec](https://img.shields.io/badge/TCC-Etec%20Taboão%20da%20Serra%202025-2196F3?style=for-the-badge&logo=graduation-cap)](https://www.cps.sp.gov.br/)
@@ -19,28 +19,32 @@
 
 ## 🌟 Sobre o CheckNow
 
-O **CheckNow** é uma aplicação móvel revolucionária desenvolvida como Trabalho de Conclusão de Curso (TCC) para o curso de **Desenvolvimento de Sistemas** na **Etec de Taboão da Serra** em 2025. 
+O **CheckNow** é uma aplicação móvel revolucionária desenvolvida como Trabalho de Conclusão de Curso (TCC) para o curso de **Desenvolvimento de Sistemas** na **Etec de Taboão da Serra** em 2025.
 
 Em uma era onde a desinformação se espalha mais rápido que a verdade, o CheckNow surge como uma solução inovadora para combater as fake news. Utilizando **inteligência artificial de última geração**, **extração inteligente de conteúdo web** e **análise contextual avançada**, oferecemos uma ferramenta poderosa e acessível para verificação de notícias em tempo real.
 
 ### 🎯 Nossa Missão
+
 Democratizar o acesso à verificação de fatos, promovendo um consumo de informação mais consciente e responsável, contribuindo para uma sociedade mais bem informada e resiliente à desinformação.
 
 ## ✨ Funcionalidades Revolucionárias
 
 ### 🔍 **Verificação Inteligente Multi-Modal**
+
 - **📝 Análise de Texto**: Cole qualquer texto de notícia e receba análise instantânea com IA
 - **🔗 Extração de Conteúdo Web**: Insira links e o sistema extrai automaticamente todo o conteúdo da página
 - **🌐 Contexto Web Enriquecido**: Busca informações adicionais via Brave Search API para análise mais precisa
 - **🎯 Verificação Híbrida**: Combina conteúdo extraído + contexto web + IA para máxima precisão
 
 ### 🧠 **Inteligência Artificial Avançada**
+
 - **Google Gemini 1.5 Flash**: IA de última geração para processamento de linguagem natural
 - **Análise Contextual**: Compara informações com fontes web atuais e confiáveis
 - **Sistema de Confiança**: Score de confiança baseado na qualidade das fontes disponíveis
 - **Detecção de Contradições**: Identifica inconsistências entre diferentes fontes
 
 ### 📰 **Central de Notícias Integrada**
+
 - **Feed de Notícias**: Acesso a headlines atuais do Brasil via GNews API
 - **Categorização Automática**: Política, Economia, Tecnologia, Saúde, Esportes, Cultura
 - **Verificação Direta**: Verifique notícias do feed com um toque
@@ -48,6 +52,7 @@ Democratizar o acesso à verificação de fatos, promovendo um consumo de inform
 - **Compartilhamento Nativo**: Compartilhe notícias verificadas com facilidade
 
 ### 🔐 **Sistema de Usuários Robusto**
+
 - **Autenticação Supabase**: Login/cadastro seguro com email e senha
 - **Confirmação por Email**: Sistema de verificação de conta via email
 - **Perfis Personalizados**: Gestão completa de perfil de usuário
@@ -55,12 +60,14 @@ Democratizar o acesso à verificação de fatos, promovendo um consumo de inform
 - **Limites Inteligentes**: 3 verificações gratuitas por dia para usuários básicos
 
 ### 📊 **Análise e Histórico Completos**
+
 - **Histórico Pessoal**: Todas as suas verificações organizadas cronologicamente
 - **Histórico Comunitário**: Veja verificações de outros usuários (anonimizadas)
 - **Análise Detalhada**: Status, resumo, fatos relacionados e fontes utilizadas
 - **Exportação de Dados**: Visualize dados brutos da IA para transparência total
 
 ### 🎨 **Interface de Classe Mundial**
+
 - **Design Material**: Interface moderna seguindo padrões de UX/UI atuais
 - **Tema Adaptável**: Suporte a modo claro e escuro
 - **Navegação Intuitiva**: Expo Router com navegação por abas
@@ -68,6 +75,7 @@ Democratizar o acesso à verificação de fatos, promovendo um consumo de inform
 - **Responsividade Total**: Otimizado para diferentes tamanhos de tela
 
 ### 🛡️ **Segurança e Confiabilidade**
+
 - **Row Level Security**: Políticas de segurança no banco de dados
 - **Validação de Dados**: Sanitização completa de entradas do usuário
 - **Tratamento de Erros**: Sistema robusto de fallbacks e recuperação
@@ -79,22 +87,26 @@ Democratizar o acesso à verificação de fatos, promovendo um consumo de inform
 <div align="center">
 
 ### 📱 **Frontend Mobile**
+
 [![React Native](https://img.shields.io/badge/React_Native-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactnative.dev/)
 [![Expo](https://img.shields.io/badge/Expo-1B1F23?style=for-the-badge&logo=expo&logoColor=white)](https://expo.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Expo Router](https://img.shields.io/badge/Expo_Router-000020?style=for-the-badge&logo=expo&logoColor=white)](https://docs.expo.dev/router/)
 
 ### 🗄️ **Backend & Banco de Dados**
+
 [![Supabase](https://img.shields.io/badge/Supabase-181818?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Row Level Security](https://img.shields.io/badge/RLS-Security-green?style=for-the-badge&logo=shield&logoColor=white)](https://supabase.com/docs/guides/auth/row-level-security)
 
 ### 🤖 **Inteligência Artificial & APIs**
+
 [![Google Gemini](https://img.shields.io/badge/Google_Gemini-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://ai.google.dev/)
 [![Brave Search](https://img.shields.io/badge/Brave_Search-FB542B?style=for-the-badge&logo=brave&logoColor=white)](https://search.brave.com/)
 [![GNews API](https://img.shields.io/badge/GNews_API-FF6B35?style=for-the-badge&logo=rss&logoColor=white)](https://gnews.io/)
 
 ### 🛠️ **Ferramentas & Utilitários**
+
 [![AsyncStorage](https://img.shields.io/badge/AsyncStorage-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react-native-async-storage.github.io/async-storage/)
 [![Prettier](https://img.shields.io/badge/Prettier-F7B93E?style=for-the-badge&logo=prettier&logoColor=black)](https://prettier.io/)
 [![ESLint](https://img.shields.io/badge/ESLint-4B32C3?style=for-the-badge&logo=eslint&logoColor=white)](https://eslint.org/)
@@ -104,6 +116,7 @@ Democratizar o acesso à verificação de fatos, promovendo um consumo de inform
 ### 🏗️ **Arquitetura Detalhada**
 
 #### **Frontend (React Native + Expo)**
+
 - **React Native 0.74+**: Framework principal para desenvolvimento mobile multiplataforma
 - **Expo SDK 53**: Plataforma completa para desenvolvimento, build e deploy
 - **Expo Router**: Sistema de navegação file-based moderno e performático
@@ -112,6 +125,7 @@ Democratizar o acesso à verificação de fatos, promovendo um consumo de inform
 - **AsyncStorage**: Persistência local de dados do usuário
 
 #### **Backend (Supabase)**
+
 - **PostgreSQL 17.4**: Banco de dados relacional robusto e escalável
 - **Supabase Auth**: Sistema de autenticação completo com JWT
 - **Row Level Security (RLS)**: Segurança a nível de linha para proteção de dados
@@ -119,17 +133,20 @@ Democratizar o acesso à verificação de fatos, promovendo um consumo de inform
 - **Edge Functions**: Funções serverless para lógica de negócio
 
 #### **Inteligência Artificial**
-- **Google Gemini 1.5 Flash**: Modelo de IA generativa de última geração
+
+- **Google Gemini 2.5 Flash**: Modelo de IA generativa de última geração
 - **Processamento de Linguagem Natural**: Análise semântica avançada
 - **Análise Contextual**: Comparação com múltiplas fontes de informação
 - **Sistema de Scoring**: Avaliação de confiabilidade baseada em evidências
 
 #### **APIs Externas**
+
 - **Brave Search API**: Busca web contextual para enriquecimento de dados
 - **GNews API**: Feed de notícias atuais do Brasil em português
 - **Web Scraping Engine**: Extração inteligente de conteúdo de páginas web
 
 #### **Segurança & Performance**
+
 - **HTTPS**: Comunicação criptografada end-to-end
 - **API Rate Limiting**: Proteção contra uso abusivo
 - **Input Sanitization**: Validação e limpeza de dados de entrada
@@ -148,14 +165,15 @@ Democratizar o acesso à verificação de fatos, promovendo um consumo de inform
 
 Antes de começar, certifique-se de ter instalado:
 
-| Ferramenta | Versão Recomendada | Link |
-|------------|-------------------|------|
-| **Node.js** | LTS (20.x+) | [Download](https://nodejs.org/) |
-| **npm/Yarn** | Latest | [npm](https://www.npmjs.com/) / [Yarn](https://yarnpkg.com/) |
-| **Expo CLI** | Latest | [Instalação](https://docs.expo.dev/get-started/installation/) |
-| **Git** | Latest | [Download](https://git-scm.com/) |
+| Ferramenta         | Versão Recomendada | Link                                                         |
+| ------------------ | ------------------- | ------------------------------------------------------------ |
+| **Node.js**  | LTS (20.x+)         | [Download](https://nodejs.org/)                                 |
+| **npm/Yarn** | Latest              | [npm](https://www.npmjs.com/) / [Yarn](https://yarnpkg.com/)       |
+| **Expo CLI** | Latest              | [Instalação](https://docs.expo.dev/get-started/installation/) |
+| **Git**      | Latest              | [Download](https://git-scm.com/)                                |
 
 #### 🔧 **Contas Necessárias**
+
 - 🗄️ [Supabase](https://supabase.com/) - Backend e banco de dados
 - 🤖 [Google AI Studio](https://ai.google.dev/) - API do Gemini
 - 🔍 [Brave Search](https://search.brave.com/search-api) - API de busca web
@@ -277,6 +295,7 @@ supabase db push
 ### 🚀 **5. Executando o Projeto**
 
 #### **🔥 Desenvolvimento com Expo Go**
+
 ```bash
 # Inicie o servidor de desenvolvimento
 npx expo start
@@ -287,6 +306,7 @@ npx expo start
 ```
 
 #### **📱 Build Nativo (Android)**
+
 ```bash
 # Primeira execução (instala o app)
 npx expo run:android
@@ -296,6 +316,7 @@ npx expo start --android
 ```
 
 #### **🍎 Build Nativo (iOS)**
+
 ```bash
 # Primeira execução (instala o app)
 npx expo run:ios
@@ -305,6 +326,7 @@ npx expo start --ios
 ```
 
 #### **🌐 Desenvolvimento Web**
+
 ```bash
 # Execute na web (experimental)
 npx expo start --web
@@ -414,13 +436,13 @@ npx expo build:ios
 
 ### 🔍 **Detalhamento dos Diretórios**
 
-| Diretório | Descrição | Principais Arquivos |
-|-----------|-----------|-------------------|
-| **`app/`** | Sistema de roteamento file-based do Expo Router | `_layout.tsx`, `index.tsx`, `news.tsx` |
-| **`components/`** | Componentes React reutilizáveis e modulares | `VerifyForm.tsx`, `NewsItem.tsx` |
-| **`contexts/`** | Gerenciamento de estado global com Context API | `AuthContext.tsx`, `VerificationContext.tsx` |
-| **`lib/`** | Serviços, APIs e configurações de bibliotecas | `supabase.ts`, `webScraper.ts`, `braveSearch.ts` |
-| **`types/`** | Definições de tipos TypeScript para type safety | `index.ts`, `supabase.ts` |
+| Diretório                | Descrição                                       | Principais Arquivos                                    |
+| ------------------------- | ------------------------------------------------- | ------------------------------------------------------ |
+| **`app/`**        | Sistema de roteamento file-based do Expo Router   | `_layout.tsx`, `index.tsx`, `news.tsx`           |
+| **`components/`** | Componentes React reutilizáveis e modulares      | `VerifyForm.tsx`, `NewsItem.tsx`                   |
+| **`contexts/`**   | Gerenciamento de estado global com Context API    | `AuthContext.tsx`, `VerificationContext.tsx`       |
+| **`lib/`**        | Serviços, APIs e configurações de bibliotecas  | `supabase.ts`, `webScraper.ts`, `braveSearch.ts` |
+| **`types/`**      | Definições de tipos TypeScript para type safety | `index.ts`, `supabase.ts`                          |
 
 ---
 
@@ -429,6 +451,7 @@ npx expo build:ios
 <div align="center">
 
 ### 💡 **Sua contribuição é bem-vinda!**
+
 *Ajude a tornar o CheckNow ainda melhor*
 
 </div>
@@ -484,6 +507,7 @@ Este projeto foi desenvolvido como TCC, mas está aberto para contribuições da
 </table>
 
 ### 🎯 **Especializações**
+
 - **Frontend Mobile**: React Native, Expo, TypeScript
 - **Backend**: Supabase, PostgreSQL, APIs REST
 - **IA & Machine Learning**: Google Gemini, Processamento de Linguagem Natural
@@ -497,14 +521,16 @@ Este projeto foi desenvolvido como TCC, mas está aberto para contribuições da
 
 [![Etec Taboão da Serra](https://img.shields.io/badge/Etec-Taboão%20da%20Serra-red?style=for-the-badge&logo=graduation-cap)](https://www.cps.sp.gov.br/)
 
-**Escola Técnica Estadual de Taboão da Serra**  
-*Curso: Desenvolvimento de Sistemas*  
+**Escola Técnica Estadual de Taboão da Serra**
+*Curso: Desenvolvimento de Sistemas*
 *Ano: 2025*
 
 </div>
 
 ### 🎓 **Sobre o Curso**
+
 O curso de **Desenvolvimento de Sistemas** da Etec Taboão da Serra forma profissionais capacitados para:
+
 - Desenvolver aplicações web e mobile
 - Gerenciar bancos de dados
 - Implementar soluções em nuvem
@@ -522,22 +548,26 @@ O curso de **Desenvolvimento de Sistemas** da Etec Taboão da Serra forma profis
 </div>
 
 ### 👨‍🏫 **Corpo Docente**
+
 - **Professores da Etec Taboão da Serra** pelo conhecimento compartilhado e orientação técnica
 - **Coordenação do Curso** pelo suporte e direcionamento durante o desenvolvimento
 
 ### 🌍 **Comunidade Open Source**
+
 - **React Native Team** pela framework excepcional
 - **Expo Team** pela plataforma de desenvolvimento incrível
 - **Supabase Team** pelo backend-as-a-service revolucionário
 - **Google AI Team** pela API Gemini de última geração
 
 ### 🔧 **Ferramentas e Serviços**
+
 - **GitHub** pela hospedagem do código e colaboração
 - **Brave Search** pela API de busca web
 - **GNews** pelo feed de notícias
 - **Todas as bibliotecas open source** utilizadas no projeto
 
 ### 🏆 **Inspiração**
+
 - **Jornalistas e fact-checkers** que lutam diariamente contra a desinformação
 - **Comunidade tech brasileira** pela inspiração e conhecimento compartilhado
 - **Usuários beta** que testaram e forneceram feedback valioso
@@ -546,7 +576,7 @@ O curso de **Desenvolvimento de Sistemas** da Etec Taboão da Serra forma profis
 
 <div align="center">
 
-### 🚀 **CheckNow v2.7.3 - Verificação Inteligente de Notícias**
+### 🚀 **CheckNow v2.7.6 - Verificação Inteligente de Notícias**
 
 [![Feito com ❤️](https://img.shields.io/badge/Feito%20com-❤️-red?style=for-the-badge)](https://github.com/ricks18/checknow)
 [![TCC 2025](https://img.shields.io/badge/TCC-2025-blue?style=for-the-badge&logo=graduation-cap)](https://www.cps.sp.gov.br/)
