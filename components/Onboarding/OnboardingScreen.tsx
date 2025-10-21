@@ -61,17 +61,17 @@ const SLIDES: SlideData[] = [
     features: [
       {
         icon: '📰',
-        title: 'Central de Notícias',
+        title: 'Notícias',
         description: 'Feed confiável do Brasil em tempo real',
       },
       {
         icon: '📊',
-        title: 'Histórico Completo',
+        title: 'Histórico',
         description: 'Suas verificações e da comunidade',
       },
       {
         icon: '🎓',
-        title: 'Educação Digital',
+        title: 'Educação',
         description: 'Aprenda a identificar fake news',
       },
     ],
