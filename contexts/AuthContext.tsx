@@ -181,23 +181,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const loadUserProfile = async (userId: string) => {
-    console.log(' Iniciando loadUserProfile para userId:', userId);
+    console.log('🔍 Iniciando loadUserProfile para userId:', userId);
     try {
       let profile;
 
-      // Buscar perfil do usuário
-      console.log(' Buscando perfil no banco...');
-      const { data, error } = await (supabase as any)
+      // Buscar perfil do usuário com timeout
+      console.log('📊 Buscando perfil no banco...');
+      
+      // Timeout de 5 segundos na query
+      const queryPromise = (supabase as any)
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .single() as { data: any, error: any };
+        .single();
       
-      console.log(' Resultado da busca:', { data: !!data, error: error?.message });
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Query timeout')), 5000)
+      );
+      
+      const { data, error } = await Promise.race([queryPromise, timeoutPromise]) as { data: any, error: any };
+      
+      console.log('📊 Resultado da busca:', { 
+        hasData: !!data, 
+        errorCode: error?.code,
+        errorMessage: error?.message 
+      });
 
       // Se não existe perfil, cria um novo
       if (error && error.code === 'PGRST116') {
-        console.log(' Perfil não encontrado, criando novo perfil...');
+        console.log('🆕 Perfil não encontrado, criando novo perfil...');
         
         const { data: user } = await supabase.auth.getUser();
         
@@ -212,16 +224,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           .select()
           .single() as { data: any, error: any };
 
-        if (createError) throw createError;
+        if (createError) {
+          console.error('❌ Erro ao criar perfil:', createError);
+          throw createError;
+        }
+        
         profile = newProfile;
         console.log('✅ Perfil criado com sucesso!');
       } else if (error) {
+        console.error('❌ Erro ao buscar perfil:', error);
         throw error;
+      } else {
+        // Sucesso - perfil encontrado
+        profile = data;
+        console.log('✅ Perfil carregado com sucesso!');
       }
 
-      // Validar que profile não é null
+      // Validar que profile existe
       if (!profile) {
-        throw new Error('Perfil não encontrado após criação');
+        console.error('❌ Profile é null após busca/criação');
+        throw new Error('Perfil não encontrado');
       }
 
       // Verifica se é um novo usuário (sem consentimentos)

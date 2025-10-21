@@ -155,7 +155,7 @@ export default function VerifyForm() {
           <View style={styles.verificationCountContainer}>
             {verificationCount !== null && (
               <Text style={[styles.verificationCount, { color: colors.textSecondary }]}>
-                Verificações restantes hoje: {verificationCount}/3
+                Verificações restantes este mês: {verificationCount}/3
               </Text>
             )}
           </View>

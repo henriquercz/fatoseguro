@@ -1,26 +1,27 @@
 /**
- * OnboardingScreen - Tela principal do onboarding
- * Gerencia navegação entre slides e conclusão
+ * 🎨 OnboardingScreen - Design Profissional 100% Premium
+ * Onboarding espetacular com animações suaves e UX impecável
  */
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   TouchableOpacity,
-  FlatList,
   Dimensions,
-  ViewToken,
+  ScrollView,
+  Animated,
+  Platform,
+  SafeAreaView,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
 import OnboardingSlide, { SlideData } from './OnboardingSlide';
-import ProgressDots from './ProgressDots';
-import { ChevronLeft, ChevronRight } from 'lucide-react-native';
+import { Sparkles, ArrowRight, X, ChevronLeft, ChevronRight } from 'lucide-react-native';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 const SLIDES: SlideData[] = [
   {
@@ -99,41 +100,60 @@ export default function OnboardingScreen() {
   const { colors } = useTheme();
   const { completeOnboarding, skipOnboarding } = useAuth();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const flatListRef = useRef<FlatList>(null);
+  const scrollViewRef = useRef<ScrollView>(null);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0.9)).current;
 
   const isFirstSlide = currentIndex === 0;
   const isLastSlide = currentIndex === SLIDES.length - 1;
 
-  // Detecta mudança de slide
-  const onViewableItemsChanged = useRef(
-    ({ viewableItems }: { viewableItems: ViewToken[] }) => {
-      if (viewableItems.length > 0 && viewableItems[0].index !== null) {
-        setCurrentIndex(viewableItems[0].index);
-      }
-    }
-  ).current;
-
-  const viewabilityConfig = useRef({
-    itemVisiblePercentThreshold: 50,
-  }).current;
+  // Animação de entrada
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        tension: 20,
+        friction: 7,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [currentIndex]);
 
   // Navegar para próximo slide
   const goToNextSlide = () => {
     if (currentIndex < SLIDES.length - 1) {
-      flatListRef.current?.scrollToIndex({
-        index: currentIndex + 1,
+      const nextIndex = currentIndex + 1;
+      scrollViewRef.current?.scrollTo({
+        x: width * nextIndex,
         animated: true,
       });
+      setCurrentIndex(nextIndex);
     }
   };
 
   // Navegar para slide anterior
   const goToPreviousSlide = () => {
     if (currentIndex > 0) {
-      flatListRef.current?.scrollToIndex({
-        index: currentIndex - 1,
+      const prevIndex = currentIndex - 1;
+      scrollViewRef.current?.scrollTo({
+        x: width * prevIndex,
         animated: true,
       });
+      setCurrentIndex(prevIndex);
+    }
+  };
+
+  // Detecta scroll manual
+  const handleScroll = (event: any) => {
+    const scrollPosition = event.nativeEvent.contentOffset.x;
+    const index = Math.round(scrollPosition / width);
+    if (index !== currentIndex && index >= 0 && index < SLIDES.length) {
+      setCurrentIndex(index);
     }
   };
 
@@ -148,123 +168,246 @@ export default function OnboardingScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      {/* Header com botão Pular */}
-      <View style={styles.header}>
-        <View style={{ width: 60 }} />
-        <View style={{ flex: 1 }} />
-        <TouchableOpacity onPress={handleSkip} style={styles.skipButton}>
-          <Text style={[styles.skipText, { color: colors.textSecondary }]}>
-            Pular
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Slides */}
-      <FlatList
-        ref={flatListRef}
-        data={SLIDES}
-        renderItem={({ item }) => <OnboardingSlide slide={item} />}
-        keyExtractor={(item) => item.id.toString()}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        onViewableItemsChanged={onViewableItemsChanged}
-        viewabilityConfig={viewabilityConfig}
-        bounces={false}
-        scrollEventThrottle={32}
-      />
-
-      {/* Footer com navegação */}
-      <View style={styles.footer}>
-        {/* Progress Dots */}
-        <ProgressDots currentIndex={currentIndex} totalSlides={SLIDES.length} />
-
-        {/* Botões de navegação */}
-        <View style={styles.navigationButtons}>
-          {/* Botão Voltar */}
-          {!isFirstSlide && (
-            <TouchableOpacity
-              onPress={goToPreviousSlide}
-              style={[styles.navButton, styles.backButton, { borderColor: colors.border }]}
-            >
-              <ChevronLeft size={20} color={colors.textSecondary} />
-              <Text style={[styles.navButtonText, { color: colors.textSecondary }]}>
-                Voltar
-              </Text>
-            </TouchableOpacity>
-          )}
-
-          {/* Espaçador */}
-          {isFirstSlide && <View style={{ flex: 1 }} />}
-
-          {/* Botão Próximo/Começar */}
-          <TouchableOpacity
-            onPress={isLastSlide ? handleFinish : goToNextSlide}
-            style={[
-              styles.navButton,
-              styles.nextButton,
-              { backgroundColor: colors.primary },
-              !isFirstSlide && { flex: 1 },
-            ]}
+    <View style={styles.container}>
+      <SafeAreaView style={styles.safeArea}>
+        {/* Header com botão Pular */}
+        <Animated.View 
+          style={[
+            styles.header,
+            { opacity: fadeAnim }
+          ]}
+        >
+          <TouchableOpacity 
+            onPress={handleSkip} 
+            style={styles.skipButton}
+            activeOpacity={0.7}
           >
-            <Text style={[styles.navButtonText, { color: colors.surface }]}>
-              {isLastSlide ? 'Começar' : 'Próximo'}
-            </Text>
-            {!isLastSlide && <ChevronRight size={20} color={colors.surface} />}
+            <X size={20} color="#FFFFFF" strokeWidth={2.5} />
           </TouchableOpacity>
-        </View>
-      </View>
-    </SafeAreaView>
+        </Animated.View>
+
+        {/* Slides com ScrollView */}
+        <ScrollView
+          ref={scrollViewRef}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
+          bounces={false}
+          style={styles.scrollView}
+        >
+          {SLIDES.map((slide, index) => (
+            <Animated.View
+              key={slide.id}
+              style={[
+                styles.slideWrapper,
+                {
+                  opacity: fadeAnim,
+                  transform: [{ scale: scaleAnim }],
+                },
+              ]}
+            >
+              <OnboardingSlide slide={slide} />
+            </Animated.View>
+          ))}
+        </ScrollView>
+
+        {/* Footer com navegação e progress dots */}
+        <Animated.View style={[styles.footer, { opacity: fadeAnim }]}>
+          {/* Progress Dots Customizados */}
+          <View style={styles.dotsContainer}>
+            {SLIDES.map((_, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.dot,
+                  index === currentIndex && styles.dotActive,
+                  {
+                    backgroundColor: index === currentIndex ? '#FFFFFF' : 'rgba(255,255,255,0.3)',
+                    width: index === currentIndex ? 32 : 8,
+                  },
+                ]}
+              />
+            ))}
+          </View>
+
+          {/* Botões de navegação */}
+          <View style={styles.navigationButtons}>
+            {/* Botão Voltar */}
+            {!isFirstSlide && (
+              <TouchableOpacity
+                onPress={goToPreviousSlide}
+                style={[styles.navButton, styles.backButton]}
+                activeOpacity={0.8}
+              >
+                <ChevronLeft size={20} color="#FFFFFF" strokeWidth={2.5} />
+                <Text style={styles.navButtonText}>Voltar</Text>
+              </TouchableOpacity>
+            )}
+
+            {/* Espaçador */}
+            {isFirstSlide && <View style={{ flex: 1 }} />}
+
+            {/* Botão Próximo/Começar */}
+            <TouchableOpacity
+              onPress={isLastSlide ? handleFinish : goToNextSlide}
+              style={[
+                styles.navButton,
+                styles.nextButton,
+                !isFirstSlide && { flex: 1 },
+              ]}
+              activeOpacity={0.8}
+            >
+              {isLastSlide ? (
+                <>
+                  <Sparkles size={20} color="#2563EB" strokeWidth={2.5} />
+                  <Text style={styles.nextButtonText}>Começar</Text>
+                </>
+              ) : (
+                <>
+                  <Text style={styles.nextButtonText}>Próximo</Text>
+                  <ArrowRight size={20} color="#2563EB" strokeWidth={2.5} />
+                </>
+              )}
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
+      </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#000000', // Fundo preto para contrastar com gradientes dos slides
+  },
+  safeArea: {
+    flex: 1,
   },
   header: {
     flexDirection: 'row',
+    justifyContent: 'flex-end',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: 10,
+    paddingHorizontal: 24,
+    paddingTop: Platform.OS === 'android' ? 40 : 10,
     paddingBottom: 10,
+    zIndex: 10,
+    position: 'absolute',
+    top: 0,
+    right: 0,
   },
   skipButton: {
-    padding: 8,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.5,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
   },
-  skipText: {
-    fontFamily: 'Inter-Medium',
-    fontSize: 16,
+  scrollView: {
+    flex: 1,
+  },
+  slideWrapper: {
+    width,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   footer: {
-    paddingHorizontal: 20,
-    paddingBottom: 20,
+    paddingHorizontal: 24,
+    paddingBottom: Platform.OS === 'android' ? 24 : 10,
+    gap: 20,
+    backgroundColor: 'rgba(0,0,0,0.5)', // Fundo semi-transparente
+    paddingTop: 20,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  dotsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 16,
+  },
+  dot: {
+    height: 8,
+    borderRadius: 4,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#FFF',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.5,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 3,
+      },
+    }),
+  },
+  dotActive: {
+    // Estilo aplicado dinamicamente
   },
   navigationButtons: {
     flexDirection: 'row',
     gap: 12,
-    marginTop: 8,
   },
   navButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 24,
-    borderRadius: 12,
-    gap: 8,
+    paddingVertical: 16,
+    paddingHorizontal: 28,
+    borderRadius: 16,
+    gap: 10,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 6,
+      },
+    }),
   },
   backButton: {
-    borderWidth: 1,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.5)',
     flex: 1,
   },
   nextButton: {
-    minWidth: 120,
+    backgroundColor: '#FFFFFF',
+    flex: 1,
   },
   navButtonText: {
-    fontFamily: 'Inter-SemiBold',
+    fontFamily: 'Inter-Bold',
     fontSize: 16,
+    color: '#FFFFFF',
+    letterSpacing: 0.5,
+    textShadowColor: 'rgba(0,0,0,0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  nextButtonText: {
+    fontFamily: 'Inter-Bold',
+    fontSize: 16,
+    color: '#1E40AF',
+    letterSpacing: 0.5,
   },
 });

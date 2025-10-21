@@ -7,7 +7,7 @@
     "orientation": "portrait",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
-    "icon": "./assets/images/logozinha.png",
+    "icon": "./assets/images/favicon.png",
     "splash": {
       "image": "./assets/images/logozinha.png",
       "resizeMode": "contain",
