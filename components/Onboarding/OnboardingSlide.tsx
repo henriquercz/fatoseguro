@@ -105,12 +105,20 @@ export default function OnboardingSlide({ slide }: OnboardingSlideProps) {
         const icons3 = [Newspaper, History, GraduationCap];
         return (
           <View style={styles.layout3}>
-            {/* Bola de luz azul sutil no fundo */}
+            {/* Bola de luz azul - superior direito */}
             <LinearGradient
-              colors={['rgba(59, 130, 246, 0.15)', 'rgba(59, 130, 246, 0.05)', 'rgba(59, 130, 246, 0)']}
-              start={{ x: 0.2, y: 0.3 }}
-              end={{ x: 0.8, y: 0.7 }}
-              style={styles.blueGlowBall}
+              colors={['rgba(59, 130, 246, 0.18)', 'rgba(59, 130, 246, 0.08)', 'rgba(59, 130, 246, 0)']}
+              start={{ x: 1, y: 0 }}
+              end={{ x: 0, y: 1 }}
+              style={styles.blueGlow3}
+            />
+            
+            {/* Bola de luz verde - inferior esquerdo */}
+            <LinearGradient
+              colors={['rgba(16, 185, 129, 0.18)', 'rgba(16, 185, 129, 0.08)', 'rgba(16, 185, 129, 0)']}
+              start={{ x: 0, y: 1 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.greenGlow3}
             />
             
             <View style={styles.contentTop3}>
@@ -137,23 +145,23 @@ export default function OnboardingSlide({ slide }: OnboardingSlideProps) {
         );
 
       case 4:
-        // TELA 4: Layout com cards premium e bolas de luz verde
+        // TELA 4: Layout com cards premium e bolas de luz alternadas
         return (
           <View style={styles.layout4}>
-            {/* Bola de luz verde superior esquerda */}
+            {/* Bola de luz azul - superior esquerdo */}
             <LinearGradient
-              colors={['rgba(52, 211, 153, 0.18)', 'rgba(52, 211, 153, 0.08)', 'rgba(52, 211, 153, 0)']}
+              colors={['rgba(59, 130, 246, 0.18)', 'rgba(59, 130, 246, 0.08)', 'rgba(59, 130, 246, 0)']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
-              style={styles.greenGlowTopLeft}
+              style={styles.blueGlow4}
             />
             
-            {/* Bola de luz verde inferior direita */}
+            {/* Bola de luz verde - inferior direito */}
             <LinearGradient
-              colors={['rgba(16, 185, 129, 0.18)', 'rgba(16, 185, 129, 0.08)', 'rgba(16, 185, 129, 0)']}
+              colors={['rgba(52, 211, 153, 0.18)', 'rgba(52, 211, 153, 0.08)', 'rgba(52, 211, 153, 0)']}
               start={{ x: 1, y: 1 }}
               end={{ x: 0, y: 0 }}
-              style={styles.greenGlowBottomRight}
+              style={styles.greenGlow4}
             />
             
             <Image source={slide.checkitoImage} style={styles.checkito4} resizeMode="contain" />
@@ -351,13 +359,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  blueGlowBall: {
+  blueGlow3: {
     position: 'absolute',
-    top: '25%',
-    right: '-20%',
-    width: width * 0.8,
-    height: width * 0.8,
-    borderRadius: (width * 0.8) / 2,
+    top: '-15%',
+    right: '-15%',
+    width: width * 0.9,
+    height: width * 0.9,
+    borderRadius: (width * 0.9) / 2,
+    zIndex: 0,
+  },
+  greenGlow3: {
+    position: 'absolute',
+    bottom: '5%',
+    left: '-20%',
+    width: width * 0.95,
+    height: width * 0.95,
+    borderRadius: (width * 0.95) / 2,
     zIndex: 0,
   },
   contentTop3: {
@@ -439,7 +456,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     paddingTop: 0,
   },
-  greenGlowTopLeft: {
+  blueGlow4: {
     position: 'absolute',
     top: '-15%',
     left: '-15%',
@@ -448,7 +465,7 @@ const styles = StyleSheet.create({
     borderRadius: (width * 0.9) / 2,
     zIndex: 0,
   },
-  greenGlowBottomRight: {
+  greenGlow4: {
     position: 'absolute',
     bottom: '5%',
     right: '-20%',
