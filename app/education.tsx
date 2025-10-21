@@ -8,6 +8,7 @@ import {
   SafeAreaView,
   Alert,
   Animated,
+  Image,
 } from 'react-native';
 import { router } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -491,6 +492,23 @@ export default function EducationScreen() {
     
     return (
       <View style={styles.content}>
+        {/* Checkito no Quiz */}
+        {currentQuestionIndex === 0 && selectedAnswer === null && (
+          <View style={styles.quizCheckitoContainer}>
+            <Image 
+              source={require('@/assets/images/checkito/checkito_tela3.png')}
+              style={styles.checkitoQuiz}
+              resizeMode="contain"
+            />
+            <View style={[styles.quizBalloon, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+              <View style={[styles.quizBalloonTail, { borderTopColor: colors.surface }]} />
+              <Text style={[styles.quizBalloonText, { color: colors.text }]}>
+                Vamos ver se você realmente aprendeu
+              </Text>
+            </View>
+          </View>
+        )}
+        
         <View style={[styles.quizProgress, { backgroundColor: colors.surface }]}>
           <Text style={[styles.progressText, { color: colors.textSecondary }]}>
             Pergunta {currentQuestionIndex + 1} de {quizQuestions.length}
@@ -1010,6 +1028,48 @@ const styles = StyleSheet.create({
   },
   contentPadding: {
     padding: 20,
+  },
+  quizCheckitoContainer: {
+    alignItems: 'center',
+    marginBottom: 24,
+    paddingHorizontal: 20,
+  },
+  checkitoQuiz: {
+    width: 140,
+    height: 140,
+    marginBottom: 16,
+  },
+  quizBalloon: {
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+    borderRadius: 18,
+    borderWidth: 2,
+    position: 'relative',
+    maxWidth: '85%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  quizBalloonTail: {
+    position: 'absolute',
+    top: -8,
+    left: '50%',
+    marginLeft: -8,
+    width: 0,
+    height: 0,
+    borderLeftWidth: 8,
+    borderRightWidth: 8,
+    borderTopWidth: 8,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+  },
+  quizBalloonText: {
+    fontFamily: 'Inter-SemiBold',
+    fontSize: 15,
+    textAlign: 'center',
+    lineHeight: 21,
   },
   completedIndicator: {
     marginTop: 24,
