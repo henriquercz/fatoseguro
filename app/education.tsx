@@ -295,9 +295,70 @@ export default function EducationScreen() {
 
   const getScoreMessage = () => {
     const percentage = (score / quizQuestions.length) * 100;
-    if (percentage >= 80) return { message: "Excelente! Você é um expert em identificar fake news!", color: colors.success || "#10B981" };
-    if (percentage >= 60) return { message: "Bom trabalho! Continue praticando para melhorar ainda mais.", color: colors.primary };
-    return { message: "Continue estudando! A prática leva à perfeição.", color: "#EF4444" };
+    
+    // Mensagens variadas para cada faixa de pontuação
+    const messagesExcellent = [
+      "Incrível! Você domina a arte de identificar fake news!",
+      "Perfeito! Você é um verdadeiro detetive de notícias!",
+      "Uau! Você está pronto para combater a desinformação!",
+      "Excelente! Nada escapa do seu olhar crítico!",
+      "Sensacional! Você é um expert em verificação de notícias!",
+      "Parabéns! Seu conhecimento é impressionante!",
+      "Mandou bem! Você sabe mesmo identificar fake news!",
+    ];
+    
+    const messagesGood = [
+      "Bom trabalho! Você está no caminho certo!",
+      "Nada mal! Continue praticando para melhorar ainda mais.",
+      "Você foi bem! Está quase virando um expert!",
+      "Legal! Já consegue identificar muitas fake news.",
+      "Boa! Com mais prática você será imbatível!",
+      "Interessante! Você tem potencial para ser expert!",
+      "Bacana! Continue estudando, você está progredindo!",
+    ];
+    
+    const messagesNeedsImprovement = [
+      "Continue estudando! A prática leva à perfeição.",
+      "Não desista! Cada erro é um aprendizado.",
+      "Vamos lá! Revise o conteúdo e tente novamente.",
+      "Você consegue! É só praticar um pouco mais.",
+      "Tente de novo! O importante é aprender.",
+      "Sem problemas! Revise as dicas e faça outro quiz.",
+      "Continue tentando! A experiência vem com o tempo.",
+    ];
+    
+    // Seleciona mensagem aleatória
+    const randomIndex = Math.floor(Math.random() * 7);
+    
+    if (percentage === 100) {
+      return { 
+        message: messagesExcellent[randomIndex],
+        emoji: "🏆",
+        checkitoImage: require('@/assets/images/checkito/checkito_tela4.png'),
+        color: colors.success || "#10B981"
+      };
+    } else if (percentage >= 80) {
+      return { 
+        message: messagesExcellent[randomIndex],
+        emoji: "🎉",
+        checkitoImage: require('@/assets/images/checkito/checkito_tela3.png'),
+        color: colors.success || "#10B981"
+      };
+    } else if (percentage >= 60) {
+      return { 
+        message: messagesGood[randomIndex],
+        emoji: "👍",
+        checkitoImage: require('@/assets/images/checkito/checkito_tela3.png'),
+        color: colors.primary
+      };
+    } else {
+      return { 
+        message: messagesNeedsImprovement[randomIndex],
+        emoji: "📚",
+        checkitoImage: require('@/assets/images/checkito/checkito_confuso.png'),
+        color: "#EF4444"
+      };
+    }
   };
 
   const renderMenu = () => (
@@ -460,19 +521,86 @@ export default function EducationScreen() {
 
     if (quizCompleted) {
       const scoreData = getScoreMessage();
+      const percentage = (score / quizQuestions.length) * 100;
+      
       return (
-        <View style={styles.content}>
+        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
           <View style={[styles.quizCompletedCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-            <Award size={64} color={scoreData.color} />
+            {/* Checkito no Resultado */}
+            <View style={styles.resultCheckitoContainer}>
+              <Image 
+                source={scoreData.checkitoImage}
+                style={styles.checkitoResult}
+                resizeMode="contain"
+              />
+              <View style={[styles.resultBalloon, { backgroundColor: colors.surface, borderColor: scoreData.color }]}>
+                <View style={[styles.resultBalloonTail, { borderTopColor: colors.surface }]} />
+                <Text style={[styles.resultBalloonText, { color: colors.text }]}>
+                  {scoreData.message}
+                </Text>
+              </View>
+            </View>
+            
+            {/* Badge de Pontuação */}
+            <View style={[styles.scoreBadge, { backgroundColor: scoreData.color }]}>
+              <Text style={styles.scoreBadgeEmoji}>{scoreData.emoji}</Text>
+            </View>
+            
             <Text style={[styles.quizCompletedTitle, { color: colors.text }]}>
               Quiz Concluído!
             </Text>
+            
             <Text style={[styles.scoreText, { color: colors.text }]}>
               Sua pontuação: {score}/{quizQuestions.length}
             </Text>
-            <Text style={[styles.scoreMessage, { color: scoreData.color }]}>
-              {scoreData.message}
-            </Text>
+            
+            {/* Barra de Progresso Visual */}
+            <View style={styles.scoreBarContainer}>
+              <View style={[styles.scoreBar, { backgroundColor: colors.border }]}>
+                <View 
+                  style={[styles.scoreBarFill, { 
+                    backgroundColor: scoreData.color,
+                    width: `${percentage}%`
+                  }]} 
+                />
+              </View>
+              <Text style={[styles.percentageText, { color: scoreData.color }]}>
+                {percentage.toFixed(0)}%
+              </Text>
+            </View>
+            
+            {/* Feedback por Faixa */}
+            {percentage === 100 && (
+              <View style={[styles.perfectScore, { backgroundColor: scoreData.color + '20', borderColor: scoreData.color }]}>
+                <Text style={[styles.perfectScoreText, { color: scoreData.color }]}>
+                  ✨ Pontuação Perfeita! Você acertou tudo! ✨
+                </Text>
+              </View>
+            )}
+            
+            {percentage >= 80 && percentage < 100 && (
+              <View style={[styles.feedbackBox, { backgroundColor: scoreData.color + '15', borderColor: scoreData.color }]}>
+                <Text style={[styles.feedbackText, { color: colors.text }]}>
+                  🎯 Quase perfeito! Você está muito bem preparado!
+                </Text>
+              </View>
+            )}
+            
+            {percentage >= 60 && percentage < 80 && (
+              <View style={[styles.feedbackBox, { backgroundColor: scoreData.color + '15', borderColor: scoreData.color }]}>
+                <Text style={[styles.feedbackText, { color: colors.text }]}>
+                  💪 Você está no caminho certo! Continue praticando!
+                </Text>
+              </View>
+            )}
+            
+            {percentage < 60 && (
+              <View style={[styles.feedbackBox, { backgroundColor: scoreData.color + '15', borderColor: scoreData.color }]}>
+                <Text style={[styles.feedbackText, { color: colors.text }]}>
+                  📖 Revise o conteúdo educativo e tente novamente!
+                </Text>
+              </View>
+            )}
             
             <View style={styles.quizActions}>
               <TouchableOpacity
@@ -484,7 +612,7 @@ export default function EducationScreen() {
               </TouchableOpacity>
             </View>
           </View>
-        </View>
+        </ScrollView>
       );
     }
 
@@ -1070,6 +1198,110 @@ const styles = StyleSheet.create({
     fontSize: 15,
     textAlign: 'center',
     lineHeight: 21,
+  },
+  resultCheckitoContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
+    paddingHorizontal: 20,
+  },
+  checkitoResult: {
+    width: 150,
+    height: 150,
+    marginBottom: 16,
+  },
+  resultBalloon: {
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+    borderRadius: 20,
+    borderWidth: 2,
+    position: 'relative',
+    maxWidth: '90%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  resultBalloonTail: {
+    position: 'absolute',
+    top: -8,
+    left: '50%',
+    marginLeft: -8,
+    width: 0,
+    height: 0,
+    borderLeftWidth: 8,
+    borderRightWidth: 8,
+    borderTopWidth: 8,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+  },
+  resultBalloonText: {
+    fontFamily: 'Inter-Bold',
+    fontSize: 16,
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  scoreBadge: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  scoreBadgeEmoji: {
+    fontSize: 36,
+  },
+  scoreBarContainer: {
+    width: '100%',
+    marginTop: 16,
+    marginBottom: 20,
+  },
+  scoreBar: {
+    height: 12,
+    borderRadius: 6,
+    overflow: 'hidden',
+    marginBottom: 8,
+  },
+  scoreBarFill: {
+    height: '100%',
+    borderRadius: 6,
+  },
+  percentageText: {
+    fontFamily: 'Inter-Bold',
+    fontSize: 18,
+    textAlign: 'center',
+  },
+  perfectScore: {
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 2,
+    marginBottom: 16,
+    width: '100%',
+  },
+  perfectScoreText: {
+    fontFamily: 'Inter-Bold',
+    fontSize: 16,
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  feedbackBox: {
+    padding: 14,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    marginBottom: 16,
+    width: '100%',
+  },
+  feedbackText: {
+    fontFamily: 'Inter-SemiBold',
+    fontSize: 14,
+    textAlign: 'center',
+    lineHeight: 20,
   },
   completedIndicator: {
     marginTop: 24,
