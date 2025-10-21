@@ -182,7 +182,7 @@ export default function OnboardingScreen() {
             style={styles.skipButton}
             activeOpacity={0.7}
           >
-            <X size={20} color="#FFFFFF" strokeWidth={2.5} />
+            <X size={20} color="#64748B" strokeWidth={2.5} />
           </TouchableOpacity>
         </Animated.View>
 
@@ -224,7 +224,7 @@ export default function OnboardingScreen() {
                   styles.dot,
                   index === currentIndex && styles.dotActive,
                   {
-                    backgroundColor: index === currentIndex ? '#FFFFFF' : 'rgba(255,255,255,0.3)',
+                    backgroundColor: index === currentIndex ? '#3B82F6' : '#E2E8F0',
                     width: index === currentIndex ? 32 : 8,
                   },
                 ]}
@@ -241,7 +241,7 @@ export default function OnboardingScreen() {
                 style={[styles.navButton, styles.backButton]}
                 activeOpacity={0.8}
               >
-                <ChevronLeft size={20} color="#FFFFFF" strokeWidth={2.5} />
+                <ChevronLeft size={20} color="#64748B" strokeWidth={2.5} />
                 <Text style={styles.navButtonText}>Voltar</Text>
               </TouchableOpacity>
             )}
@@ -261,13 +261,13 @@ export default function OnboardingScreen() {
             >
               {isLastSlide ? (
                 <>
-                  <Sparkles size={20} color="#2563EB" strokeWidth={2.5} />
+                  <Sparkles size={20} color="#FFFFFF" strokeWidth={2.5} />
                   <Text style={styles.nextButtonText}>Começar</Text>
                 </>
               ) : (
                 <>
                   <Text style={styles.nextButtonText}>Próximo</Text>
-                  <ArrowRight size={20} color="#2563EB" strokeWidth={2.5} />
+                  <ArrowRight size={20} color="#FFFFFF" strokeWidth={2.5} />
                 </>
               )}
             </TouchableOpacity>
@@ -281,7 +281,7 @@ export default function OnboardingScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000', // Fundo preto para contrastar com gradientes dos slides
+    backgroundColor: '#FFFFFF', // Fundo branco clean
   },
   safeArea: {
     flex: 1,
@@ -302,18 +302,18 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(0,0,0,0.3)',
+    backgroundColor: '#F1F5F9',
     alignItems: 'center',
     justifyContent: 'center',
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.5,
-        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
       },
       android: {
-        elevation: 8,
+        elevation: 2,
       },
     }),
   },
@@ -326,37 +326,38 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   footer: {
-    paddingHorizontal: 24,
-    paddingBottom: Platform.OS === 'android' ? 24 : 10,
-    gap: 20,
-    backgroundColor: 'rgba(0,0,0,0.5)', // Fundo semi-transparente
-    paddingTop: 20,
+    paddingHorizontal: 20,
+    paddingBottom: Platform.OS === 'android' ? 20 : 12,
+    gap: 12,
+    backgroundColor: 'rgba(255,255,255,0.95)',
+    paddingTop: 16,
     position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
+    bottom: 20,
+    left: 20,
+    right: 20,
+    borderRadius: 24,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.12,
+        shadowRadius: 24,
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
   },
   dotsContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     gap: 8,
-    paddingVertical: 16,
+    paddingVertical: 10,
   },
   dot: {
     height: 8,
     borderRadius: 4,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#FFF',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.5,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 3,
-      },
-    }),
   },
   dotActive: {
     // Estilo aplicado dinamicamente
@@ -369,45 +370,41 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 28,
-    borderRadius: 16,
-    gap: 10,
+    gap: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 14,
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 6,
       },
       android: {
-        elevation: 6,
+        elevation: 4,
       },
     }),
   },
   backButton: {
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.5)',
+    backgroundColor: '#F1F5F9',
+    borderWidth: 0,
     flex: 1,
   },
   nextButton: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#3B82F6',
     flex: 1,
   },
   navButtonText: {
     fontFamily: 'Inter-Bold',
     fontSize: 16,
-    color: '#FFFFFF',
+    color: '#64748B',
     letterSpacing: 0.5,
-    textShadowColor: 'rgba(0,0,0,0.3)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
   },
   nextButtonText: {
     fontFamily: 'Inter-Bold',
     fontSize: 16,
-    color: '#1E40AF',
+    color: '#FFFFFF',
     letterSpacing: 0.5,
   },
 });
