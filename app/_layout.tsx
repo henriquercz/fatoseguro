@@ -15,6 +15,7 @@ import EmailConfirmationScreen from '@/components/EmailConfirmationScreen';
 import ConsentModal from '@/components/ConsentModal';
 import FloatingTabBar from '@/components/FloatingTabBar';
 import CustomSplashScreen from '@/components/SplashScreen';
+import OnboardingScreen from '@/components/Onboarding/OnboardingScreen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import {
   Inter_400Regular,
@@ -29,7 +30,7 @@ SplashScreen.preventAutoHideAsync().catch(() => {
 });
 
 function RootLayoutNav() {
-  const { user, loading: authLoading, pendingEmailConfirmation, showConsentModal, hideConsentModal } = useAuth();
+  const { user, loading: authLoading, pendingEmailConfirmation, showConsentModal, showOnboarding, hideConsentModal } = useAuth();
   const { colors } = useTheme();
   const [showCustomSplash, setShowCustomSplash] = React.useState(true);
   const router = useRouter();
@@ -68,6 +69,11 @@ function RootLayoutNav() {
         <AuthForm />
       </SafeAreaView>
     );
+  }
+
+  // Se usuário precisa ver onboarding, mostra OnboardingScreen
+  if (showOnboarding) {
+    return <OnboardingScreen />;
   }
 
   // Função para lidar com navegação do FloatingTabBar

@@ -10,6 +10,7 @@ const initialState: AuthState = {
   error: null,
   pendingEmailConfirmation: null,
   showConsentModal: false,
+  showOnboarding: false,
 };
 
 type AuthAction =
@@ -22,6 +23,8 @@ type AuthAction =
   | { type: 'REGISTER_PENDING_CONFIRMATION'; payload: string }
   | { type: 'SHOW_CONSENT_MODAL' }
   | { type: 'HIDE_CONSENT_MODAL' }
+  | { type: 'SHOW_ONBOARDING' }
+  | { type: 'HIDE_ONBOARDING' }
   | { type: 'LOGOUT' }
   | { type: 'UPDATE_USER'; payload: Partial<User> }
   | { type: 'CLEAR_ERROR' };
@@ -49,6 +52,10 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
       return { ...state, showConsentModal: true };
     case 'HIDE_CONSENT_MODAL':
       return { ...state, showConsentModal: false };
+    case 'SHOW_ONBOARDING':
+      return { ...state, showOnboarding: true };
+    case 'HIDE_ONBOARDING':
+      return { ...state, showOnboarding: false };
     case 'LOGOUT':
       return { ...initialState, isLoading: false };
     case 'UPDATE_USER':
@@ -69,12 +76,15 @@ type AuthContextType = {
   error: string | null;
   pendingEmailConfirmation: string | null;
   showConsentModal: boolean;
+  showOnboarding: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   clearError: () => void;
   upgradeToPremium: () => Promise<void>;
   hideConsentModal: () => void;
+  completeOnboarding: () => Promise<void>;
+  skipOnboarding: () => Promise<void>;
   deleteAccount: () => Promise<void>;
 };
 
@@ -84,12 +94,15 @@ const AuthContext = createContext<AuthContextType>({
   error: null,
   pendingEmailConfirmation: null,
   showConsentModal: false,
+  showOnboarding: false,
   login: async () => {},
   register: async () => {},
   logout: async () => {},
   clearError: () => {},
   upgradeToPremium: async () => {},
   hideConsentModal: () => {},
+  completeOnboarding: async () => {},
+  skipOnboarding: async () => {},
   deleteAccount: async () => {},
 });
 
@@ -120,18 +133,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const initializeAuth = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user && isMounted.current) {
-          await loadUserProfile(session.user.id);
-        } else if (isMounted.current) {
-          safeDispatch({ type: 'LOGOUT' });
-        }
-      } catch (error) {
-        console.error('Error initializing auth:', error);
+      console.log('🔄 Iniciando autenticação...');
+      
+      // Timeout de segurança: força logout após 10 segundos se travar
+      const timeoutId = setTimeout(() => {
+        console.warn('⚠️ TIMEOUT: Autenticação travada, forçando logout...');
         if (isMounted.current) {
           safeDispatch({ type: 'LOGOUT' });
         }
+      }, 10000);
+      
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        console.log('📝 Sessão obtida:', session ? 'Existe' : 'Não existe');
+        
+        if (session?.user && isMounted.current) {
+          console.log('👤 Carregando perfil do usuário:', session.user.id);
+          await loadUserProfile(session.user.id);
+        } else if (isMounted.current) {
+          console.log('🚪 Nenhuma sessão encontrada, fazendo logout');
+          safeDispatch({ type: 'LOGOUT' });
+        }
+      } catch (error) {
+        console.error('❌ Error initializing auth:', error);
+        if (isMounted.current) {
+          safeDispatch({ type: 'LOGOUT' });
+        }
+      } finally {
+        // Limpa o timeout se completar antes
+        clearTimeout(timeoutId);
       }
     };
 
@@ -151,16 +181,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const loadUserProfile = async (userId: string) => {
+    console.log(' Iniciando loadUserProfile para userId:', userId);
     try {
-      let { data: profile, error } = await supabase
+      let profile;
+
+      // Buscar perfil do usuário
+      console.log(' Buscando perfil no banco...');
+      const { data, error } = await (supabase as any)
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .single() as { data: any, error: any };
+      
+      console.log(' Resultado da busca:', { data: !!data, error: error?.message });
 
       // Se não existe perfil, cria um novo
       if (error && error.code === 'PGRST116') {
-        console.log('👤 Perfil não encontrado, criando novo perfil...');
+        console.log(' Perfil não encontrado, criando novo perfil...');
         
         const { data: user } = await supabase.auth.getUser();
         
@@ -195,6 +232,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .limit(1);
 
       const isNewUser = !consents || consents.length === 0;
+      
+      // Verifica onboarding de forma segura (campo pode não existir até executar SQL)
+      // Se profile.onboarding_completed não existir, será undefined
+      // Só mostra onboarding se for explicitamente false
+      const shouldShowOnboarding = profile.onboarding_completed === false;
+      
+      console.log('📊 Status do usuário:', {
+        isNewUser,
+        hasOnboardingField: 'onboarding_completed' in profile,
+        onboardingCompleted: profile.onboarding_completed,
+        shouldShowOnboarding
+      });
 
       if (isMounted.current) {
         safeDispatch({
@@ -207,15 +256,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           },
         });
 
-        // Se é um novo usuário, mostra o modal de consentimento
-        if (isNewUser) {
+        // Se não completou onboarding, mostra onboarding (tem prioridade)
+        if (shouldShowOnboarding) {
+          console.log('🎨 Usuário precisa ver onboarding');
+          safeDispatch({ type: 'SHOW_ONBOARDING' });
+        }
+        // Senão, se é um novo usuário, mostra o modal de consentimento
+        else if (isNewUser) {
           console.log('🆕 Novo usuário detectado - mostrando modal de consentimento');
           safeDispatch({ type: 'SHOW_CONSENT_MODAL' });
         }
       }
-    } catch (error) {
-      console.error('Error loading user profile:', error);
+    } catch (error: any) {
+      console.error('❌ Error loading user profile:', error);
+      console.error('Detalhes do erro:', error.message);
       if (isMounted.current) {
+        // Garante que loading seja desligado mesmo com erro
         safeDispatch({ type: 'LOGOUT' });
       }
     }
@@ -410,6 +466,69 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const completeOnboarding = async () => {
+    if (!state.user) return;
+
+    try {
+      console.log('✅ Completando onboarding...');
+
+      // Atualiza no banco de dados
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          onboarding_completed: true,
+          onboarding_completed_at: new Date().toISOString(),
+        })
+        .eq('id', state.user.id);
+
+      if (error) {
+        console.error('Erro ao completar onboarding:', error);
+        throw error;
+      }
+
+      // Esconde o onboarding
+      if (isMounted.current) {
+        safeDispatch({ type: 'HIDE_ONBOARDING' });
+      }
+
+      console.log('✅ Onboarding completado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao completar onboarding:', error);
+    }
+  };
+
+  const skipOnboarding = async () => {
+    if (!state.user) return;
+
+    try {
+      console.log('⏭️ Pulando onboarding...');
+
+      // Atualiza no banco de dados
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          onboarding_skipped: true,
+          onboarding_completed: true, // Marca como completo para não mostrar novamente
+          onboarding_completed_at: new Date().toISOString(),
+        })
+        .eq('id', state.user.id);
+
+      if (error) {
+        console.error('Erro ao pular onboarding:', error);
+        throw error;
+      }
+
+      // Esconde o onboarding
+      if (isMounted.current) {
+        safeDispatch({ type: 'HIDE_ONBOARDING' });
+      }
+
+      console.log('✅ Onboarding pulado!');
+    } catch (error) {
+      console.error('Erro ao pular onboarding:', error);
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -418,12 +537,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         error: state.error,
         pendingEmailConfirmation: state.pendingEmailConfirmation,
         showConsentModal: state.showConsentModal,
+        showOnboarding: state.showOnboarding,
         login,
         register,
         logout,
         clearError,
         upgradeToPremium,
         hideConsentModal,
+        completeOnboarding,
+        skipOnboarding,
         deleteAccount,
       }}>
       {children}
