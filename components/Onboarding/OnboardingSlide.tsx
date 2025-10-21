@@ -105,6 +105,14 @@ export default function OnboardingSlide({ slide }: OnboardingSlideProps) {
         const icons3 = [Newspaper, History, GraduationCap];
         return (
           <View style={styles.layout3}>
+            {/* Bola de luz azul sutil no fundo */}
+            <LinearGradient
+              colors={['rgba(59, 130, 246, 0.15)', 'rgba(59, 130, 246, 0.05)', 'rgba(59, 130, 246, 0)']}
+              start={{ x: 0.2, y: 0.3 }}
+              end={{ x: 0.8, y: 0.7 }}
+              style={styles.blueGlowBall}
+            />
+            
             <View style={styles.contentTop3}>
               <Text style={styles.title3}>{slide.title}</Text>
               <Text style={styles.subtitle3}>{slide.description}</Text>
@@ -149,11 +157,11 @@ export default function OnboardingSlide({ slide }: OnboardingSlideProps) {
                 <View style={styles.planFeatures}>
                   <View style={styles.planFeatureRow}>
                     <View style={styles.checkDot} />
-                    <Text style={styles.planFeatureText}>3 verificações</Text>
+                    <Text style={styles.planFeatureText}>3 verificações por mês</Text>
                   </View>
                   <View style={styles.planFeatureRow}>
                     <View style={styles.checkDot} />
-                    <Text style={styles.planFeatureText}>por dia</Text>
+                    <Text style={styles.planFeatureText}>Anúncios</Text>
                   </View>
                 </View>
               </View>
@@ -327,10 +335,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
+  blueGlowBall: {
+    position: 'absolute',
+    top: '25%',
+    right: '-20%',
+    width: width * 0.8,
+    height: width * 0.8,
+    borderRadius: (width * 0.8) / 2,
+    zIndex: 0,
+  },
   contentTop3: {
     paddingTop: 10,
     alignItems: 'center',
     width: '100%',
+    zIndex: 1,
   },
   checkito3: {
     width: width * 0.75,
