@@ -137,9 +137,25 @@ export default function OnboardingSlide({ slide }: OnboardingSlideProps) {
         );
 
       case 4:
-        // TELA 4: Layout com cards premium
+        // TELA 4: Layout com cards premium e bolas de luz verde
         return (
           <View style={styles.layout4}>
+            {/* Bola de luz verde superior esquerda */}
+            <LinearGradient
+              colors={['rgba(52, 211, 153, 0.18)', 'rgba(52, 211, 153, 0.08)', 'rgba(52, 211, 153, 0)']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.greenGlowTopLeft}
+            />
+            
+            {/* Bola de luz verde inferior direita */}
+            <LinearGradient
+              colors={['rgba(16, 185, 129, 0.18)', 'rgba(16, 185, 129, 0.08)', 'rgba(16, 185, 129, 0)']}
+              start={{ x: 1, y: 1 }}
+              end={{ x: 0, y: 0 }}
+              style={styles.greenGlowBottomRight}
+            />
+            
             <Image source={slide.checkitoImage} style={styles.checkito4} resizeMode="contain" />
             <Text style={styles.title4}>{slide.title}</Text>
             <Text style={styles.subtitle4}>{slide.description}</Text>
@@ -423,8 +439,27 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     paddingTop: 0,
   },
+  greenGlowTopLeft: {
+    position: 'absolute',
+    top: '-15%',
+    left: '-15%',
+    width: width * 0.9,
+    height: width * 0.9,
+    borderRadius: (width * 0.9) / 2,
+    zIndex: 0,
+  },
+  greenGlowBottomRight: {
+    position: 'absolute',
+    bottom: '5%',
+    right: '-20%',
+    width: width * 0.95,
+    height: width * 0.95,
+    borderRadius: (width * 0.95) / 2,
+    zIndex: 0,
+  },
   content4: {
     marginBottom: 40,
+    zIndex: 1,
   },
   title4: {
     fontFamily: 'Inter-Bold',
@@ -434,6 +469,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.5,
     lineHeight: 40,
     textAlign: 'center',
+    zIndex: 1,
   },
   subtitle4: {
     fontFamily: 'Inter-Regular',
@@ -441,18 +477,21 @@ const styles = StyleSheet.create({
     color: '#64748B',
     lineHeight: 22,
     textAlign: 'center',
+    zIndex: 1,
   },
   checkito4: {
     width: width * 0.5,
     height: height * 0.25,
     alignSelf: 'center',
     marginBottom: 0,
+    zIndex: 1,
   },
   plansContainer: {
     flexDirection: 'row',
     gap: 14,
     marginTop: 20,
     marginBottom: 160,
+    zIndex: 1,
   },
   planCard: {
     borderRadius: 24,
