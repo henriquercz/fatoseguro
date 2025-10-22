@@ -135,13 +135,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const initializeAuth = async () => {
       console.log('🔄 Iniciando autenticação...');
       
-      // Timeout de segurança: força logout após 10 segundos se travar
+      // Timeout de segurança: força logout após 30 segundos se travar (aumentado para Expo Go)
       const timeoutId = setTimeout(() => {
         console.warn('⚠️ TIMEOUT: Autenticação travada, forçando logout...');
         if (isMounted.current) {
           safeDispatch({ type: 'LOGOUT' });
         }
-      }, 10000);
+      }, 30000);
       
       try {
         const { data: { session } } = await supabase.auth.getSession();
@@ -188,7 +188,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Buscar perfil do usuário com timeout
       console.log('📊 Buscando perfil no banco...');
       
-      // Timeout de 5 segundos na query
+      // Timeout de 15 segundos na query (aumentado para Expo Go)
       const queryPromise = (supabase as any)
         .from('profiles')
         .select('*')
@@ -196,7 +196,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .single();
       
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Query timeout')), 5000)
+        setTimeout(() => reject(new Error('Query timeout')), 15000)
       );
       
       const { data, error } = await Promise.race([queryPromise, timeoutPromise]) as { data: any, error: any };
@@ -232,8 +232,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         profile = newProfile;
         console.log('✅ Perfil criado com sucesso!');
       } else if (error) {
-        console.error('❌ Erro ao buscar perfil:', error);
-        throw error;
+        // Silenciar warning de timeout se o login funcionou
+        if (error.message === 'Query timeout') {
+          console.log('⏱️ Query demorou mas continuando...');
+          // Tenta novamente sem timeout
+          const { data: retryData, error: retryError } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', userId)
+            .single();
+          
+          if (retryError) {
+            console.error('❌ Erro ao buscar perfil após retry:', retryError);
+            throw retryError;
+          }
+          profile = retryData;
+          console.log('✅ Perfil carregado com sucesso após retry!');
+        } else {
+          console.error('❌ Erro ao buscar perfil:', error);
+          throw error;
+        }
       } else {
         // Sucesso - perfil encontrado
         profile = data;

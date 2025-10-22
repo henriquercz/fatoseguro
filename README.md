@@ -38,7 +38,7 @@ Democratizar o acesso à verificação de fatos, promovendo um consumo de inform
 
 ### 🧠 **Inteligência Artificial Avançada**
 
-- **Google Gemini 1.5 Flash**: IA de última geração para processamento de linguagem natural
+- **Google Gemini 2.5 Flash**: IA de última geração para processamento de linguagem natural
 - **Análise Contextual**: Compara informações com fontes web atuais e confiáveis
 - **Sistema de Confiança**: Score de confiança baseado na qualidade das fontes disponíveis
 - **Detecção de Contradições**: Identifica inconsistências entre diferentes fontes

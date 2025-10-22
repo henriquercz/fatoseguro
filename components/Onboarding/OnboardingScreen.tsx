@@ -18,6 +18,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
+// import { useTutorial } from '@/contexts/TutorialContext'; // TEMPORARIAMENTE DESABILITADO
 import OnboardingSlide, { SlideData } from './OnboardingSlide';
 import { Sparkles, ArrowRight, X, ChevronLeft, ChevronRight } from 'lucide-react-native';
 
@@ -99,6 +100,7 @@ const SLIDES: SlideData[] = [
 export default function OnboardingScreen() {
   const { colors } = useTheme();
   const { completeOnboarding, skipOnboarding } = useAuth();
+  // const { startTutorial } = useTutorial(); // TEMPORARIAMENTE DESABILITADO
   const [currentIndex, setCurrentIndex] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -157,9 +159,17 @@ export default function OnboardingScreen() {
     }
   };
 
-  // Finalizar onboarding
+  // Finalizar onboarding e iniciar tutorial
   const handleFinish = async () => {
     await completeOnboarding();
+    // TEMPORARIAMENTE DESABILITADO para debug do crash
+    // TODO: Reabilitar após testar
+    /*
+    setTimeout(() => {
+      startTutorial();
+    }, 500);
+    */
+    console.log('✅ Onboarding finalizado - Tutorial temporariamente desabilitado');
   };
 
   // Pular onboarding
