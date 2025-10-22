@@ -60,25 +60,20 @@ export default function UserStats() {
       <View style={[styles.container, { backgroundColor: colors.surface }]}>
         {/* Header Skeleton */}
         <View style={styles.header}>
-          <SkeletonLoader width={24} height={24} borderRadius={12} />
-          <SkeletonLoader width={150} height={20} borderRadius={4} />
+          <SkeletonLoader width={20} height={20} borderRadius={10} />
+          <SkeletonLoader width={100} height={16} borderRadius={4} style={{ flex: 1 }} />
+          <SkeletonLoader width={40} height={24} borderRadius={12} />
         </View>
 
-        {/* Total Skeleton */}
-        <View style={styles.totalCard}>
-          <SkeletonLoader width={80} height={48} borderRadius={8} style={{ marginBottom: 8 }} />
-          <SkeletonLoader width={180} height={14} borderRadius={4} />
-        </View>
-
-        {/* Stats Skeleton */}
+        {/* Stats Skeleton em linha */}
         <View style={styles.statsGrid}>
           {[1, 2, 3].map((item) => (
             <View key={item} style={[styles.statCard, { backgroundColor: colors.background }]}>
-              <SkeletonLoader width={48} height={48} borderRadius={24} style={{ marginBottom: 12 }} />
-              <SkeletonLoader width={60} height={32} borderRadius={4} style={{ marginBottom: 4 }} />
-              <SkeletonLoader width={100} height={14} borderRadius={4} style={{ marginBottom: 12 }} />
-              <SkeletonLoader width="100%" height={6} borderRadius={3} style={{ marginBottom: 8 }} />
-              <SkeletonLoader width={50} height={16} borderRadius={4} />
+              <SkeletonLoader width={36} height={36} borderRadius={18} style={{ marginBottom: 8 }} />
+              <SkeletonLoader width={40} height={20} borderRadius={4} style={{ marginBottom: 2 }} />
+              <SkeletonLoader width={70} height={11} borderRadius={4} style={{ marginBottom: 8 }} />
+              <SkeletonLoader width="100%" height={4} borderRadius={2} style={{ marginBottom: 6 }} />
+              <SkeletonLoader width={35} height={13} borderRadius={4} />
             </View>
           ))}
         </View>
@@ -98,91 +93,86 @@ export default function UserStats() {
   return (
     <AnimatedView type="slideUp" duration={400}>
       <View style={[styles.container, { backgroundColor: colors.surface }]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <BarChart3 size={24} color={colors.primary} />
-        <Text style={[styles.title, { color: colors.text }]}>Suas Estatísticas</Text>
-      </View>
-
-      {/* Total de Verificações */}
-      <View style={styles.totalCard}>
-        <Text style={[styles.totalNumber, { color: colors.primary }]}>{stats.total}</Text>
-        <Text style={[styles.totalLabel, { color: colors.textSecondary }]}>
-          {stats.total === 1 ? 'Verificação realizada' : 'Verificações realizadas'}
-        </Text>
-      </View>
-
-      {/* Estatísticas por Status */}
-      <View style={styles.statsGrid}>
-        {/* Verdadeiro */}
-        <View style={[styles.statCard, { backgroundColor: colors.background }]}>
-          <View style={[styles.statIcon, { backgroundColor: '#22C55E20' }]}>
-            <CheckCircle size={24} color="#22C55E" />
+        {/* Header Compacto */}
+        <View style={styles.header}>
+          <BarChart3 size={20} color={colors.primary} />
+          <Text style={[styles.title, { color: colors.text }]}>Estatísticas</Text>
+          <View style={styles.totalBadge}>
+            <Text style={[styles.totalNumber, { color: colors.primary }]}>{stats.total}</Text>
           </View>
-          <Text style={[styles.statNumber, { color: colors.text }]}>{stats.verdadeiro}</Text>
-          <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Verdadeiras</Text>
-          <View style={styles.progressBar}>
-            <View 
-              style={[
-                styles.progressFill, 
-                { 
-                  backgroundColor: '#22C55E',
-                  width: `${getPercentage(stats.verdadeiro)}%`
-                }
-              ]} 
-            />
-          </View>
-          <Text style={[styles.statPercentage, { color: '#22C55E' }]}>
-            {getPercentage(stats.verdadeiro)}%
-          </Text>
         </View>
 
-        {/* Falso */}
-        <View style={[styles.statCard, { backgroundColor: colors.background }]}>
-          <View style={[styles.statIcon, { backgroundColor: '#EF444420' }]}>
-            <XCircle size={24} color="#EF4444" />
+        {/* Estatísticas em Grid Horizontal */}
+        <View style={styles.statsGrid}>
+          {/* Verdadeiro */}
+          <View style={[styles.statCard, { backgroundColor: colors.background }]}>
+            <View style={[styles.statIcon, { backgroundColor: '#22C55E20' }]}>
+              <CheckCircle size={18} color="#22C55E" />
+            </View>
+            <Text style={[styles.statNumber, { color: colors.text }]}>{stats.verdadeiro}</Text>
+            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Verdadeiras</Text>
+            <View style={styles.progressBar}>
+              <View 
+                style={[
+                  styles.progressFill, 
+                  { 
+                    backgroundColor: '#22C55E',
+                    width: `${getPercentage(stats.verdadeiro)}%`
+                  }
+                ]} 
+              />
+            </View>
+            <Text style={[styles.statPercentage, { color: '#22C55E' }]}>
+              {getPercentage(stats.verdadeiro)}%
+            </Text>
           </View>
-          <Text style={[styles.statNumber, { color: colors.text }]}>{stats.falso}</Text>
-          <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Falsas</Text>
-          <View style={styles.progressBar}>
-            <View 
-              style={[
-                styles.progressFill, 
-                { 
-                  backgroundColor: '#EF4444',
-                  width: `${getPercentage(stats.falso)}%`
-                }
-              ]} 
-            />
-          </View>
-          <Text style={[styles.statPercentage, { color: '#EF4444' }]}>
-            {getPercentage(stats.falso)}%
-          </Text>
-        </View>
 
-        {/* Indeterminado */}
-        <View style={[styles.statCard, { backgroundColor: colors.background }]}>
-          <View style={[styles.statIcon, { backgroundColor: '#F59E0B20' }]}>
-            <AlertCircle size={24} color="#F59E0B" />
+          {/* Falso */}
+          <View style={[styles.statCard, { backgroundColor: colors.background }]}>
+            <View style={[styles.statIcon, { backgroundColor: '#EF444420' }]}>
+              <XCircle size={18} color="#EF4444" />
+            </View>
+            <Text style={[styles.statNumber, { color: colors.text }]}>{stats.falso}</Text>
+            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Falsas</Text>
+            <View style={styles.progressBar}>
+              <View 
+                style={[
+                  styles.progressFill, 
+                  { 
+                    backgroundColor: '#EF4444',
+                    width: `${getPercentage(stats.falso)}%`
+                  }
+                ]} 
+              />
+            </View>
+            <Text style={[styles.statPercentage, { color: '#EF4444' }]}>
+              {getPercentage(stats.falso)}%
+            </Text>
           </View>
-          <Text style={[styles.statNumber, { color: colors.text }]}>{stats.indeterminado}</Text>
-          <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Indeterminadas</Text>
-          <View style={styles.progressBar}>
-            <View 
-              style={[
-                styles.progressFill, 
-                { 
-                  backgroundColor: '#F59E0B',
-                  width: `${getPercentage(stats.indeterminado)}%`
-                }
-              ]} 
-            />
+
+          {/* Indeterminado */}
+          <View style={[styles.statCard, { backgroundColor: colors.background }]}>
+            <View style={[styles.statIcon, { backgroundColor: '#F59E0B20' }]}>
+              <AlertCircle size={18} color="#F59E0B" />
+            </View>
+            <Text style={[styles.statNumber, { color: colors.text }]}>{stats.indeterminado}</Text>
+            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Indetermin.</Text>
+            <View style={styles.progressBar}>
+              <View 
+                style={[
+                  styles.progressFill, 
+                  { 
+                    backgroundColor: '#F59E0B',
+                    width: `${getPercentage(stats.indeterminado)}%`
+                  }
+                ]} 
+              />
+            </View>
+            <Text style={[styles.statPercentage, { color: '#F59E0B' }]}>
+              {getPercentage(stats.indeterminado)}%
+            </Text>
           </View>
-          <Text style={[styles.statPercentage, { color: '#F59E0B' }]}>
-            {getPercentage(stats.indeterminado)}%
-          </Text>
         </View>
-      </View>
       </View>
     </AnimatedView>
   );
@@ -190,81 +180,83 @@ export default function UserStats() {
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 16,
-    padding: 20,
+    borderRadius: 12,
+    padding: 16,
     marginHorizontal: 16,
-    marginTop: 16,
-    marginBottom: 16,
+    marginTop: 12,
+    marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.08,
     shadowRadius: 4,
-    elevation: 3,
+    elevation: 2,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
-    gap: 12,
+    marginBottom: 12,
+    gap: 8,
   },
   title: {
-    fontSize: 20,
-    fontFamily: 'Inter-Bold',
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+    flex: 1,
   },
-  totalCard: {
-    alignItems: 'center',
-    marginBottom: 24,
-    paddingVertical: 16,
+  totalBadge: {
+    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
   },
   totalNumber: {
-    fontSize: 48,
+    fontSize: 16,
     fontFamily: 'Inter-Bold',
-    marginBottom: 8,
-  },
-  totalLabel: {
-    fontSize: 14,
-    fontFamily: 'Inter-Medium',
   },
   statsGrid: {
-    gap: 12,
+    flexDirection: 'row',
+    gap: 8,
+    justifyContent: 'space-between',
   },
   statCard: {
-    borderRadius: 12,
-    padding: 16,
+    flex: 1,
+    borderRadius: 10,
+    padding: 12,
     alignItems: 'center',
+    minWidth: 0,
   },
   statIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 12,
+    marginBottom: 8,
   },
   statNumber: {
-    fontSize: 32,
+    fontSize: 20,
     fontFamily: 'Inter-Bold',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   statLabel: {
-    fontSize: 14,
+    fontSize: 11,
     fontFamily: 'Inter-Medium',
-    marginBottom: 12,
+    marginBottom: 8,
+    textAlign: 'center',
   },
   progressBar: {
     width: '100%',
-    height: 6,
+    height: 4,
     backgroundColor: '#E5E7EB',
-    borderRadius: 3,
+    borderRadius: 2,
     overflow: 'hidden',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   progressFill: {
     height: '100%',
-    borderRadius: 3,
+    borderRadius: 2,
   },
   statPercentage: {
-    fontSize: 16,
+    fontSize: 13,
     fontFamily: 'Inter-SemiBold',
   },
 });
