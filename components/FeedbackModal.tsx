@@ -60,7 +60,7 @@ export default function FeedbackModal({ visible, onClose }: FeedbackModalProps) 
         category,
         message: message.trim(),
         created_at: new Date().toISOString(),
-        app_version: '2.8',
+        app_version: '2.8.1',
         platform: Platform.OS,
       };
 

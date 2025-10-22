@@ -5,7 +5,7 @@
  * Com Checkito da tela 4 e mensagem de parabéns
  * 
  * @author Capitão Henrique
- * @version 2.8
+ * @version 2.8.1
  */
 
 import React, { useEffect, useRef } from 'react';

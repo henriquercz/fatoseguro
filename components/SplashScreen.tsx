@@ -13,7 +13,7 @@
  * 🎯 Design minimalista e focado
  * 
  * @author Capitão Henrique
- * @version 2.8
+ * @version 2.8.1
  * @date Janeiro 2025
  */
 
@@ -196,7 +196,7 @@ export default function SplashScreen({ onFinish }: SplashScreenProps) {
       {/* Versão */}
       <View style={styles.versionContainer}>
         <Text style={[styles.versionText, { color: colors.textSecondary }]}>
-          v2.8
+          v2.8.1
         </Text>
       </View>
     </Animated.View>

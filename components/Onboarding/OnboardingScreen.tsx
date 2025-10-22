@@ -72,7 +72,7 @@ const SLIDES: SlideData[] = [
       {
         icon: '🎓',
         title: 'Educação',
-        description: 'Aprenda a identificar fake news',
+        description: 'Aprenda a identificar fake news e jogue o Quiz',
       },
     ],
   },
@@ -85,7 +85,7 @@ const SLIDES: SlideData[] = [
       {
         icon: '✨',
         title: 'GRATUITO',
-        description: '3 verificações/dia • Todas as features',
+        description: '3 verificações/mês • Anúncios',
       },
       {
         icon: '💎',
