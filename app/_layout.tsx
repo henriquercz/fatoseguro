@@ -10,16 +10,12 @@ import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { VerificationProvider } from '@/contexts/VerificationContext';
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 import { ConsentProvider } from '@/contexts/ConsentContext';
-import { BadgeProvider } from '@/contexts/BadgeContext';
-import { TutorialProvider } from '@/contexts/TutorialContext';
 import AuthForm from '@/components/AuthForm';
 import EmailConfirmationScreen from '@/components/EmailConfirmationScreen';
 import ConsentModal from '@/components/ConsentModal';
 import FloatingTabBar from '@/components/FloatingTabBar';
 import CustomSplashScreen from '@/components/SplashScreen';
 import OnboardingScreen from '@/components/Onboarding/OnboardingScreen';
-import { TutorialOverlay } from '@/components/tutorial';
-import { TutorialErrorBoundary } from '@/components/tutorial/TutorialErrorBoundary';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import {
   Inter_400Regular,
@@ -190,11 +186,6 @@ function RootLayoutNav() {
         onComplete={hideConsentModal}
         onSkip={hideConsentModal}
       />
-      
-      {/* Tutorial Overlay - TEMPORARIAMENTE DESABILITADO */}
-      {/* <TutorialErrorBoundary>
-        <TutorialOverlay />
-      </TutorialErrorBoundary> */}
     </View>
   );
 }
@@ -207,16 +198,11 @@ export default function AppLayout() {
       <ThemeProvider>
         <AuthProvider>
           <ConsentProvider>
-            {/* TEMPORARIAMENTE REMOVIDO PARA DEBUG DO CRASH */}
-            {/* <BadgeProvider>
-              <TutorialProvider> */}
-                <VerificationProvider>
-                  <RootLayoutNav />
-                  {/* A StatusBar foi movida de RootLayoutNav para cá para evitar duplicação e centralizar */}
-                  <StatusBar style="auto" /> 
-                </VerificationProvider>
-              {/* </TutorialProvider>
-            </BadgeProvider> */}
+            <VerificationProvider>
+              <RootLayoutNav />
+              {/* A StatusBar foi movida de RootLayoutNav para cá para evitar duplicação e centralizar */}
+              <StatusBar style="auto" /> 
+            </VerificationProvider>
           </ConsentProvider>
         </AuthProvider>
       </ThemeProvider>

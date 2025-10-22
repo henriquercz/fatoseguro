@@ -529,6 +529,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Esconde o onboarding
       if (isMounted.current) {
         safeDispatch({ type: 'HIDE_ONBOARDING' });
+        
+        // Verifica se precisa mostrar consent modal (usuário novo)
+        const { data: consents } = await supabase
+          .from('consent_records')
+          .select('id')
+          .eq('user_id', state.user.id)
+          .limit(1);
+
+        const isNewUser = !consents || consents.length === 0;
+        
+        if (isNewUser) {
+          console.log('🔐 Mostrando consent modal após onboarding');
+          // Pequeno delay para transição suave
+          setTimeout(() => {
+            if (isMounted.current) {
+              safeDispatch({ type: 'SHOW_CONSENT_MODAL' });
+            }
+          }, 500);
+        }
       }
 
       console.log('✅ Onboarding completado com sucesso!');
@@ -561,6 +580,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Esconde o onboarding
       if (isMounted.current) {
         safeDispatch({ type: 'HIDE_ONBOARDING' });
+        
+        // Verifica se precisa mostrar consent modal (usuário novo)
+        const { data: consents } = await supabase
+          .from('consent_records')
+          .select('id')
+          .eq('user_id', state.user.id)
+          .limit(1);
+
+        const isNewUser = !consents || consents.length === 0;
+        
+        if (isNewUser) {
+          console.log('🔐 Mostrando consent modal após pular onboarding');
+          // Pequeno delay para transição suave
+          setTimeout(() => {
+            if (isMounted.current) {
+              safeDispatch({ type: 'SHOW_CONSENT_MODAL' });
+            }
+          }, 500);
+        }
       }
 
       console.log('✅ Onboarding pulado!');
