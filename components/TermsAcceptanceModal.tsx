@@ -82,6 +82,19 @@ export default function TermsAcceptanceModal({ visible, onAccept, onDecline }: T
             <Text style={[styles.text, { color: colors.textSecondary }]}>
               Você é responsável por manter a segurança de sua conta e senha. Notifique-nos imediatamente sobre qualquer uso não autorizado.
             </Text>
+
+            <Text style={[styles.subsectionTitle, { color: colors.text }]}>5. Isenção sobre Compartilhamento</Text>
+            <Text style={[styles.text, { color: colors.textSecondary }]}>
+              O CheckNow se isenta de responsabilidade sobre verificações compartilhadas por usuários. Você é responsável por:
+            </Text>
+            <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>• Verificar a atualidade antes de compartilhar</Text>
+            <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>• Não editar ou alterar o conteúdo da verificação</Text>
+            <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>• Adicionar contexto e data da análise ao compartilhar</Text>
+            <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>• Respeitar direitos de terceiros</Text>
+            <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>• Arcar com consequências legais do compartilhamento inadequado</Text>
+            <Text style={[styles.text, { color: colors.textSecondary, fontStyle: 'italic', marginTop: 8 }]}>
+              Informações podem se tornar desatualizadas. O CheckNow não se responsabiliza por danos decorrentes de manipulação, uso fora de contexto ou compartilhamento malicioso de verificações.
+            </Text>
           </View>
 
           {/* Política de Privacidade LGPD */}
