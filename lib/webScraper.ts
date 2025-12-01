@@ -36,7 +36,7 @@ class WebScraperService {
   async extractContent(url: string): Promise<ScrapingResult> {
     try {
       console.log('🔍 Iniciando extração de conteúdo:', url);
-      
+
       // Valida URL
       if (!this.isValidUrl(url)) {
         return {
@@ -55,7 +55,7 @@ class WebScraperService {
       // Se falhar, tenta método alternativo
       console.log('⚠️ Extração direta falhou, tentando método alternativo...');
       const fallbackResult = await this.fallbackExtraction(url);
-      
+
       return {
         ...fallbackResult,
         fallbackUsed: true
@@ -71,10 +71,91 @@ class WebScraperService {
   }
 
   /**
+   * Verifica se é uma URL do Twitter/X
+   */
+  private isTwitterUrl(url: string): boolean {
+    try {
+      const urlObj = new URL(url);
+      const hostname = urlObj.hostname.replace('www.', '');
+      return hostname === 'twitter.com' || hostname === 'x.com';
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Extrai conteúdo do Twitter/X usando oEmbed API (Bypass de bloqueio)
+   */
+  private async extractTwitterContent(url: string): Promise<ScrapingResult> {
+    try {
+      console.log('🐦 Detectado link do Twitter/X, usando estratégia oEmbed...');
+
+      // Normaliza URL para garantir que funcione na API
+      const cleanUrl = url.split('?')[0]; // Remove query params que podem atrapalhar
+      const oembedUrl = `https://publish.twitter.com/oembed?url=${encodeURIComponent(cleanUrl)}&lang=pt`;
+
+      const response = await fetch(oembedUrl);
+
+      if (!response.ok) {
+        throw new Error(`Twitter oEmbed API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      // O HTML vem com o texto do tweet dentro de um blockquote/p
+      // Vamos limpar as tags para pegar o texto puro
+      const rawHtml = data.html || '';
+
+      // Extrai apenas o texto do tweet (remove tags HTML)
+      const tweetText = rawHtml
+        .replace(/<a[^>]*>.*?<\/a>/g, '') // Remove links (geralmente datas/nomes no final)
+        .replace(/<[^>]*>/g, ' ') // Remove outras tags
+        .replace(/\s+/g, ' ') // Normaliza espaços
+        .trim();
+
+      const authorName = data.author_name || 'Usuário do X';
+      const title = `Post de ${authorName} no X`;
+
+      const extractedContent: ExtractedContent = {
+        title: title,
+        content: `AUTOR: ${authorName}\n\nCONTEÚDO DO TWEET:\n"${tweetText}"\n\nURL ORIGINAL: ${url}`,
+        description: `Post de ${authorName} na rede social X (antigo Twitter)`,
+        author: authorName,
+        siteName: 'X (Twitter)',
+        url: url,
+        wordCount: tweetText.split(/\s+/).length,
+        extractedAt: new Date().toISOString()
+      };
+
+      console.log('✅ Tweet extraído com sucesso via oEmbed');
+
+      return {
+        success: true,
+        data: extractedContent
+      };
+
+    } catch (error) {
+      console.warn('⚠️ Falha na estratégia oEmbed do Twitter:', error);
+      // Se falhar, deixa cair para o fallback padrão, mas loga o erro
+      throw error;
+    }
+  }
+
+  /**
    * Método principal de extração usando fetch
    */
   private async directExtraction(url: string): Promise<ScrapingResult> {
     try {
+      // 1. Estratégia Especializada para Twitter/X
+      if (this.isTwitterUrl(url)) {
+        try {
+          return await this.extractTwitterContent(url);
+        } catch (e) {
+          console.log('⚠️ Fallback de Twitter falhou, tentando método padrão...');
+          // Continua para o método padrão se oEmbed falhar
+        }
+      }
+
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), this.TIMEOUT);
 
@@ -108,7 +189,7 @@ class WebScraperService {
           error: 'Timeout na requisição - site muito lento'
         };
       }
-      
+
       return {
         success: false,
         error: `Erro na requisição: ${error instanceof Error ? error.message : 'Erro desconhecido'}`
@@ -124,7 +205,7 @@ class WebScraperService {
       // Para React Native, podemos usar uma API de proxy simples
       // ou tentar extrair metadados básicos
       const basicInfo = this.extractBasicInfoFromUrl(url);
-      
+
       return {
         success: true,
         data: {
@@ -164,7 +245,7 @@ class WebScraperService {
 
       // Extrai conteúdo principal
       const content = this.extractMainContent(cleanHtml);
-      
+
       if (!content || content.length < 100) {
         return {
           success: false,
@@ -185,7 +266,7 @@ class WebScraperService {
       };
 
       console.log(`📄 Conteúdo extraído: ${extractedContent.wordCount} palavras`);
-      
+
       return {
         success: true,
         data: extractedContent
@@ -297,7 +378,20 @@ class WebScraperService {
       const urlObj = new URL(url);
       const domain = urlObj.hostname.replace('www.', '');
       const path = urlObj.pathname;
-      
+
+      // Lógica especial para Twitter/X se cair no fallback
+      if (domain === 'twitter.com' || domain === 'x.com') {
+        // Tenta extrair o nome de usuário da URL (ex: /elonmusk/status/...)
+        const segments = path.split('/').filter(s => s.length > 0);
+        const username = segments[0] || 'Usuário';
+
+        return {
+          title: `Post de @${username} no X`,
+          domain: 'X (Twitter)',
+          path
+        };
+      }
+
       // Gera título baseado no path
       const pathTitle = path
         .split('/')
@@ -306,16 +400,19 @@ class WebScraperService {
         ?.replace(/[-_]/g, ' ')
         ?.replace(/\.(html|php|aspx?)$/i, '') || '';
 
-      const title = pathTitle 
+      // Se o pathTitle for apenas números (como um ID), evite usar como título principal
+      const isNumericId = /^\d+$/.test(pathTitle);
+
+      const title = (pathTitle && !isNumericId)
         ? `${pathTitle} - ${domain}`
         : `Notícia de ${domain}`;
 
       return { title, domain, path };
     } catch {
-      return { 
-        title: 'Link para verificação', 
-        domain: 'site desconhecido', 
-        path: '' 
+      return {
+        title: 'Link para verificação',
+        domain: 'site desconhecido',
+        path: ''
       };
     }
   }
@@ -353,28 +450,28 @@ class WebScraperService {
     let formattedContent = `\n\n=== CONTEÚDO EXTRAÍDO DO LINK ===\n`;
     formattedContent += `URL: ${extractedContent.url}\n`;
     formattedContent += `Título: ${extractedContent.title}\n`;
-    
+
     if (extractedContent.siteName) {
       formattedContent += `Site: ${extractedContent.siteName}\n`;
     }
-    
+
     if (extractedContent.author) {
       formattedContent += `Autor: ${extractedContent.author}\n`;
     }
-    
+
     if (extractedContent.publishedDate) {
       formattedContent += `Data de publicação: ${extractedContent.publishedDate}\n`;
     }
-    
+
     if (extractedContent.description) {
       formattedContent += `Descrição: ${extractedContent.description}\n`;
     }
-    
+
     formattedContent += `Palavras: ${extractedContent.wordCount}\n`;
     formattedContent += `Extraído em: ${new Date(extractedContent.extractedAt).toLocaleString('pt-BR')}\n\n`;
     formattedContent += `CONTEÚDO PRINCIPAL:\n${extractedContent.content}\n`;
     formattedContent += `=== FIM DO CONTEÚDO EXTRAÍDO ===\n\n`;
-    
+
     return formattedContent;
   }
 }
