@@ -185,10 +185,10 @@ Antes de começar, certifique-se de ter instalado:
 
 ```bash
 # Clone o repositório
-git clone https://github.com/ricks18/checknow.git
+git clone https://github.com/henriquercz/fatoseguro.git
 
 # Entre no diretório
-cd checknow
+cd fatoseguro
 
 # Verifique se está na branch principal
 git branch
@@ -460,7 +460,7 @@ Este projeto foi desenvolvido como TCC, mas está aberto para contribuições da
 
 ### 🚀 **Formas de Contribuir**
 
-- 🐛 **Reportar Bugs**: Encontrou um problema? Abra uma [Issue](https://github.com/ricks18/checknow/issues)
+- 🐛 **Reportar Bugs**: Encontrou um problema? Abra uma [Issue](https://github.com/henriquercz/fatoseguro/issues)
 - 💡 **Sugerir Melhorias**: Tem uma ideia? Compartilhe conosco!
 - 📝 **Melhorar Documentação**: Ajude outros desenvolvedores
 - 🔧 **Implementar Features**: Contribua com código
@@ -497,12 +497,37 @@ Este projeto foi desenvolvido como TCC, mas está aberto para contribuições da
 <table align="center">
 <tr>
 <td align="center">
-<img src="https://github.com/ricks18.png" width="100px;" alt="Henrique Rezende"/><br />
+<img src="https://github.com/henriquercz.png" width="100px;" alt="Henrique Rezende"/><br />
 <sub><b>Henrique Rezende</b></sub><br />
 <sub>Desenvolvedor Full-Stack</sub><br />
-<a href="https://github.com/ricks18">🐙 GitHub</a> •
-<a href="mailto:henrique@checknow.app">📧 Email</a>
+<a href="https://github.com/henriquercz">🐙 GitHub</a> •
+<a href="mailto:henriquechagas06@gmail.com">📧 Email</a>
 </td>
+
+<td align="center">
+<img src="https://github.com/guiguizy11.png" width="100px;" alt="Guilherme Ferreira"/><br />
+<sub><b>Guilherme Ferreira</b></sub><br />
+<sub>Documentação</sub><br />
+<a href="https://github.com/guiguizy11">🐙 GitHub</a> •
+<a href="mailto:henriquechagas06@gmail.com">📧 Email</a>
+</td>
+
+<td align="center">
+<img src="https://github.com/liuzinho777.png" width="100px;" alt="Artur Liu"/><br />
+<sub><b>Artur Liu</b></sub><br />
+<sub>Documentação</sub><br />
+<a href="https://github.com/liuzinho777">🐙 GitHub</a> •
+<a href="mailto:henriquechagas06@gmail.com">📧 Email</a>
+</td>
+
+<td align="center">
+<img src="https://github.com/liuzinho777.png" width="100px;" alt="Artur Liu"/><br />
+<sub><b>Artur Liu</b></sub><br />
+<sub>Documentação</sub><br />
+<a href="https://github.com/liuzinho777">🐙 GitHub</a> •
+<a href="mailto:henriquechagas06@gmail.com">📧 Email</a>
+</td>
+
 </tr>
 </table>
 
