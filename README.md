@@ -531,7 +531,7 @@ Este projeto foi desenvolvido como TCC, mas está aberto para contribuições da
 </td>
 
 <td align="center">
-<img src="https://github.com/FelipeFreita91.png" width="100px;" alt="Felipe Freitas"/><br />
+<img src="https://github.com/FelipeFreitas91.png" width="100px;" alt="Felipe Freitas"/><br />
 <sub><b>Felipe Freitas</b></sub><br />
 <sub>Documentação</sub><br />
 <a href="https://github.com/FelipeFreita91">🐙 GitHub</a> •
