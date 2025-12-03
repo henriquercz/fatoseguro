@@ -23,6 +23,16 @@ O **CheckNow** é uma aplicação móvel revolucionária desenvolvida como Traba
 
 Em uma era onde a desinformação se espalha mais rápido que a verdade, o CheckNow surge como uma solução inovadora para combater as fake news. Utilizando **inteligência artificial de última geração**, **extração inteligente de conteúdo web** e **análise contextual avançada**, oferecemos uma ferramenta poderosa e acessível para verificação de notícias em tempo real.
 
+<div align="center">
+
+### 🌐 Acesse nosso Site
+
+[![CheckNow LandingPage](https://img.shields.io/badge/🚀_Acesse_a_Plataforma-checknowbr.vercel.app-10B981?style=for-the-badge&logoColor=white)](https://checknowbr.vercel.app)
+
+**[Clique aqui para saber mais!](https://checknowbr.vercel.app)**
+
+</div>
+
 ### 🎯 Nossa Missão
 
 Democratizar o acesso à verificação de fatos, promovendo um consumo de informação mais consciente e responsável, contribuindo para uma sociedade mais bem informada e resiliente à desinformação.
@@ -521,10 +531,18 @@ Este projeto foi desenvolvido como TCC, mas está aberto para contribuições da
 </td>
 
 <td align="center">
-<img src="https://github.com/liuzinho777.png" width="100px;" alt="Artur Liu"/><br />
-<sub><b>Artur Liu</b></sub><br />
+<img src="https://github.com/FelipeFreita91.png" width="100px;" alt="Felipe Freitas"/><br />
+<sub><b>Felipe Freitas</b></sub><br />
 <sub>Documentação</sub><br />
-<a href="https://github.com/liuzinho777">🐙 GitHub</a> •
+<a href="https://github.com/FelipeFreita91">🐙 GitHub</a> •
+<a href="mailto:henriquechagas06@gmail.com">📧 Email</a>
+</td>
+
+<td align="center">
+<img src="https://github.com/gabriel-moreira10.png" width="100px;" alt="Gabriel Moreira"/><br />
+<sub><b>Gabriel Moreira</b></sub><br />
+<sub>Documentação</sub><br />
+<a href="https://github.com/gabriel-moreira10">🐙 GitHub</a> •
 <a href="mailto:henriquechagas06@gmail.com">📧 Email</a>
 </td>
 
